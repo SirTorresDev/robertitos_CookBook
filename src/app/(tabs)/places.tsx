@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  SafeAreaView,
   Alert,
   Platform,
   TextInput,
@@ -146,7 +147,7 @@ export default function PlacesScreen() {
   }, [places, selectedCategory]);
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -530,7 +531,7 @@ export default function PlacesScreen() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

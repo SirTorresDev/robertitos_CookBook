@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  SafeAreaView,
   LayoutAnimation,
   Platform,
   UIManager,
@@ -95,7 +96,7 @@ export default function TipsScreen() {
   }, [tips, search, selectedCategory]);
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -407,7 +408,7 @@ export default function TipsScreen() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

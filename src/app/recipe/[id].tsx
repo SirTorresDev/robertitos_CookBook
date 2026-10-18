@@ -285,7 +285,7 @@ export default function RecipeDetailScreen() {
             contentFit="cover"
             transition={250}
           />
-          <View style={styles.heroOverlayBar}>
+          <SafeAreaView style={styles.heroOverlayBar}>
             <ApplePressable
               scaleTo={0.9}
               onPress={() => {
@@ -316,7 +316,7 @@ export default function RecipeDetailScreen() {
                 />
               </ApplePressable>
             </View>
-          </View>
+          </SafeAreaView>
         </View>
 
         {/* Contenedor Principal Minimalista */}

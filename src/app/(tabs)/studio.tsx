@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -447,7 +448,7 @@ export default function StudioScreen() {
   };
 
   return (
-    <View style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -545,15 +546,10 @@ export default function StudioScreen() {
                 isRecordingVoice && styles.scanVoiceBtnActive,
               ]}>
               <Ionicons
-                name={isRecordingVoice ? 'stop-circle' : 'mic'}
-                size={isRecordingVoice ? 18 : 20}
+                name={isRecordingVoice ? 'stop' : 'mic'}
+                size={20}
                 color={isRecordingVoice ? '#FFFFFF' : AppleTheme.colors.accentWarm}
               />
-              {isRecordingVoice && (
-                <Text numberOfLines={1} style={styles.scanVoiceBtnActiveText}>
-                  Detener
-                </Text>
-              )}
             </ApplePressable>
           </View>
 
@@ -1195,7 +1191,7 @@ export default function StudioScreen() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -1328,25 +1324,16 @@ const styles = StyleSheet.create({
   scanVoiceBtn: {
     width: 48,
     height: 48,
-    borderRadius: AppleTheme.radius.pill,
+    borderRadius: 24,
     backgroundColor: '#F7EFE2',
     borderWidth: 1,
     borderColor: '#E8D5BF',
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
   },
   scanVoiceBtnActive: {
-    width: undefined,
-    paddingHorizontal: 14,
     backgroundColor: AppleTheme.colors.danger,
     borderColor: AppleTheme.colors.danger,
-  },
-  scanVoiceBtnActiveText: {
-    color: '#FFFFFF',
-    fontSize: 12.5,
-    fontWeight: '700',
   },
   voiceLiveStatus: {
     flexDirection: 'row',
