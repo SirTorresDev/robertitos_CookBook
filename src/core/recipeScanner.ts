@@ -41,6 +41,24 @@ export interface ScannedRecipeDraft {
 export async function pickRecipeImage(
   source: 'camera' | 'gallery'
 ): Promise<{ uri: string; base64?: string | null; mimeType?: string } | null> {
+  const extractAsset = (asset: ImagePicker.ImagePickerAsset) => {
+    let base64 = asset.base64;
+    let mimeType = asset.mimeType || 'image/jpeg';
+    if (!base64 && asset.uri?.startsWith('data:')) {
+      const [header, data] = asset.uri.split(',');
+      base64 = data || null;
+      const mimeMatch = header?.match(/data:([^;]+)/);
+      if (mimeMatch?.[1]) {
+        mimeType = mimeMatch[1];
+      }
+    }
+    return {
+      uri: asset.uri,
+      base64,
+      mimeType,
+    };
+  };
+
   if (source === 'camera') {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
@@ -53,11 +71,7 @@ export async function pickRecipeImage(
       allowsEditing: true,
     });
     if (res.canceled || !res.assets?.[0]) return null;
-    return {
-      uri: res.assets[0].uri,
-      base64: res.assets[0].base64,
-      mimeType: res.assets[0].mimeType || 'image/jpeg',
-    };
+    return extractAsset(res.assets[0]);
   } else {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
@@ -70,11 +84,7 @@ export async function pickRecipeImage(
       allowsEditing: true,
     });
     if (res.canceled || !res.assets?.[0]) return null;
-    return {
-      uri: res.assets[0].uri,
-      base64: res.assets[0].base64,
-      mimeType: res.assets[0].mimeType || 'image/jpeg',
-    };
+    return extractAsset(res.assets[0]);
   }
 }
 

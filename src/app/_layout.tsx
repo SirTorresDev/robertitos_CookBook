@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Font from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import { AppleTheme } from '@/constants/appleTheme';
@@ -12,7 +14,10 @@ export default function RootLayout() {
   const initialize = useCookBookStore((s) => s.initialize);
 
   useEffect(() => {
-    initialize().finally(() => {
+    Promise.all([
+      initialize(),
+      Font.loadAsync(Ionicons.font).catch(() => {}),
+    ]).finally(() => {
       SplashScreen.hideAsync().catch(() => {});
     });
   }, [initialize]);

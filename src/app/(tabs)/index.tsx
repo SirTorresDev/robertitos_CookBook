@@ -69,17 +69,6 @@ export default function RecipesScreen() {
               scaleTo={0.94}
               onPress={() => {
                 AppleHaptics.selection();
-                router.push({ pathname: '/(tabs)/tips', params: { view: 'roner' } });
-              }}
-              style={styles.ronerQuickBtn}>
-              <Ionicons name="flame" size={13} color={AppleTheme.colors.accentWarm} />
-              <Text style={styles.ronerQuickText}>Tabla Roner Rocook</Text>
-            </ApplePressable>
-
-            <ApplePressable
-              scaleTo={0.94}
-              onPress={() => {
-                AppleHaptics.selection();
                 setOnlyFavorites((v) => !v);
               }}
               style={[
@@ -335,25 +324,8 @@ const styles = StyleSheet.create({
   headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     marginBottom: 12,
-  },
-  ronerQuickBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: '#FAF5EF',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E6D7C3',
-  },
-  ronerQuickText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#8D4F22',
-    letterSpacing: -0.1,
   },
   ronerBannerCard: {
     flexDirection: 'row',

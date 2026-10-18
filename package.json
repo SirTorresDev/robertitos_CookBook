@@ -48,6 +48,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "build:web": "node ./scripts/prepare-pwa.js && expo export --platform web && node ./scripts/prepare-pwa.js",
+    "deploy": "npm run build:web && npx firebase-tools deploy --only hosting",
     "lint": "expo lint"
   },
   "private": true

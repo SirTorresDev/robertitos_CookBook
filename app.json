@@ -4,11 +4,11 @@
     "slug": "robertitos-cookbook",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/chef.png",
     "scheme": "robertitoscookbook",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/chef.png",
       "bundleIdentifier": "com.robertotorres.cookbook",
       "infoPlist": {
         "CFBundleDisplayName": "Robertito´s CookBook",
@@ -23,25 +23,30 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundColor": "#F5F2EB",
+        "foregroundImage": "./assets/images/chef.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
+      "output": "single",
+      "favicon": "./assets/images/chef.png",
+      "name": "Robertito´s CookBook",
+      "shortName": "CookBook",
+      "lang": "es",
+      "themeColor": "#F5F5F7",
+      "backgroundColor": "#F5F5F7"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F5F5F7",
+          "image": "./assets/images/chef.png",
+          "imageWidth": 140
         }
       ],
       "expo-sharing"
