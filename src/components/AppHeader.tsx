@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname } from 'expo-router';
-import { AppleTheme } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
 
-const chefIcon = require('../../assets/images/chef.png');
+const chefEmblem = require('../../assets/images/chef-emblem.png');
+const chefWordmark = require('../../assets/images/chef-wordmark.png');
 
 export function AppHeader() {
   const insets = useSafeAreaInsets();
@@ -31,97 +31,68 @@ export function AppHeader() {
       ? Math.max(insets.top, 44)
       : isIOSWeb && isStandalonePWA
       ? Math.max(insets.top, 46)
-      : Math.max(insets.top, 10);
+      : Math.max(insets.top, 8);
 
   const isRecipeDetail = pathname?.startsWith('/recipe/');
 
   return (
-    <View style={[styles.wrapper, { paddingTop: topPadding }]}>
-      <View style={styles.innerRow}>
-        <ApplePressable
-          scaleTo={0.98}
-          onPress={() => {
-            AppleHaptics.selection();
-            if (isRecipeDetail) {
-              router.back();
-            } else {
-              router.push('/(tabs)');
-            }
-          }}
-          style={styles.brandGroup}>
-          <View style={styles.iconFrame}>
-            <Image
-              source={chefIcon}
-              style={styles.iconImage}
-              contentFit="cover"
-              transition={200}
-            />
-          </View>
-          <View style={styles.brandTextCol}>
-            <Text style={styles.brandEyebrow} numberOfLines={1}>
-              ALTA COCINA · MANUAL TÉCNICO
-            </Text>
-            <Text style={styles.brandTitle} numberOfLines={1}>
-              Robertito´s CookBook
-            </Text>
-          </View>
-        </ApplePressable>
-      </View>
+    <View style={[styles.bannerWrapper, { paddingTop: topPadding }]}>
+      <ApplePressable
+        scaleTo={0.985}
+        onPress={() => {
+          AppleHaptics.selection();
+          if (isRecipeDetail) {
+            router.back();
+          } else {
+            router.push('/(tabs)');
+          }
+        }}
+        style={styles.bannerLockup}>
+        <Image
+          source={chefEmblem}
+          style={styles.emblemImage}
+          contentFit="contain"
+          transition={150}
+        />
+        <Image
+          source={chefWordmark}
+          style={styles.wordmarkImage}
+          contentFit="contain"
+          transition={150}
+        />
+      </ApplePressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    backgroundColor: 'rgba(245, 245, 247, 0.96)',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: AppleTheme.colors.border,
-    paddingHorizontal: 20,
+  bannerWrapper: {
+    width: '100%',
+    backgroundColor: '#FAF7F0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E6DEC8',
+    paddingHorizontal: 16,
     paddingBottom: 10,
     zIndex: 50,
+    shadowColor: '#2A1E11',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  innerRow: {
+  bannerLockup: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 42,
-  },
-  brandGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  iconFrame: {
-    width: 40,
-    height: 40,
-    borderRadius: 11,
-    backgroundColor: '#F7F4EE',
-    overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E2D9C8',
-    ...AppleTheme.shadow.card,
-  },
-  iconImage: {
-    width: '100%',
-    height: '100%',
-  },
-  brandTextCol: {
-    flex: 1,
     justifyContent: 'center',
+    gap: 10,
+    minHeight: 54,
   },
-  brandEyebrow: {
-    fontSize: 9.5,
-    fontWeight: '700',
-    color: AppleTheme.colors.accentWarm,
-    letterSpacing: 0.7,
-    lineHeight: 12,
+  emblemImage: {
+    width: 64,
+    height: 51,
   },
-  brandTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.4,
-    lineHeight: 22,
+  wordmarkImage: {
+    width: 196,
+    height: 54,
   },
 });
