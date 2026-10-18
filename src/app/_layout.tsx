@@ -11,8 +11,24 @@ import {
 } from '@expo-google-fonts/fraunces';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCookBookStore } from '@/store/useCookBookStore';
+import { Platform } from 'react-native';
 import { AppleTheme } from '@/constants/appleTheme';
 import { AppHeader } from '@/components/AppHeader';
+
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const styleId = 'robertito-cookbook-web-focus-fix';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      input:focus, textarea:focus, select:focus, [role="textbox"]:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 

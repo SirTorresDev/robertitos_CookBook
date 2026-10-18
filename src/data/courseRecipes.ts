@@ -465,6 +465,7 @@ export const COURSE_RECIPES: Recipe[] = [
       { id: 'ptc-8', name: 'Puré: 1 apionabo + 1 patata (asados 35 min a 190 °C) + 1/2 manzana ácida', amount: 500, unit: 'g' },
       { id: 'ptc-9', name: 'Cebolla morada encurtida en vinagre de manzana y azúcar', amount: 1, unit: 'ud' },
       { id: 'ptc-10', name: 'Brotes de acedera y sal en escamas', amount: 5, unit: 'g' },
+      { id: 'ptc-11', name: 'Agua', amount: 2000, unit: 'ml' },
     ],
     steps: [
       {
@@ -529,51 +530,69 @@ export const COURSE_RECIPES: Recipe[] = [
     isFavorite: false,
     createdAt: '2026-10-18T10:35:00Z',
     ingredients: [
-      { id: 'cdl-1', name: 'Dulce de leche repostero', amount: 175, unit: 'g' },
-      { id: 'cdl-2', name: 'Nata para montar (para la espuma)', amount: 250, unit: 'ml' },
-      { id: 'cdl-3', name: 'Hojas de gelatina cola de pez', amount: 1.5, unit: 'ud' },
-      { id: 'cdl-4', name: 'Chocolate cobertura 70% (75 g sopa + 100 g ramas)', amount: 175, unit: 'g' },
-      { id: 'cdl-5', name: 'Especias aztecas: canela en rama, clavo de olor y 1/2 cayena', amount: 5, unit: 'g' },
-      { id: 'cdl-6', name: 'Bizcocho plum cake de calidad en cubos', amount: 1, unit: 'ud' },
-      { id: 'cdl-7', name: 'Almíbar borracho: 50 ml ron + 50 ml amaretto + 50 g azúcar', amount: 150, unit: 'g' },
-      { id: 'cdl-8', name: 'Nueces peladas picaditas y cacao en polvo puro', amount: 25, unit: 'g' },
-      { id: 'cdl-9', name: 'Sifón de cocina + 3 cargas de gas N2O', amount: 3, unit: 'ud' },
+      // Para la espuma de dulce de leche
+      { id: 'cdl-1', name: 'Dulce de leche repostero', amount: 175, unit: 'g', notes: 'Para la espuma de sifón' },
+      { id: 'cdl-2', name: 'Nata de montar', amount: 250, unit: 'ml', notes: 'Para la espuma de dulce de leche' },
+      { id: 'cdl-3', name: 'Hojas de gelatina cola de pez', amount: 1.5, unit: 'ud', notes: 'Hidratar en agua fría' },
+      { id: 'cdl-4', name: 'Cargas de gas para sifón (N2O)', amount: 3, unit: 'ud' },
+
+      // Para la sopa de chocolate azteca
+      { id: 'cdl-5', name: 'Agua', amount: 50, unit: 'ml', notes: 'Para la sopa azteca' },
+      { id: 'cdl-6', name: 'Nata de montar', amount: 75, unit: 'ml', notes: 'Para la sopa azteca' },
+      { id: 'cdl-7', name: 'Cacao en polvo', amount: 25, unit: 'g', notes: 'Para la sopa azteca' },
+      { id: 'cdl-8', name: 'Cobertura de chocolate al 70% de materia grasa', amount: 75, unit: 'g', notes: 'Para la sopa azteca' },
+      { id: 'cdl-9', name: 'Rama de canela', amount: 0.5, unit: 'ud', notes: '1/2 rama de canela' },
+      { id: 'cdl-10', name: 'Cayena', amount: 0.5, unit: 'ud', notes: '1/2 cayena' },
+      { id: 'cdl-11', name: 'Clavo de olor', amount: 1, unit: 'ud' },
+
+      // Para las ramas de chocolate
+      { id: 'cdl-12', name: 'Cobertura de chocolate al 70% de materia grasa', amount: 100, unit: 'g', notes: 'Para las ramas de chocolate' },
+
+      // Para el bizcocho borracho de chocolate
+      { id: 'cdl-13', name: 'Plum cake de buena calidad', amount: 1, unit: 'ud', notes: 'Cortado en cubos' },
+      { id: 'cdl-14', name: 'Amaretto (licor de almendras)', amount: 50, unit: 'ml' },
+      { id: 'cdl-15', name: 'Ron', amount: 50, unit: 'ml' },
+      { id: 'cdl-16', name: 'Azúcar blanco', amount: 50, unit: 'g' },
+
+      // Otros
+      { id: 'cdl-17', name: 'Nueces peladas', amount: 8, unit: 'ud', notes: 'Picaditas para decorar' },
+      { id: 'cdl-18', name: 'Cacao en polvo', amount: 10, unit: 'g', notes: 'Para espolvorear en el emplatado final' },
     ],
     steps: [
       {
         stepNumber: 1,
         title: 'Espuma de dulce de leche en sifón (3 cargas)',
         instruction:
-          'Hidrata la gelatina en agua fría. En cazo calienta dulce de leche con la mitad de la nata a fuego bajo removiendo sin quemar; añade la gelatina escurrida hasta disolver. Une el resto de nata, deja templar, pasa por colador al sifón, inyecta 3 cargas de gas N2O y enfría en nevera.',
+          'Hidrata 1,5 hojas de gelatina cola de pez en agua fría. En un cazo calienta 175 g de dulce de leche con la mitad de la nata (125 ml) a fuego bajo removiendo sin parar para que no se queme; añade la gelatina escurrida hasta que se disuelva por completo. Une el resto de la nata (125 ml), deja templar, pasa por un colador fino al sifón, inyecta 3 cargas de gas N2O, agita con energía y enfría en la nevera.',
         timerSeconds: 300,
       },
       {
         stepNumber: 2,
         title: 'Sopa de chocolate azteca',
         instruction:
-          'En un cazo calienta agua, nata, cacao en polvo, canela, cayena y clavo integrando con varilla. Retira del fuego y funde dentro la cobertura de chocolate 70% removiendo hasta una sopa brillante y sedosa.',
+          'En un cazo calienta 50 ml de agua, 75 ml de nata de montar, 25 g de cacao en polvo, 1/2 rama de canela, 1/2 cayena y 1 clavo de olor integrando con varilla. Retira del fuego y funde dentro los 75 g de cobertura de chocolate al 70% de materia grasa, removiendo hasta obtener una sopa lisa, brillante y sedosa.',
         timerSeconds: 240,
       },
       {
         stepNumber: 3,
         title: 'Ramas de chocolate por choque térmico',
         instruction:
-          'Funde 100 g de chocolate al baño maría y pásalo a un biberón de cocina. En un cuenco con agua muy fría y cubitos de hielo, dosifica hilos finos de chocolate haciendo formas de ramas; el frío las solidifica al instante en figuras 3D. Escurre y reserva en frío.',
+          'Funde 100 g de cobertura de chocolate al 70% de materia grasa al baño maría y pásalo a un biberón de cocina. En un cuenco con agua muy fría y abundantes cubitos de hielo, dosifica hilos finos de chocolate haciendo formas de ramas; el choque térmico las solidifica al instante en figuras 3D crujientes. Escurre con cuidado sobre papel absorbente y reserva en frío.',
         timerSeconds: 300,
-        tip: 'Secar sobre papel absorbente antes de emplatar.',
+        tip: 'Secar sobre papel absorbente antes de emplatar para evitar gotas de agua.',
       },
       {
         stepNumber: 4,
         title: 'Bizcocho borracho al amaretto y ron',
         instruction:
-          'Calienta el ron, el amaretto y el azúcar hasta disolver. Corta el plum cake en cubos y cala los bizcochos con el almíbar tibio.',
+          'En un cazo calienta 50 ml de ron, 50 ml de amaretto y 50 g de azúcar removiendo hasta disolver por completo el almíbar borracho. Corta 1 pieza de plum cake de buena calidad en cubos medianos y cala los trozos con el almíbar templado.',
         timerSeconds: 180,
       },
       {
         stepNumber: 5,
         title: 'Emplatado en plato hondo',
         instruction:
-          'Coloca una cucharada de sopa azteca y dale un golpe seco con la cuchara para salpicar el plato. Coloca el bizcocho borracho en el centro, cubre con una generosa nube de espuma de dulce de leche, decora con las ramas de chocolate, nueces picadas y lluvia de cacao.',
+          'Coloca una cucharada de sopa azteca templada en el fondo del plato y dale un golpe seco con la cuchara para salpicar artísticamente el plato. Coloca los cubos de bizcocho borracho en el centro, cubre con una generosa nube de espuma de dulce de leche del sifón, corona con las ramas crujientes de chocolate al 70%, las 8 nueces peladas picaditas y una lluvia final de cacao en polvo.',
       },
     ],
   },
@@ -1053,8 +1072,8 @@ export const COURSE_RECIPES: Recipe[] = [
   {
     id: 'lemon-pie-copa-merengue-suizo-kc2',
     code: 'KC-2.4',
-    title: 'Lemon Pie en Copa con Merengue Suizo Sopleteado',
-    subtitle: 'Crema sedosa de limón ligada con maicena, tierra de galletas y frutos secos, y merengue suizo a 60 °C',
+    title: 'Lemon Pie en Copa (Técnica de Temperado y Sifón)',
+    subtitle: 'Crema sedosa de limón a 60 °C, tierra crujiente de galleta y frutos secos, y merengue suizo sopleteado',
     category: 'Postres y Dulces',
     difficulty: 'Media',
     prepTimeMinutes: 35,
@@ -1062,55 +1081,78 @@ export const COURSE_RECIPES: Recipe[] = [
     imageUrl:
       'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?auto=format&fit=crop&w=1200&q=85',
     chefNote:
-      'Alcanzar exactamente 60 °C al disolver el azúcar con las claras al baño maría pasteuriza el merengue y disuelve el cristal; al enfriar y batir a velocidad creciente se obtiene una espuma blanca, densa y brillante que tolera el sopleteado directo sin licuarse.',
+      'Alcanzar exactamente 60 °C al disolver el azúcar con las claras al baño maría pasteuriza el merengue y disuelve el cristal; al enfriar y batir a velocidad creciente (o dosificar en sifón) se obtiene una espuma blanca, densa y brillante que tolera el sopleteado directo sin licuarse. El contraste térmico y de texturas en copa de balón es espectacular.',
     pairing: 'Té Earl Grey o vino espumoso Moscato d´Asti.',
     isFavorite: false,
     createdAt: '2026-10-18T11:15:00Z',
     ingredients: [
-      { id: 'lpc-1', name: 'Leche entera (300 ml infusión + 100 ml frío)', amount: 400, unit: 'ml' },
+      { id: 'lpc-1', name: 'Leche entera (300 ml infusión + 100 ml para maicena)', amount: 400, unit: 'ml' },
       { id: 'lpc-2', name: 'Azúcar blanco (100 g para crema + 200 g para merengue)', amount: 300, unit: 'g' },
-      { id: 'lpc-3', name: 'Yemas de huevo (para la crema)', amount: 4, unit: 'ud' },
-      { id: 'lpc-4', name: 'Zumo recién exprimido y ralladura de 1/2 limón', amount: 150, unit: 'ml' },
-      { id: 'lpc-5', name: 'Maicena disuelta en leche fría', amount: 40, unit: 'g' },
-      { id: 'lpc-6', name: 'Claras de huevo (para el merengue suizo)', amount: 100, unit: 'g' },
-      { id: 'lpc-7', name: 'Tierra: 4 galletas de mantequilla, 20 g nueces y 20 g almendras tostadas', amount: 100, unit: 'g' },
-      { id: 'lpc-8', name: 'Hojitas de menta fresca y soplete de cocina', amount: 1, unit: 'ud' },
+      { id: 'lpc-3', name: 'Yemas de huevo (para la crema de limón)', amount: 4, unit: 'ud' },
+      { id: 'lpc-4', name: 'Zumo recién exprimido de limón', amount: 150, unit: 'ml' },
+      { id: 'lpc-5', name: 'Ralladura de 1/2 limón', amount: 1, unit: 'ud' },
+      { id: 'lpc-6', name: 'Maicena (almidón de maíz)', amount: 40, unit: 'g', notes: 'Diluir siempre en los 100 ml de leche fría' },
+      { id: 'lpc-7', name: 'Claras de huevo (para el merengue suizo)', amount: 100, unit: 'g' },
+      { id: 'lpc-8', name: 'Gotitas de zumo de limón (para el merengue)', amount: 5, unit: 'ml' },
+      { id: 'lpc-9', name: 'Galletas de mantequilla (para la tierra)', amount: 4, unit: 'ud' },
+      { id: 'lpc-10', name: 'Nueces peladas (para la tierra)', amount: 20, unit: 'g' },
+      { id: 'lpc-11', name: 'Almendras tostadas (para la tierra)', amount: 20, unit: 'g' },
+      { id: 'lpc-12', name: 'Ralladura de limón y hojitas de menta fresca', amount: 1, unit: 'ud', notes: 'Para decorar encima del merengue' },
+      { id: 'lpc-13', name: 'Soplete de cocina', amount: 1, unit: 'ud' },
     ],
     steps: [
       {
         stepNumber: 1,
-        title: 'Crema aterciopelada de limón',
+        title: 'Calentar la leche y blanquear yemas',
         instruction:
-          'Calienta 300 ml de leche con 50 g de azúcar. Bate las 4 yemas con los otros 50 g de azúcar hasta blanquear. Disuelve 40 g de maicena en 100 ml de leche fría. Une todo en el cazo caliente y remueve a fuego mínimo sin parar; incorpora el zumo y ralladura de limón hasta que tome cuerpo brillante. Pasa a manga pastelera.',
-        timerSeconds: 300,
+          'Ponemos a calentar a fuego bajo 300 ml de leche con la mitad del azúcar (50 g). En un bowl aparte mezclamos las 4 yemas con la otra parte del azúcar (50 g) y batimos bien con una varilla hasta que cojan un poco de volumen y empiecen a blanquear.',
+        timerSeconds: 180,
       },
       {
         stepNumber: 2,
-        title: 'Merengue suizo al baño maría (60 °C)',
+        title: 'Diluir la maicena e integrar a la leche',
         instruction:
-          'Calienta las claras con los 200 g de azúcar al baño maría moviendo con varilla hasta que el azúcar se disuelva por completo y el termómetro marque 60 °C. Retira del calor y deja templar 5 minutos.',
-        timerSeconds: 300,
-        temperature: '60 °C baño maría',
+          'Diluimos la maicena (40 g) en el resto de la leche fría (100 ml) moviendo bien para que no queden grumos y reservamos. Añadimos a la mezcla caliente de leche y azúcar la mezcla de yemas y azúcar, no pararemos de mover hasta que vaya espesando un poco y bajamos el fuego al mínimo.',
+        timerSeconds: 180,
+        tip: 'Diluir la maicena siempre en frío evita que se formen grumos.',
       },
       {
         stepNumber: 3,
-        title: 'Montado firme del merengue',
+        title: 'Añadir limón y cocer hasta textura deseada',
         instruction:
-          'Añade unas gotas de zumo de limón y monta con varilla eléctrica a velocidad media-alta hasta que el merengue esté completamente frío, denso, firme y brillante. Pasa a manga pastelera.',
-        timerSeconds: 360,
+          'Ahora añadimos el zumo (150 ml) y la ralladura de limón y la maicena diluida en leche y vamos moviendo hasta que tenga la textura deseada suave, aterciopelada y brillante. Lo reservamos dentro de una manga pastelera con boquilla lisa.',
+        timerSeconds: 240,
       },
       {
         stepNumber: 4,
-        title: 'Tierra crujiente de frutos secos',
+        title: 'Merengue suizo al baño maría (60 °C)',
         instruction:
-          'Tritura las galletas de mantequilla con las nueces peladas y las almendras tostadas en un robot de cocina hasta textura de arena gruesa.',
-        timerSeconds: 60,
+          'Calentamos al baño maría las claras (100 g) junto a los 200 g de azúcar hasta que el azúcar se haya disuelto por completo y alcancen la temperatura de 60 °C y retiramos del calor.',
+        timerSeconds: 300,
+        temperature: '60 °C baño maría',
+        tip: 'Controlar con termómetro: los 60 °C aseguran la pasteurización y disuelven los cristales de azúcar.',
       },
       {
         stepNumber: 5,
-        title: 'Montaje en copa y sopleteado',
+        title: 'Reposo y montado firme del merengue',
         instruction:
-          'En el fondo de una copa de balón vierte la crema de limón, cubre con una capa uniforme de tierra de galleta y frutos secos, escancia picos generosos de merengue suizo y tuéstalos con soplete. Corona con ralladura de limón y menta.',
+          'Pasamos la mezcla de las claras y el azúcar al vaso batidor y dejamos que se enfríen durante 5 minutos. Pasados los 5 minutos añadimos las gotitas de limón y comenzamos a batir con la varilla a velocidad media. Cuando las claras empiecen a montar vamos subiendo la velocidad hasta que el merengue se haya enfriado del todo y esté liso, firme y brillante. Pasamos a una manga pastelera (o al sifón de espumas con 1 carga para textura nube).',
+        timerSeconds: 360,
+      },
+      {
+        stepNumber: 6,
+        title: 'Elaboración de la tierra de galletas',
+        instruction:
+          'Trituramos todo junto (las 4 galletas de mantequilla, 20 g de nueces peladas y 20 g de almendras tostadas) en un robot de cocina o en un mortero hasta formar una tierra crujiente.',
+        timerSeconds: 60,
+      },
+      {
+        stepNumber: 7,
+        title: 'Montaje en copa de balón y sopleteado',
+        instruction:
+          'En una copa de balón ponemos una base de crema de limón. Encima ponemos una capa de la tierra de galletas. Ahora vamos haciendo puntos de merengue (o dosificando la espuma con el sifón) por toda la superficie y los sopleteamos. Terminamos poniendo encima de cada punto de merengue un poco de ralladura de limón y una hojita pequeña de menta.',
+        timerSeconds: 120,
+        tip: 'Sopletear a unos 10 cm de distancia con movimientos circulares para caramelizar sin quemar.',
       },
     ],
   },
@@ -1381,6 +1423,490 @@ export const COURSE_RECIPES: Recipe[] = [
         title: 'Montaje de alta pastelería',
         instruction:
           'Extiende un punto de cada gelée con espátula sobre el plato. Intercala puntos de cremoso de chocolate blanco con láminas de crujiente de pasta filo. Corona con pistachos garrapiñados al curry, brotes de cilantro y acedera y una lluvia sutil de cúrcuma en polvo.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // KITCHEN CLUB — ESPECIAL NAVIDAD 2025
+  // ========================================================
+  {
+    id: 'calabaza-burrata-chalotas-glaseadas-kcnav',
+    code: 'KC-NAV.1',
+    title: 'Dados y Semillas de Calabaza con Burrata, Chalotas Glaseadas y Albahaca',
+    subtitle: 'Calabaza asada al curry y Sichuan, chalotas enteras glaseadas al Oporto y Módena con burrata fresca',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Media',
+    prepTimeMinutes: 45,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Hornear la calabaza primero tapada con aluminio conserva su humedad interna; destapar los últimos 10 minutos a 200 °C carameliza la superficie. El glaseado lento de las chalotas enteras en Oporto y Módena aporta notas agridulces que contrastan con la untuosidad fresca de la burrata.',
+    pairing: 'Vino blanco Chablis con cuerpo o vino tinto frutal Mencía.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:00:00Z',
+    ingredients: [
+      // Para los dados de calabaza asada
+      { id: 'cbg-1', name: 'Calabaza pelada en dados de 4 cm', amount: 300, unit: 'g' },
+      { id: 'cbg-2', name: 'Aceite de oliva virgen extra', amount: 20, unit: 'ml', notes: 'Para embadurnar la calabaza' },
+      { id: 'cbg-3', name: 'Curry en polvo', amount: 5, unit: 'g' },
+      { id: 'cbg-4', name: 'Pimienta de Sichuan recién molida', amount: 2, unit: 'g' },
+      { id: 'cbg-5', name: 'Sal fina', amount: 3, unit: 'g' },
+
+      // Para las chalotas glaseadas
+      { id: 'cbg-6', name: 'Chalotas peladas enteras', amount: 600, unit: 'g' },
+      { id: 'cbg-7', name: 'Mantequilla', amount: 60, unit: 'g' },
+      { id: 'cbg-8', name: 'Aceite de oliva', amount: 20, unit: 'ml' },
+      { id: 'cbg-9', name: 'Azúcar moreno', amount: 30, unit: 'g' },
+      { id: 'cbg-10', name: 'Vinagre de Módena', amount: 15, unit: 'ml' },
+      { id: 'cbg-11', name: 'Vino de Oporto', amount: 50, unit: 'ml' },
+      { id: 'cbg-12', name: 'Agua mineral (para reducir)', amount: 300, unit: 'ml', notes: 'Hasta cubrir parcialmente para glasear en 20 min' },
+      { id: 'cbg-13', name: 'Sal en escamas', amount: 3, unit: 'g' },
+
+      // Otros
+      { id: 'cbg-14', name: 'Burrata fresca', amount: 1, unit: 'ud' },
+      { id: 'cbg-15', name: 'Hojitas frescas de albahaca', amount: 12, unit: 'ud' },
+      { id: 'cbg-16', name: 'Semillas de calabaza tostadas', amount: 25, unit: 'g' },
+      { id: 'cbg-17', name: 'Aceite de oliva virgen extra y pimienta negra molida', amount: 15, unit: 'ml' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Asado especiado de la calabaza',
+        instruction:
+          'Cortamos la calabaza pelada en dados regulares de 4 cm de grosor y los disponemos sobre una bandeja de horno. Los embadurnamos bien con aceite de oliva virgen extra, sal, curry en polvo y pimienta de Sichuan recién molida. Tapamos la bandeja con papel de aluminio y la introducimos en el horno precalentado a 180 °C durante 20 minutos.',
+        timerSeconds: 1200,
+        temperature: '180 °C horno (con aluminio)',
+      },
+      {
+        stepNumber: 2,
+        title: 'Dorado final de la calabaza',
+        instruction:
+          'Destapamos con cuidado la bandeja retirando el papel de aluminio y horneamos durante 10 minutos a 200 °C hasta que los dados adquieran un dorado apetecible y tierno.',
+        timerSeconds: 600,
+        temperature: '200 °C horno (destapado)',
+      },
+      {
+        stepNumber: 3,
+        title: 'Salteado y reducción de las chalotas',
+        instruction:
+          'Pelamos las chalotas asegurando que queden enteras. En un cazo a fuego medio derretimos la mantequilla junto con el aceite de oliva. Añadimos las chalotas y salteamos durante 5 minutos para que se doren. Añadimos el azúcar moreno, el vinagre de Módena y el vino de Oporto, y seguimos cocinando a fuego bajo durante 10 minutos.',
+        timerSeconds: 900,
+      },
+      {
+        stepNumber: 4,
+        title: 'Glaseado meloso de las chalotas',
+        instruction:
+          'Añadimos el agua y dejamos cocinar durante 20 minutos a fuego medio sin tapar, moviendo sólo una o dos veces durante todo el proceso. Cuando el líquido se haya reducido casi por completo, las chalotas comenzarán a glasearse cubriéndose de un velo brillante. Terminamos con sal en escamas.',
+        timerSeconds: 1200,
+        tip: 'Mover poco las chalotas para que no se deshagan y mantengan su forma entera.',
+      },
+      {
+        stepNumber: 5,
+        title: 'Emplatado festivo',
+        instruction:
+          'En el centro de un plato grande o de una fuente amplia colocamos la burrata entera y le ponemos por encima un chorro generoso de AOVE y pimienta negra recién molida. Rodeando la burrata distribuimos armónicamente los dados de calabaza alternados con las chalotas glaseadas y hojitas frescas de albahaca. Terminamos esparciendo por toda la superficie semillas de calabaza y sal en escamas.',
+      },
+    ],
+  },
+  {
+    id: 'parmentier-patatas-emmental-kcnav',
+    code: 'KC-NAV.2',
+    title: 'Parmentier de Patatas con Queso Emmental Gratinado',
+    subtitle: 'Puré sedoso de patata Monalisa con mantequilla y leche, con costra dorada de emmental al horno a 180 °C',
+    category: 'Arroces y Cremas',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 35,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Cocer siempre las patatas con su piel para evitar que absorban agua en exceso. Integrar la mantequilla y la leche batiendo en caliente emulsiona los almidones logrando una textura de guarnición francesa de ensueño.',
+    pairing: 'Vino blanco Chardonnay con crianza o cerveza belga de trigo.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:05:00Z',
+    ingredients: [
+      { id: 'par-1', name: 'Patatas variedad Monalisa enteras', amount: 600, unit: 'g' },
+      { id: 'par-2', name: 'Mantequilla de calidad', amount: 150, unit: 'g' },
+      { id: 'par-3', name: 'Leche entera', amount: 200, unit: 'ml' },
+      { id: 'par-4', name: 'Queso Emmental rallado', amount: 200, unit: 'g' },
+      { id: 'par-5', name: 'Sal fina', amount: 5, unit: 'g' },
+      { id: 'par-6', name: 'Pimienta negra molida', amount: 2, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Cocción de las patatas con piel',
+        instruction:
+          'En una olla con agua abundante con sal ponemos a cocer las patatas enteras con piel a fuego medio hasta que estén completamente blandas al pincharlas con un cuchillo (aprox. 25–30 minutos). Las sacamos y dejamos atemperar brevemente.',
+        timerSeconds: 1500,
+      },
+      {
+        stepNumber: 2,
+        title: 'Machacado y emulsión cremosa',
+        instruction:
+          'Pelamos las patatas en caliente y las machacamos en pasapurés o prensa hasta hacer un puré fino sin grumos. En un cazo a fuego suave, colocamos las patatas machacadas, añadimos la mantequilla en dados y la leche templada, y removemos enérgicamente con varilla hasta que queden perfectamente integradas y sedosas. Sazonamos con sal y pimienta negra.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 3,
+        title: 'Gratinado al horno con Emmental (10 min)',
+        instruction:
+          'En el momento de servir, pasamos el parmentier a un recipiente o fuente apta para horno, cubrimos uniformemente con el queso emmental rallado y horneamos durante 10 minutos a 180 °C hasta que el queso se funda y forme una costra dorada.',
+        timerSeconds: 600,
+        temperature: '180 °C horno',
+        tip: 'Gratinar justo antes del pase para servirlo humeante y fundente.',
+      },
+    ],
+  },
+  {
+    id: 'judias-keniatas-ajo-guindilla-kcnav',
+    code: 'KC-NAV.3',
+    title: 'Judías Keniatas Salteadas con Ajo, Guindilla y Limón',
+    subtitle: 'Cocción express de 5 min y choque térmico en hielo, salteadas a fuego vivo con láminas de ajo y ralladura fresca',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 15,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El paso inmediato de la olla hirviendo al agua con hielo (choque térmico invertido) detiene la cocción instantáneamente y fija la clorofila, logrando un verde radiante y un mordisco crujiente inigualable.',
+    pairing: 'Vino blanco Verdejo o Sauvignon Blanc bien frío.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:10:00Z',
+    ingredients: [
+      { id: 'jk-1', name: 'Judías verdes Kenia', amount: 800, unit: 'g' },
+      { id: 'jk-2', name: 'Aceite de oliva virgen extra', amount: 30, unit: 'ml' },
+      { id: 'jk-3', name: 'Dientes de ajo en láminas muy finas', amount: 3, unit: 'ud' },
+      { id: 'jk-4', name: 'Cayenas (enteras o partidas según gusto)', amount: 2, unit: 'ud' },
+      { id: 'jk-5', name: 'Ralladura fresca de 1/2 limón', amount: 1, unit: 'ud' },
+      { id: 'jk-6', name: 'Sal en escamas', amount: 4, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Cocción express de 5 minutos',
+        instruction:
+          'Lavamos bien las judías verdes Kenia retirando los extremos. Ponemos una olla con agua abundante con sal a hervir e introducimos las judías cocinándolas durante exactamente 5 minutos a fuego vivo.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 2,
+        title: 'Choque térmico en agua helada',
+        instruction:
+          'Al terminar los 5 minutos de cocción, sacamos inmediatamente las judías y las pasamos a un bol con agua muy fría y abundantes cubitos de hielo para cortar la cocción en seco y fijar su color verde brillante. Escurrimos muy bien.',
+        timerSeconds: 120,
+        tip: 'Secar bien con papel o paño limpio para que salteen y no se cuezan en la sartén.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Salteado vivo al ajo, cayena y limón',
+        instruction:
+          'En una sartén amplia ponemos aceite de oliva a fuego medio, cortamos los 3 dientes de ajo en láminas muy finas y los rehogamos con cuidado hasta que estén ligeramente dorados. Añadimos las 2 cayenas (enteras o partidas según el nivel de picante deseado). Incorporamos las judías secas y salteamos a fuego vivo durante 2–3 minutos. Terminamos espolvoreando la ralladura de 1/2 limón y sal en escamas.',
+        timerSeconds: 180,
+      },
+    ],
+  },
+  {
+    id: 'lubina-a-la-sal-kcnav',
+    code: 'KC-NAV.4',
+    title: 'Lubina Salvaje a la Sal con Brotes de Acedera',
+    subtitle: 'Pieza entera de 1,5 kg cocinada en costra sellada de sal gorda y clara de huevo a 200 °C durante 30 min',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Media',
+    prepTimeMinutes: 40,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Mezclar la sal con clara de huevo crea una costra dura tipo arcilla que no desmorona al hornear y cocina el pescado en su propio vapor y jugos sin salarlo de más. Dejar la punta de la cola sin cubrir permite comprobar la cocción.',
+    pairing: 'Vino blanco Albariño, Godello o Cava Brut Nature Reserva.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:15:00Z',
+    ingredients: [
+      { id: 'lbs-1', name: 'Lubina entera limpia (sin escamas ni vísceras)', amount: 1.5, unit: 'kg' },
+      { id: 'lbs-2', name: 'Sal gorda para hornear', amount: 1.5, unit: 'kg' },
+      { id: 'lbs-3', name: 'Clara de huevo', amount: 1, unit: 'ud' },
+      { id: 'lbs-4', name: 'Aceite de oliva virgen extra', amount: 25, unit: 'ml', notes: 'Para regar los lomos al emplatar' },
+      { id: 'lbs-5', name: 'Brotes frescos de acedera', amount: 10, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Preparación de la costra de sal',
+        instruction:
+          'En un bol amplio ponemos el 1,5 kg de sal gorda, le añadimos la clara de huevo ligeramente batida y mezclamos bien con las manos hasta que la sal quede homogéneamente húmeda y moldeable.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 2,
+        title: 'Sellado hermético de la lubina',
+        instruction:
+          'En una bandeja de horno cubierta con papel sulfurizado ponemos una cama compacta de la mezcla de sal con clara y colocamos encima la lubina limpia. Cubrimos la lubina con el resto de la sal presionando suavemente para que quede totalmente tapada y sellada, dejando únicamente parte de la aleta caudal (cola) de la lubina sin cubrir.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 3,
+        title: 'Cocción al horno (30 min a 200 °C)',
+        instruction:
+          'Metemos la bandeja en el horno precalentado a 200 °C y horneamos durante exactamente 30 minutos. La costra se endurecerá y adquirirá un tono dorado suave.',
+        timerSeconds: 1800,
+        temperature: '200 °C horno',
+      },
+      {
+        stepNumber: 4,
+        title: 'Apertura de la costra y extracción de lomos',
+        instruction:
+          'Rompemos con cuidado la costra dura de sal con la ayuda de un cuchillo o maza de cocina. Retiramos las placas de sal y levantamos la piel de la lubina que saldrá limpia de una pieza. Con una paletina sacamos los lomos limpios sin espinas.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Montaje de pescado noble',
+        instruction:
+          'En un plato llano colocamos una ración generosa de lomo limpio de lubina recién horneado, terminamos con un chorro fino de aceite de oliva virgen extra de cosecha temprana por encima y decoramos con brotes frescos de acedera.',
+      },
+    ],
+  },
+  {
+    id: 'roast-beef-salsa-gravy-kcnav',
+    code: 'KC-NAV.5',
+    title: 'Roast Beef de Lomo Bajo con Salsa Gravy de Asado',
+    subtitle: 'Lomo bajo sellado y horneado a 180 °C (corazón a 60 °C), reposado 20 min y salseado con jugo de carne, beurre noisette y Perrins',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Media',
+    prepTimeMinutes: 50,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Atemperar la carne fuera del frío antes de cocinarla es imprescindible para un asado parejo. El reposo de 20 minutos antes de trinchar asienta los jugos internos para un corte limpio y jugoso. La salsa Gravy aprovecha todos los jugos caramelizados del horneado con un roux tostado.',
+    pairing: 'Vino tinto Reserva de Rioja, Ribera del Duero o Cabernet Sauvignon.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:20:00Z',
+    ingredients: [
+      // Para el roast beef
+      { id: 'rbf-1', name: 'Lomo bajo de ternera limpio en una pieza', amount: 1.2, unit: 'kg' },
+      { id: 'rbf-2', name: 'Aceite de oliva', amount: 20, unit: 'ml' },
+      { id: 'rbf-3', name: 'Sal fina', amount: 8, unit: 'g' },
+      { id: 'rbf-4', name: 'Pimienta negra molida', amount: 4, unit: 'g' },
+
+      // Para la salsa Gravy
+      { id: 'rbf-5', name: 'Mantequilla', amount: 30, unit: 'g' },
+      { id: 'rbf-6', name: 'Harina de trigo', amount: 20, unit: 'g' },
+      { id: 'rbf-7', name: 'Caldo de carne concentrado', amount: 350, unit: 'ml' },
+      { id: 'rbf-8', name: 'Jugo del roast beef desglasado de la bandeja', amount: 50, unit: 'ml' },
+      { id: 'rbf-9', name: 'Salsa Perrins (Worcestershire)', amount: 5, unit: 'ml' },
+      { id: 'rbf-10', name: 'Sal y pimienta negra molida', amount: 3, unit: 'g' },
+
+      // Otros
+      { id: 'rbf-11', name: 'Aceite de oliva virgen extra', amount: 20, unit: 'ml' },
+      { id: 'rbf-12', name: 'Sal en escamas', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Atemperado y sellado a fuego fuerte',
+        instruction:
+          'Sacamos el lomo de ternera de la nevera con suficiente antelación (al menos 45–60 min) para que no esté frío en su centro al entrar al horno. Salpimentamos generosamente la pieza por todas sus caras. Ponemos una sartén amplia con muy poco aceite de oliva a fuego fuerte y sellamos muy bien la carne por todos sus lados hasta crear una costra bien dorada; retiramos.',
+        timerSeconds: 360,
+      },
+      {
+        stepNumber: 2,
+        title: 'Horneado a 180 °C (15 min)',
+        instruction:
+          'Pasamos la carne a una bandeja de horno y metemos en el horno precalentado a 180 °C durante 15 minutos. Lo ideal es que el centro de la carne alcance los 55–60 °C (punto rosado perfecto).',
+        timerSeconds: 900,
+        temperature: '180 °C horno (centro a 60 °C)',
+      },
+      {
+        stepNumber: 3,
+        title: 'Reposo obligatorio (20 min) y corte fino',
+        instruction:
+          'Sacamos la carne del horno y la dejamos reposar sobre una tabla durante 20 minutos para que los jugos se redistribuyan y la carne quede extremadamente jugosa sin sangrar al cortar. Reservamos los jugos que haya soltado en la bandeja para la salsa. Cortamos la carne en lonchas muy finas.',
+        timerSeconds: 1200,
+        tip: 'Utilizar un cuchillo jamonero o de filetear bien afilado para lonchas casi transparentes.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Elaboración de la salsa Gravy al roux tostado',
+        instruction:
+          'En un cazo a fuego bajo ponemos los 30 g de mantequilla y dejamos hasta que adquiera un color tostado avellana (beurre noisette). Añadimos los 20 g de harina y rehogamos con varilla hasta que también tome un color tostado uniforme. A continuación añadimos el caldo de carne caliente junto con el jugo que ha soltado el asado en el horno poco a poco, batiendo continuamente para que se integre sin grumos. Dejamos hervir todo a fuego lento durante 10 minutos y terminamos con sal, pimienta negra y unas gotitas de salsa Perrins.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 5,
+        title: 'Montaje en fuente navideña',
+        instruction:
+          'En una fuente amplia colocamos el roast beef cortado en lonchas finas dispuestas en abanico con un chorrito de aceite de oliva virgen extra por encima y sal en escamas. Servimos acompañado del parmentier de patatas y las judías keniatas salteadas, con la salsa gravy bien caliente en salsera aparte.',
+      },
+    ],
+  },
+  {
+    id: 'copa-cheesecake-frutos-rojos-kcnav',
+    code: 'KC-NAV.6',
+    title: 'Copa de Cheesecake en Texturas con Frutos Rojos',
+    subtitle: 'Doble capa de tierra crujiente de galleta y nueces, crema montada de queso y mermelada casera de 4 frutos del bosque',
+    category: 'Postres y Dulces',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 50,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Semimontar la nata antes de incorporar el queso crema evita grumos y aporta ligereza aérea. La cocción a fuego lento durante 40 minutos de las 4 bayas con miel y azúcar extrae la pectina natural creando una jalea con brillo de espejo.',
+    pairing: 'Vino dulce Pedro Ximénez, Oporto Tawny o vino espumoso Moscato d´Asti.',
+    isFavorite: false,
+    createdAt: '2026-10-19T01:25:00Z',
+    ingredients: [
+      // Para la base de galletas
+      { id: 'cck-1', name: 'Galletas de mantequilla', amount: 100, unit: 'g' },
+      { id: 'cck-2', name: 'Nueces peladas', amount: 50, unit: 'g' },
+
+      // Para la crema de queso
+      { id: 'cck-3', name: 'Nata de montar fría (35% MG)', amount: 200, unit: 'ml' },
+      { id: 'cck-4', name: 'Azúcar glass', amount: 80, unit: 'g' },
+      { id: 'cck-5', name: 'Queso crema', amount: 350, unit: 'g' },
+      { id: 'cck-6', name: 'Esencia de vainilla', amount: 5, unit: 'ml' },
+
+      // Para la mermelada de frutos rojos
+      { id: 'cck-7', name: 'Frambuesas frescas', amount: 60, unit: 'g' },
+      { id: 'cck-8', name: 'Moras silvestres', amount: 60, unit: 'g' },
+      { id: 'cck-9', name: 'Arándanos frescos', amount: 60, unit: 'g' },
+      { id: 'cck-10', name: 'Fresas en trozos', amount: 60, unit: 'g' },
+      { id: 'cck-11', name: 'Azúcar blanco', amount: 80, unit: 'g' },
+      { id: 'cck-12', name: 'Miel', amount: 20, unit: 'g' },
+      { id: 'cck-13', name: 'Agua mineral', amount: 100, unit: 'ml', notes: 'Añadir al final de la cocción de 40 min' },
+
+      // Otros
+      { id: 'cck-14', name: 'Frambuesas enteras para coronar', amount: 6, unit: 'ud' },
+      { id: 'cck-15', name: 'Hojitas frescas de hierbabuena', amount: 6, unit: 'ud' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Tierra crujiente de galleta y nuez',
+        instruction:
+          'Trituramos las galletas de mantequilla (100 g) y las nueces peladas (50 g) en un robot de cocina o picadora hasta obtener una textura de arena crujiente con tropezones y reservamos.',
+        timerSeconds: 60,
+      },
+      {
+        stepNumber: 2,
+        title: 'Crema montada de queso y vainilla',
+        instruction:
+          'En un bol bien frío montamos los 200 ml de nata con los 80 g de azúcar glass con la ayuda de una varilla. Cuando esté semi montada le añadimos los 350 g de queso crema y la esencia de vainilla batiendo suavemente hasta que todo esté perfectamente integrado y sedoso. Metemos en una manga pastelera y reservamos en la nevera.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 3,
+        title: 'Mermelada lenta de frutos rojos (40 min)',
+        instruction:
+          'En un cazo ponemos las frambuesas (60 g), moras (60 g), arándanos (60 g), fresas (60 g), el azúcar (80 g) y la miel (20 g) a fuego vivo. Cuando empiece a hervir bajamos el fuego al mínimo y dejamos cocinar durante 40 minutos moviendo de vez en cuando. Al final de la cocción añadimos los 100 ml de agua para aligerar la densidad y dejamos enfriar.',
+        timerSeconds: 2400,
+      },
+      {
+        stepNumber: 4,
+        title: 'Montaje en copa de balón en 4 capas',
+        instruction:
+          'En 6 copas de balón ponemos primero una base de la tierra de galleta con nueces; a continuación dosificamos con la manga una capa de la crema de queso. Volvemos a repetir la operación formando una segunda capa de galleta y una segunda capa de crema de queso (quedando 2 capas de galleta y 2 capas de crema de queso alternadas).',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Corona de mermelada y hierbabuena',
+        instruction:
+          'Por encima de la última capa de crema de queso vertemos con delicadeza la mermelada de frutos rojos templada o fría cubriendo la superficie. Terminamos coronando con una frambuesa entera en el centro de cada copa y una hojita de hierbabuena fresca.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // RECETAS DE AUTOR — POSTRES FAVORITOS
+  // ========================================================
+  {
+    id: 'sopa-chufas-coco-torrijas-caramelizadas',
+    code: 'TOP-1.1',
+    title: 'Sopa Cremosa de Chufas y Coco con Torrija Caramelizada',
+    subtitle: 'Brioche empapado en infusión de vainilla, costra crujiente de azúcar moreno al soplete y sopa densa de horchata y coco',
+    category: 'Postres y Dulces',
+    difficulty: 'Media',
+    prepTimeMinutes: 50,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Remojar las chufas 8 horas ablanda el almidón permitiendo una pasta untuosa. El empapado lento de la miga de brioche durante 5-6 horas con la infusión templada de chufa, coco y vainilla convierte el centro en un bocado fundente como tocinillo. El sopleteado directo con azúcar moreno crea una costra de caramelo crujiente que contrasta con la sopa fría.',
+    pairing: 'Vino dulce Fondillón alicantino, Moscatel de grano menudo o café de especialidad arábica.',
+    isFavorite: true,
+    createdAt: '2026-10-19T01:30:00Z',
+    ingredients: [
+      // Para la Sopa de chufas
+      { id: 'sct-1', name: 'Chufas secas de Valencia', amount: 200, unit: 'g', notes: 'Remojar 8 horas en agua' },
+      { id: 'sct-2', name: 'Leche entera', amount: 1000, unit: 'ml', notes: '1 litro para la sopa' },
+      { id: 'sct-3', name: 'Nata para montar (35% MG)', amount: 250, unit: 'ml', notes: '1/4 de litro' },
+      { id: 'sct-4', name: 'Leche de coco', amount: 100, unit: 'ml' },
+      { id: 'sct-5', name: 'Azúcar blanco', amount: 180, unit: 'g' },
+      { id: 'sct-6', name: 'Agua mineral', amount: 500, unit: 'ml', notes: 'Para el remojo previo de 8 horas' },
+
+      // Para la torrija
+      { id: 'sct-7', name: 'Miga de pan brioche o pan de molde artesano', amount: 150, unit: 'g', notes: 'Cortada en lingotes gruesos' },
+      { id: 'sct-8', name: 'Leche entera (para empapar torrijas)', amount: 750, unit: 'ml', notes: '3/4 de litro' },
+      { id: 'sct-9', name: 'Nata para montar (para empapar torrijas)', amount: 500, unit: 'ml', notes: '1/2 litro' },
+      { id: 'sct-10', name: 'Azúcar blanco (para la infusión)', amount: 180, unit: 'g' },
+      { id: 'sct-11', name: 'Rama de vainilla natural', amount: 1, unit: 'ud', notes: 'Rascada' },
+      { id: 'sct-12', name: 'Azúcar moreno', amount: 40, unit: 'g', notes: 'Para espolvorear y quemar con soplete' },
+
+      // Otros / Acabado
+      { id: 'sct-13', name: 'Hojas frescas de menta', amount: 6, unit: 'ud', notes: 'Para decorar' },
+      { id: 'sct-14', name: 'Concentrado de mango o frutas tropicales', amount: 30, unit: 'ml', notes: 'Para contrastar acidez' },
+      { id: 'sct-15', name: 'Soplete de repostería', amount: 1, unit: 'ud' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Remojo y triturado de las chufas (8 horas)',
+        instruction:
+          'Dejamos las chufas en remojo con agua durante aproximadamente 8 horas para rehidratarlas. Las lavamos bien después con agua limpia y las trituramos en un robot de cocina potente hasta formar una pasta espesa y homogénea.',
+        timerSeconds: 28800,
+        tip: 'Triturar a máxima potencia para extraer al máximo los almidones y aceites de la chufa.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Infusión de chufas, coco y vainilla (30 min)',
+        instruction:
+          'En una olla ponemos a infusionar la leche (1 L), la nata (250 ml) y la leche de coco (100 ml). Añadimos la pasta de chufas triturada, el azúcar (180 g) y las semillas rascadas de la rama de vainilla junto con la vaina. Cocinamos a fuego lento removiendo frecuentemente durante 30 minutos.',
+        timerSeconds: 1800,
+      },
+      {
+        stepNumber: 3,
+        title: 'Empapado prolongado de la miga (5 a 6 horas)',
+        instruction:
+          'Colocamos los lingotes de miga de pan brioche en una fuente honda. Vertemos por encima el líquido caliente anterior pasándolo primero por un colador fino para retirar impurezas. Dejamos enfriar a temperatura ambiente, tapamos con papel film en contacto directo y refrigeramos en la nevera durante 5 o 6 horas para que absorba toda la crema.',
+        timerSeconds: 19800,
+        tip: 'El reposo en frío cuaja la crema en el interior del brioche dejándolo fundente y meloso.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Escurrido y reserva de la sopa',
+        instruction:
+          'Sacamos con delicadeza las torrijas empapadas y dejamos escurrir el líquido sobrante. Colamos el líquido sobrante por un tamiz fino y lo pasamos a una jarrita de servir (será nuestra sopa cremosa de chufas y coco).',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Caramelizado con soplete',
+        instruction:
+          'Espolvoreamos una capa uniforme de azúcar moreno (40 g) sobre la superficie de cada torrija. Con el soplete a potencia media realizamos pasadas circulares hasta fundir y caramelizar el azúcar en una costra crujiente, dorada y brillante.',
+        timerSeconds: 120,
+        tip: 'Caramelizar justo en el momento de comer para que la costra no pierda su textura crujiente.',
+      },
+      {
+        stepNumber: 6,
+        title: 'Emplatado en plato hondo o cuenco de cristal',
+        instruction:
+          'Colocamos la torrija caramelizada en el centro de un plato hondo o cuenco de cristal, vertemos alrededor su sopita cremosa fría de chufa y coco, decoramos con unas gotas de concentrado de mango o frutas tropicales y coronamos con hojas de menta fresca.',
       },
     ],
   },

@@ -55,8 +55,7 @@ export const CookBookRepository = {
           if (stored) {
             return {
               ...initR,
-              ...stored,
-              isFavorite: initR.isFavorite || stored.isFavorite,
+              isFavorite: stored.isFavorite ?? initR.isFavorite,
             };
           }
           return initR;
@@ -72,8 +71,7 @@ export const CookBookRepository = {
           if (old) {
             return {
               ...initR,
-              ...old,
-              isFavorite: initR.isFavorite || old.isFavorite,
+              isFavorite: old.isFavorite ?? initR.isFavorite,
             };
           }
           return initR;
@@ -130,9 +128,26 @@ export const CookBookRepository = {
       collection(db, 'recipes'),
       (snap) => {
         if (!snap.empty) {
-          const items = snap.docs.map((d) => d.data() as Recipe);
-          callbacks.onRecipes(items);
-          CookBookRepository.saveLocalCollection(STORAGE_KEYS.RECIPES, items);
+          const remoteList = snap.docs.map((d) => d.data() as Recipe);
+          const remoteMap = new Map(remoteList.map((r) => [r.id, r]));
+
+          const mergedInitial = INITIAL_RECIPES.map((initR) => {
+            const remote = remoteMap.get(initR.id);
+            if (remote) {
+              return {
+                ...initR,
+                isFavorite: remote.isFavorite ?? initR.isFavorite,
+              };
+            }
+            return initR;
+          });
+
+          const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
+          const userCustomRecipes = remoteList.filter((r) => !initialIds.has(r.id));
+          const finalRecipes = [...mergedInitial, ...userCustomRecipes];
+
+          callbacks.onRecipes(finalRecipes);
+          CookBookRepository.saveLocalCollection(STORAGE_KEYS.RECIPES, finalRecipes);
         }
         callbacks.onSyncStatusChange('connected');
       },

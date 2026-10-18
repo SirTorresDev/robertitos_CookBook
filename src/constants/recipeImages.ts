@@ -42,6 +42,9 @@ export const RECIPE_LOCAL_IMAGES: Record<string, any> = {
   'croqueta-liquida-mejillones-tigre-kc1': require('@/assets/images/recipes/croqueta-liquida-mejillones-tigre-kc1.webp'),
   'suquet-salmonete-aire-lima-kc1': require('@/assets/images/recipes/suquet-salmonete-aire-lima-kc1.webp'),
   'gelee-mandarina-cremoso-choco-blanco-kc1': require('@/assets/images/recipes/gelee-mandarina-cremoso-choco-blanco-kc1.webp'),
+  'sopa-chufas-coco-torrijas-caramelizadas': require('@/assets/images/recipes/sopa-chufas-coco-torrijas-caramelizadas.webp'),
+  'calabaza-burrata-chalotas-glaseadas-kcnav': require('@/assets/images/recipes/calabaza-burrata-chalotas-glaseadas-kcnav.webp'),
+  'parmentier-patatas-emmental-kcnav': require('@/assets/images/recipes/parmentier-patatas-emmental-kcnav.webp'),
 };
 
 /** Imagen por defecto en caso de no existir o ser una receta creada manualmente sin foto */
