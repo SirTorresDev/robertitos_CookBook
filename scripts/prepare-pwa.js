@@ -70,6 +70,7 @@ if (fs.existsSync(indexHtmlPath)) {
     <link rel="manifest" href="/manifest.json?v=2" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
     <link rel="preload" href="/fonts/Ionicons.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
+    <style id="expo-generated-fonts">@font-face{font-family:"ionicons";src:url("/fonts/Ionicons.ttf") format("truetype");font-display:block}</style>
     <style id="ionicons-ios-fix">
       @font-face {
         font-family: "ionicons";
@@ -92,7 +93,7 @@ if (fs.existsSync(indexHtmlPath)) {
         }
       }
       body {
-        background-color: #F5F5F7;
+        background-color: #F7F3EE;
         margin: 0;
         padding: 0;
       }
