@@ -38,7 +38,7 @@ export default function RecipesScreen() {
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory>('Todos');
-  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [onlyFavorites, setOnlyFavorites] = useState(true);
 
   const filteredRecipes = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -272,6 +272,32 @@ export default function RecipesScreen() {
               </Animated.View>
             );
           })}
+
+          {filteredRecipes.length === 0 && (
+            <View style={styles.emptyCard}>
+              <Ionicons
+                name={onlyFavorites ? 'heart-outline' : 'search-outline'}
+                size={28}
+                color={AppleTheme.colors.accentWarm}
+              />
+              <Text style={styles.emptyTitle}>
+                {onlyFavorites
+                  ? 'No hay recetas favoritas en esta selección'
+                  : 'No se encontraron recetas'}
+              </Text>
+              {onlyFavorites && (
+                <ApplePressable
+                  scaleTo={0.96}
+                  onPress={() => {
+                    AppleHaptics.selection();
+                    setOnlyFavorites(false);
+                  }}
+                  style={styles.emptyActionBtn}>
+                  <Text style={styles.emptyActionText}>Ver todas las recetas</Text>
+                </ApplePressable>
+              )}
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -306,72 +332,33 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.accentWarm,
     letterSpacing: 0.8,
   },
-  ronerBannerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  emptyCard: {
     backgroundColor: AppleTheme.colors.surface,
-    padding: 14,
     borderRadius: AppleTheme.radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
-    marginBottom: 14,
+    padding: 28,
+    alignItems: 'center',
+    gap: 10,
     ...AppleTheme.shadow.card,
   },
-  ronerBannerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-    paddingRight: 8,
-  },
-  ronerBannerIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#FAF5EF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E6D7C3',
-  },
-  ronerBannerTextContainer: {
-    flex: 1,
-  },
-  ronerBannerEyebrowRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 2,
-  },
-  ronerBannerEyebrow: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#8D4F22',
-    letterSpacing: 0.6,
-  },
-  ronerBannerPill: {
-    backgroundColor: AppleTheme.colors.surfaceSubtle,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: 8,
-  },
-  ronerBannerPillText: {
-    fontSize: 9.5,
-    fontWeight: '700',
+  emptyTitle: {
+    fontSize: 14.5,
+    fontWeight: '600',
     color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
   },
-  ronerBannerTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.2,
+  emptyActionBtn: {
+    marginTop: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: AppleTheme.colors.textPrimary,
   },
-  ronerBannerDesc: {
-    fontSize: 11.5,
-    color: AppleTheme.colors.textSecondary,
-    marginTop: 2,
-    lineHeight: 15,
+  emptyActionText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   favFilterBtn: {
     flexDirection: 'row',
