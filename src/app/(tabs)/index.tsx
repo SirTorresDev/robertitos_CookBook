@@ -6,6 +6,8 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
+  Alert,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -15,7 +17,7 @@ import Animated, {
   LinearTransition,
 } from 'react-native-reanimated';
 import { useCookBookStore } from '@/store/useCookBookStore';
-import { RecipeCategory } from '@/types/cookbook';
+import { Recipe, RecipeCategory } from '@/types/cookbook';
 import { AppleTheme, AppleSprings } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
@@ -35,10 +37,47 @@ export default function RecipesScreen() {
   const router = useRouter();
   const recipes = useCookBookStore((s) => s.recipes);
   const toggleFavoriteRecipe = useCookBookStore((s) => s.toggleFavoriteRecipe);
+  const deleteRecipe = useCookBookStore((s) => s.deleteRecipe);
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory>('Todos');
   const [onlyFavorites, setOnlyFavorites] = useState(true);
+
+  const handleDeleteRecipe = (recipe: Recipe) => {
+    AppleHaptics.medium();
+
+    const executeDeletion = async () => {
+      AppleHaptics.success();
+      await deleteRecipe(recipe.id);
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed =
+        typeof window !== 'undefined'
+          ? window.confirm(
+              `¿Estás seguro de que quieres eliminar la receta "${recipe.title}" de Robertito´s CookBook?`
+            )
+          : true;
+      if (confirmed) {
+        void executeDeletion();
+      }
+    } else {
+      Alert.alert(
+        '¿Eliminar receta?',
+        `¿Estás seguro de que quieres borrar "${recipe.title}" de Robertito´s CookBook?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sí, eliminar',
+            style: 'destructive',
+            onPress: () => {
+              void executeDeletion();
+            },
+          },
+        ]
+      );
+    }
+  };
 
   const filteredRecipes = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -195,7 +234,21 @@ export default function RecipesScreen() {
                       transition={300}
                     />
                     <View style={styles.imageTopBadges}>
-                      <View />
+                      <ApplePressable
+                        scaleTo={0.88}
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleDeleteRecipe(recipe);
+                        }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Eliminar ${recipe.title}`}
+                        style={styles.trashCardButton}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={17}
+                          color={AppleTheme.colors.danger}
+                        />
+                      </ApplePressable>
 
                       <ApplePressable
                         scaleTo={0.88}
@@ -480,6 +533,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
   heartButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trashCardButton: {
     width: 36,
     height: 36,
     borderRadius: 18,

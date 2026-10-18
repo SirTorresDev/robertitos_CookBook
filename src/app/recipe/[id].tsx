@@ -9,6 +9,7 @@ import {
   Alert,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -213,22 +214,39 @@ export default function RecipeDetailScreen() {
 
   const handleConfirmDelete = () => {
     AppleHaptics.medium();
-    Alert.alert(
-      '¿Eliminar receta?',
-      `¿Estás seguro de que quieres borrar "${recipe.title}" de Robertito´s CookBook? Esta acción requiere confirmación.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sí, eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            AppleHaptics.success();
-            await deleteRecipe(recipe.id);
-            router.back();
+
+    const executeDeletion = async () => {
+      AppleHaptics.success();
+      await deleteRecipe(recipe.id);
+      router.back();
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed =
+        typeof window !== 'undefined'
+          ? window.confirm(
+              `¿Estás seguro de que quieres borrar "${recipe.title}" de Robertito´s CookBook? Esta acción no se puede deshacer.`
+            )
+          : true;
+      if (confirmed) {
+        void executeDeletion();
+      }
+    } else {
+      Alert.alert(
+        '¿Eliminar receta?',
+        `¿Estás seguro de que quieres borrar "${recipe.title}" de Robertito´s CookBook? Esta acción requiere confirmación.`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sí, eliminar',
+            style: 'destructive',
+            onPress: () => {
+              void executeDeletion();
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const handleExportPdf = async () => {
