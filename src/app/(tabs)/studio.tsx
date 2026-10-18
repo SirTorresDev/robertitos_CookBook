@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -448,7 +447,7 @@ export default function StudioScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
@@ -531,7 +530,7 @@ export default function StudioScreen() {
                 color={AppleTheme.colors.textPrimary}
               />
               <Text numberOfLines={1} style={styles.scanSecondaryBtnText}>
-                De la Galería
+                Galería
               </Text>
             </ApplePressable>
 
@@ -539,23 +538,22 @@ export default function StudioScreen() {
               scaleTo={0.96}
               disabled={scanningImage || processingVoice}
               onPress={handleToggleVoiceRecording}
+              accessibilityRole="button"
+              accessibilityLabel={isRecordingVoice ? 'Detener dictado por voz' : 'Dictar receta por voz'}
               style={[
                 styles.scanVoiceBtn,
                 isRecordingVoice && styles.scanVoiceBtnActive,
               ]}>
               <Ionicons
                 name={isRecordingVoice ? 'stop-circle' : 'mic'}
-                size={18}
+                size={isRecordingVoice ? 18 : 20}
                 color={isRecordingVoice ? '#FFFFFF' : AppleTheme.colors.accentWarm}
               />
-              <Text
-                numberOfLines={1}
-                style={[
-                  styles.scanVoiceBtnText,
-                  isRecordingVoice && { color: '#FFFFFF' },
-                ]}>
-                {isRecordingVoice ? 'Detener' : 'Dictar por Voz'}
-              </Text>
+              {isRecordingVoice && (
+                <Text numberOfLines={1} style={styles.scanVoiceBtnActiveText}>
+                  Detener
+                </Text>
+              )}
             </ApplePressable>
           </View>
 
@@ -1197,7 +1195,7 @@ export default function StudioScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -1328,7 +1326,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   scanVoiceBtn: {
-    flex: 1,
+    width: 48,
     height: 48,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: '#F7EFE2',
@@ -1338,14 +1336,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingHorizontal: 4,
   },
   scanVoiceBtnActive: {
+    width: undefined,
+    paddingHorizontal: 14,
     backgroundColor: AppleTheme.colors.danger,
     borderColor: AppleTheme.colors.danger,
   },
-  scanVoiceBtnText: {
-    color: AppleTheme.colors.accentWarm,
+  scanVoiceBtnActiveText: {
+    color: '#FFFFFF',
     fontSize: 12.5,
     fontWeight: '700',
   },

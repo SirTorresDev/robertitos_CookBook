@@ -28,10 +28,10 @@ export function AppHeader() {
 
   const topPadding =
     Platform.OS === 'ios'
-      ? Math.max(insets.top, 44)
+      ? (insets.top || 44)
       : isIOSWeb && isStandalonePWA
-      ? Math.max(insets.top, 46)
-      : Math.max(insets.top, 8);
+      ? (insets.top || 44)
+      : Math.max(insets.top, 6);
 
   const isRecipeDetail = pathname?.startsWith('/recipe/');
 
@@ -72,27 +72,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E6DEC8',
     paddingHorizontal: 16,
-    paddingBottom: 10,
+    paddingBottom: 6,
     zIndex: 50,
     shadowColor: '#2A1E11',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
     elevation: 2,
   },
   bannerLockup: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    minHeight: 54,
+    gap: 8,
+    minHeight: 38,
   },
   emblemImage: {
-    width: 64,
-    height: 51,
+    width: 44,
+    height: 35,
   },
   wordmarkImage: {
-    width: 196,
-    height: 54,
+    width: 136,
+    height: 38,
   },
 });
