@@ -19,6 +19,7 @@ import { RecipeCategory } from '@/types/cookbook';
 import { AppleTheme, AppleSprings } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
+import { getRecipeImageSource } from '@/constants/recipeImages';
 
 const CATEGORIES: RecipeCategory[] = [
   'Todos',
@@ -165,7 +166,10 @@ export default function RecipesScreen() {
             scaleTo={0.98}
             onPress={() => {
               AppleHaptics.selection();
-              router.push({ pathname: '/(tabs)/tips', params: { view: 'roner' } });
+              router.push({
+                pathname: '/(tabs)/tips',
+                params: { view: 'roner', t: String(Date.now()) },
+              });
             }}
             style={styles.ronerBannerCard}>
             <View style={styles.ronerBannerLeft}>
@@ -221,7 +225,7 @@ export default function RecipesScreen() {
                   style={styles.card}>
                   <View style={styles.cardImageContainer}>
                     <Image
-                      source={{ uri: recipe.imageUrl }}
+                      source={getRecipeImageSource(recipe)}
                       style={styles.cardImage}
                       contentFit="cover"
                       transition={300}
@@ -426,10 +430,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   brandTitle: {
-    fontSize: 33,
-    fontWeight: '700',
+    fontFamily: AppleTheme.fonts.displayBold,
+    fontSize: 32,
+    fontWeight: '800',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.9,
+    letterSpacing: -0.6,
   },
   brandSubtitle: {
     fontSize: 14.5,
@@ -573,10 +578,11 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.textSecondary,
   },
   cardTitle: {
+    fontFamily: AppleTheme.fonts.display,
     fontSize: 20,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
     marginBottom: 4,
   },
   cardSubtitle: {

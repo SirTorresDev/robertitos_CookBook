@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,31 +6,35 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  FadeInDown,
-  LinearTransition,
-} from 'react-native-reanimated';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import { TipCategory } from '@/types/cookbook';
-import { AppleTheme, AppleSprings } from '@/constants/appleTheme';
+import { AppleTheme } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
 import { RonerChart } from '@/components/RonerChart';
 
-const TIP_CATEGORIES: TipCategory[] = [
-  'Todos',
-  'Física Culinaria',
-  'Técnicas Clásicas',
-  'Sous-Vide / Roner',
-  'Cocina Molecular',
-  'Seguridad e Higiene',
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const TIP_CATEGORIES: { label: TipCategory; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { label: 'Todos', icon: 'apps-outline' },
+  { label: 'Física Culinaria', icon: 'flame-outline' },
+  { label: 'Técnicas Clásicas', icon: 'restaurant-outline' },
+  { label: 'Sous-Vide / Roner', icon: 'thermometer-outline' },
+  { label: 'Cocina Molecular', icon: 'flask-outline' },
+  { label: 'Seguridad e Higiene', icon: 'shield-checkmark-outline' },
 ];
 
 export default function TipsScreen() {
-  const params = useLocalSearchParams<{ view?: string }>();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ view?: string; t?: string }>();
   const tips = useCookBookStore((s) => s.tips);
 
   const [activeTab, setActiveTab] = useState<'fundamentos' | 'roner'>(
@@ -39,12 +43,43 @@ export default function TipsScreen() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<TipCategory>('Todos');
   const [expandedId, setExpandedId] = useState<string | null>(tips[0]?.id || null);
+  const didInitExpanded = useRef(false);
+
+  useEffect(() => {
+    if (!didInitExpanded.current && tips.length > 0) {
+      didInitExpanded.current = true;
+      setExpandedId((prev) => prev ?? tips[0].id);
+    }
+  }, [tips]);
 
   useEffect(() => {
     if (params.view === 'roner') {
       setActiveTab('roner');
+    } else if (params.view === 'fundamentos') {
+      setActiveTab('fundamentos');
     }
-  }, [params.view]);
+  }, [params.view, params.t]);
+
+  const handleSwitchTab = (tab: 'fundamentos' | 'roner') => {
+    AppleHaptics.selection();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setActiveTab(tab);
+    router.setParams({ view: tab });
+  };
+
+  const handleToggleTip = (id: string) => {
+    AppleHaptics.selection();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { Todos: tips.length };
+    tips.forEach((t) => {
+      counts[t.category] = (counts[t.category] || 0) + 1;
+    });
+    return counts;
+  }, [tips]);
 
   const filteredTips = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -67,16 +102,11 @@ export default function TipsScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
-        {/* Selector de Pestañas Apple */}
-        <Animated.View
-          entering={FadeInDown.duration(380).springify()}
-          style={styles.segmentContainer}>
+        {/* Selector de Pestañas Editorial */}
+        <View style={styles.segmentContainer}>
           <ApplePressable
             scaleTo={0.97}
-            onPress={() => {
-              AppleHaptics.selection();
-              setActiveTab('fundamentos');
-            }}
+            onPress={() => handleSwitchTab('fundamentos')}
             style={[
               styles.segmentBtn,
               activeTab === 'fundamentos' && styles.segmentBtnActive,
@@ -100,14 +130,24 @@ export default function TipsScreen() {
               ]}>
               Fundamentos
             </Text>
+            <View
+              style={[
+                styles.segmentTag,
+                activeTab === 'fundamentos' && styles.segmentTagActive,
+              ]}>
+              <Text
+                style={[
+                  styles.segmentTagText,
+                  activeTab === 'fundamentos' && styles.segmentTagTextActive,
+                ]}>
+                {tips.length}
+              </Text>
+            </View>
           </ApplePressable>
 
           <ApplePressable
             scaleTo={0.97}
-            onPress={() => {
-              AppleHaptics.selection();
-              setActiveTab('roner');
-            }}
+            onPress={() => handleSwitchTab('roner')}
             style={[
               styles.segmentBtn,
               activeTab === 'roner' && styles.segmentBtnActive,
@@ -145,53 +185,58 @@ export default function TipsScreen() {
               </Text>
             </View>
           </ApplePressable>
-        </Animated.View>
+        </View>
 
         {/* Vista Alternada: Roner vs Fundamentos */}
         {activeTab === 'roner' ? (
           <RonerChart />
         ) : (
           <View>
-            <Animated.View
-              entering={FadeInDown.duration(400).springify()}
-              style={styles.header}>
-              <Text style={styles.eyebrow}>MANUAL TÉCNICO DE COCINA</Text>
+            {/* Cabecera Editorial Culinaria */}
+            <View style={styles.header}>
+              <View style={styles.eyebrowRow}>
+                <Text style={styles.eyebrow}>ENCICLOPEDIA TÉCNICA DE COCINA</Text>
+                <View style={styles.eyebrowPill}>
+                  <Text style={styles.eyebrowPillText}>{filteredTips.length} principios</Text>
+                </View>
+              </View>
               <Text style={styles.title}>Fundamentos & Texturas</Text>
               <Text style={styles.subtitle}>
-                Física culinaria, reacción de Maillard, baja temperatura e hidrocoloides.
+                Física culinaria, reacción de Maillard, baja temperatura, emulsiones e hidrocoloides explicados con rigor.
               </Text>
-            </Animated.View>
+            </View>
 
-            {/* Banner invitación a la tabla Rocook */}
+            {/* Banner Destacado Editorial hacia la Tabla Rocook */}
             <ApplePressable
-              scaleTo={0.98}
-              onPress={() => {
-                AppleHaptics.selection();
-                setActiveTab('roner');
-              }}
+              scaleTo={0.985}
+              onPress={() => handleSwitchTab('roner')}
               style={styles.ronerCallout}>
               <View style={styles.ronerCalloutIcon}>
-                <Ionicons name="flame" size={16} color={AppleTheme.colors.accentWarm} />
+                <Ionicons name="flame" size={18} color={AppleTheme.colors.accentWarm} />
               </View>
-              <View style={{ flex: 1 }}>
+              <View style={styles.ronerCalloutBody}>
+                <View style={styles.ronerCalloutBadgeRow}>
+                  <Text style={styles.ronerCalloutEyebrow}>ROCOOK · EL CELLER DE CAN ROCA</Text>
+                  <View style={styles.ronerCalloutPill}>
+                    <Text style={styles.ronerCalloutPillText}>99 Alimentos</Text>
+                  </View>
+                </View>
                 <Text style={styles.ronerCalloutTitle}>
-                  ¿Buscas tiempos y temperaturas exactos de Roner?
+                  Abrir Tabla Maestra de Tiempos y Temperaturas
                 </Text>
                 <Text style={styles.ronerCalloutSubtitle}>
-                  Accede a la Tabla Rocook de El Celler de Can Roca con 99 alimentos calibrados.
+                  Cocción directa e indirecta al vacío para carnes, pescados, mariscos, verduras y frutas.
                 </Text>
               </View>
               <Ionicons
                 name="chevron-forward"
-                size={16}
-                color={AppleTheme.colors.textTertiary}
+                size={18}
+                color={AppleTheme.colors.accentWarm}
               />
             </ApplePressable>
 
             {/* Buscador */}
-            <Animated.View
-              entering={FadeInDown.delay(60).duration(400).springify()}
-              style={styles.searchWrapper}>
+            <View style={styles.searchWrapper}>
               <Ionicons
                 name="search-outline"
                 size={18}
@@ -217,57 +262,75 @@ export default function TipsScreen() {
                   />
                 </ApplePressable>
               )}
-            </Animated.View>
+            </View>
 
-            {/* Categorías */}
+            {/* Categorías con Contador */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.categoriesRow}>
               {TIP_CATEGORIES.map((cat) => {
-                const active = selectedCategory === cat;
+                const active = selectedCategory === cat.label;
+                const count = categoryCounts[cat.label] || 0;
                 return (
                   <ApplePressable
-                    key={cat}
+                    key={cat.label}
                     scaleTo={0.95}
                     onPress={() => {
                       AppleHaptics.selection();
-                      setSelectedCategory(cat);
+                      setSelectedCategory(cat.label);
                     }}
                     style={[styles.categoryPill, active && styles.categoryPillActive]}>
+                    <Ionicons
+                      name={cat.icon}
+                      size={14}
+                      color={active ? '#FFFFFF' : AppleTheme.colors.textSecondary}
+                    />
                     <Text
                       style={[
                         styles.categoryPillText,
                         active && styles.categoryPillTextActive,
                       ]}>
-                      {cat}
+                      {cat.label}
                     </Text>
+                    <View style={[styles.catCountBadge, active && styles.catCountBadgeActive]}>
+                      <Text
+                        style={[
+                          styles.catCountText,
+                          active && styles.catCountTextActive,
+                        ]}>
+                        {count}
+                      </Text>
+                    </View>
                   </ApplePressable>
                 );
               })}
             </ScrollView>
 
-            {/* Tarjetas Desplegables con Animación Spring */}
-            <View style={styles.list}>
-              {filteredTips.map((tip, index) => {
-                const expanded = expandedId === tip.id;
+            {/* Lista de Tarjetas Desplegables */}
+            {filteredTips.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="book-outline"
+                  size={36}
+                  color={AppleTheme.colors.textTertiary}
+                />
+                <Text style={styles.emptyStateTitle}>No se encontraron fundamentos</Text>
+                <Text style={styles.emptyStateSubtitle}>
+                  Prueba con otro término técnico o selecciona la categoría «Todos».
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.list}>
+                {filteredTips.map((tip) => {
+                  const expanded = expandedId === tip.id;
 
-                return (
-                  <Animated.View
-                    key={tip.id}
-                    entering={FadeInDown.delay(Math.min(index * 45, 240))
-                      .duration(400)
-                      .springify()}
-                    layout={LinearTransition.springify()
-                      .damping(AppleSprings.smooth.damping!)
-                      .stiffness(AppleSprings.smooth.stiffness!)}>
+                  return (
                     <ApplePressable
-                      scaleTo={0.985}
-                      onPress={() => {
-                        AppleHaptics.selection();
-                        setExpandedId(expanded ? null : tip.id);
-                      }}
-                      style={styles.card}>
+                      key={tip.id}
+                      scaleTo={0.99}
+                      onPress={() => handleToggleTip(tip.id)}
+                      style={[styles.card, expanded && styles.cardExpanded]}>
                       <View style={styles.cardTopRow}>
                         <View style={styles.badgesGroup}>
                           <View style={styles.codePill}>
@@ -279,14 +342,29 @@ export default function TipsScreen() {
                         <View style={styles.rightTopGroup}>
                           {tip.temperatureBadge && (
                             <View style={styles.tempBadge}>
+                              <Ionicons
+                                name="thermometer-outline"
+                                size={12}
+                                color={AppleTheme.colors.accentWarm}
+                              />
                               <Text style={styles.tempBadgeText}>{tip.temperatureBadge}</Text>
                             </View>
                           )}
-                          <Ionicons
-                            name={expanded ? 'chevron-up' : 'chevron-down'}
-                            size={18}
-                            color={AppleTheme.colors.textTertiary}
-                          />
+                          <View
+                            style={[
+                              styles.chevronCircle,
+                              expanded && styles.chevronCircleExpanded,
+                            ]}>
+                            <Ionicons
+                              name={expanded ? 'chevron-up' : 'chevron-down'}
+                              size={16}
+                              color={
+                                expanded
+                                  ? '#FFFFFF'
+                                  : AppleTheme.colors.textSecondary
+                              }
+                            />
+                          </View>
                         </View>
                       </View>
 
@@ -296,9 +374,12 @@ export default function TipsScreen() {
                       {expanded && (
                         <View style={styles.expandedContent}>
                           <View style={styles.rulesBox}>
+                            <Text style={styles.rulesHeading}>PRINCIPIOS CLAVE</Text>
                             {tip.keyRules.map((rule, rIdx) => (
                               <View key={rIdx} style={styles.ruleRow}>
-                                <View style={styles.ruleBullet} />
+                                <View style={styles.ruleNumberBadge}>
+                                  <Text style={styles.ruleNumberText}>{rIdx + 1}</Text>
+                                </View>
                                 <Text style={styles.ruleText}>{rule}</Text>
                               </View>
                             ))}
@@ -308,10 +389,13 @@ export default function TipsScreen() {
                             <View style={styles.warningBox}>
                               <Ionicons
                                 name="warning-outline"
-                                size={17}
+                                size={18}
                                 color={AppleTheme.colors.danger}
                               />
-                              <Text style={styles.warningText}>{tip.warning}</Text>
+                              <View style={{ flex: 1 }}>
+                                <Text style={styles.warningLabel}>PUNTO CRÍTICO DE SEGURIDAD</Text>
+                                <Text style={styles.warningText}>{tip.warning}</Text>
+                              </View>
                             </View>
                           )}
 
@@ -329,10 +413,10 @@ export default function TipsScreen() {
                         </View>
                       )}
                     </ApplePressable>
-                  </Animated.View>
-                );
-              })}
-            </View>
+                  );
+                })}
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -351,7 +435,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingTop: 14,
-    paddingBottom: 42,
+    paddingBottom: 48,
   },
   segmentContainer: {
     flexDirection: 'row',
@@ -359,9 +443,9 @@ const styles = StyleSheet.create({
     backgroundColor: AppleTheme.colors.surfaceSubtle,
     borderRadius: AppleTheme.radius.pill,
     padding: 4,
-    marginBottom: 16,
+    marginBottom: 18,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: AppleTheme.colors.border,
+    borderColor: AppleTheme.colors.borderStrong,
   },
   segmentBtn: {
     flex: 1,
@@ -369,7 +453,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    minHeight: 40,
+    minHeight: 42,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: AppleTheme.radius.pill,
@@ -385,8 +469,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   segmentText: {
-    fontSize: 13,
-    lineHeight: 17,
+    fontSize: 13.5,
+    lineHeight: 18,
     fontWeight: '600',
     color: AppleTheme.colors.textSecondary,
     textAlign: 'center',
@@ -406,11 +490,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   segmentTagActive: {
-    backgroundColor: '#FAF0E6',
+    backgroundColor: AppleTheme.colors.accentWarmSoft,
+    borderColor: 'rgba(196, 83, 43, 0.25)',
   },
   segmentTagText: {
-    fontSize: 10,
-    lineHeight: 12,
+    fontSize: 10.5,
+    lineHeight: 13,
     fontWeight: '700',
     color: '#8D4F22',
     textAlign: 'center',
@@ -419,56 +504,103 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.accentWarm,
   },
   header: {
-    marginBottom: 14,
+    marginBottom: 16,
+  },
+  eyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
   eyebrow: {
     fontSize: 11,
     fontWeight: '700',
     color: AppleTheme.colors.accentWarm,
-    letterSpacing: 0.8,
-    marginBottom: 4,
+    letterSpacing: 0.9,
+  },
+  eyebrowPill: {
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: AppleTheme.radius.pill,
+  },
+  eyebrowPillText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: AppleTheme.colors.textSecondary,
   },
   title: {
+    fontFamily: AppleTheme.fonts.displayBold,
     fontSize: 31,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.8,
+    letterSpacing: -0.6,
   },
   subtitle: {
     fontSize: 14.5,
     color: AppleTheme.colors.textSecondary,
-    marginTop: 4,
+    marginTop: 5,
     lineHeight: 20,
   },
   ronerCallout: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#FAF5EF',
-    padding: 12,
-    borderRadius: AppleTheme.radius.md,
+    gap: 12,
+    backgroundColor: AppleTheme.colors.surface,
+    padding: 14,
+    borderRadius: AppleTheme.radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#E6D7C3',
+    borderColor: AppleTheme.colors.borderStrong,
     marginBottom: 14,
+    ...AppleTheme.shadow.card,
   },
   ronerCalloutIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: AppleTheme.colors.accentWarmSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ronerCalloutTitle: {
-    fontSize: 12.5,
+  ronerCalloutBody: {
+    flex: 1,
+    minWidth: 0,
+  },
+  ronerCalloutBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+    flexWrap: 'wrap',
+  },
+  ronerCalloutEyebrow: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: AppleTheme.colors.accentWarm,
+    letterSpacing: 0.6,
+  },
+  ronerCalloutPill: {
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 8,
+  },
+  ronerCalloutPillText: {
+    fontSize: 9.5,
     fontWeight: '700',
-    color: '#8D4F22',
+    color: AppleTheme.colors.textSecondary,
+  },
+  ronerCalloutTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: AppleTheme.colors.textPrimary,
+    letterSpacing: -0.2,
   },
   ronerCalloutSubtitle: {
-    fontSize: 11.5,
+    fontSize: 12,
     color: AppleTheme.colors.textSecondary,
-    marginTop: 1,
-    lineHeight: 15,
+    marginTop: 2,
+    lineHeight: 16,
   },
   searchWrapper: {
     flexDirection: 'row',
@@ -485,16 +617,21 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minWidth: 0,
     fontSize: 14.5,
     color: AppleTheme.colors.textPrimary,
     paddingVertical: 0,
   },
   categoriesRow: {
     gap: 8,
-    paddingBottom: 12,
+    paddingBottom: 14,
+    alignItems: 'center',
   },
   categoryPill: {
-    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 13,
     paddingVertical: 8,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: AppleTheme.colors.surface,
@@ -507,14 +644,52 @@ const styles = StyleSheet.create({
   },
   categoryPillText: {
     fontSize: 13,
+    lineHeight: 16,
     fontWeight: '600',
     color: AppleTheme.colors.textPrimary,
   },
   categoryPillTextActive: {
     color: '#FFFFFF',
   },
+  catCountBadge: {
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  catCountBadgeActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  catCountText: {
+    fontSize: 10.5,
+    lineHeight: 13,
+    fontWeight: '700',
+    color: AppleTheme.colors.textSecondary,
+  },
+  catCountTextActive: {
+    color: '#FFFFFF',
+  },
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 44,
+    gap: 8,
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: AppleTheme.colors.textPrimary,
+  },
+  emptyStateSubtitle: {
+    fontSize: 13,
+    color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
+    paddingHorizontal: 24,
+  },
   list: {
-    gap: 12,
+    gap: 14,
     marginTop: 2,
   },
   card: {
@@ -525,16 +700,22 @@ const styles = StyleSheet.create({
     borderColor: AppleTheme.colors.border,
     ...AppleTheme.shadow.card,
   },
+  cardExpanded: {
+    borderColor: AppleTheme.colors.borderStrong,
+  },
   cardTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+    gap: 8,
   },
   badgesGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flex: 1,
+    flexWrap: 'wrap',
   },
   codePill: {
     backgroundColor: AppleTheme.colors.pillBg,
@@ -558,9 +739,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tempBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: AppleTheme.colors.accentWarmSoft,
     paddingHorizontal: 9,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: AppleTheme.radius.pill,
   },
   tempBadgeText: {
@@ -568,12 +752,24 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: AppleTheme.colors.accentWarm,
   },
+  chevronCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chevronCircleExpanded: {
+    backgroundColor: AppleTheme.colors.textPrimary,
+  },
   cardTitle: {
-    fontSize: 18,
+    fontFamily: AppleTheme.fonts.display,
+    fontSize: 19,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.4,
-    marginBottom: 4,
+    letterSpacing: -0.3,
+    marginBottom: 5,
   },
   cardSummary: {
     fontSize: 14,
@@ -584,23 +780,37 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingTop: 14,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: AppleTheme.colors.border,
+    borderTopColor: AppleTheme.colors.borderStrong,
     gap: 12,
   },
   rulesBox: {
-    gap: 8,
+    gap: 10,
+  },
+  rulesHeading: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: AppleTheme.colors.textTertiary,
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
   ruleRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 9,
+    gap: 10,
   },
-  ruleBullet: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: AppleTheme.colors.textPrimary,
-    marginTop: 7,
+  ruleNumberBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  ruleNumberText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: AppleTheme.colors.textPrimary,
   },
   ruleText: {
     flex: 1,
@@ -611,13 +821,21 @@ const styles = StyleSheet.create({
   warningBox: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: '#FFF2F1',
-    padding: 12,
+    gap: 10,
+    backgroundColor: '#FCEDEA',
+    padding: 13,
     borderRadius: AppleTheme.radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(210, 65, 47, 0.25)',
+  },
+  warningLabel: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: AppleTheme.colors.danger,
+    letterSpacing: 0.6,
+    marginBottom: 2,
   },
   warningText: {
-    flex: 1,
     fontSize: 13,
     fontWeight: '600',
     color: AppleTheme.colors.danger,
@@ -625,8 +843,10 @@ const styles = StyleSheet.create({
   },
   secretBox: {
     backgroundColor: AppleTheme.colors.accentWarmSoft,
-    padding: 13,
+    padding: 14,
     borderRadius: AppleTheme.radius.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(196, 83, 43, 0.2)',
   },
   secretHeader: {
     flexDirection: 'row',
@@ -636,13 +856,14 @@ const styles = StyleSheet.create({
   },
   secretLabel: {
     fontSize: 10.5,
-    fontWeight: '700',
+    fontWeight: '800',
     color: AppleTheme.colors.accentWarm,
     letterSpacing: 0.6,
   },
   secretText: {
     fontSize: 13.5,
     color: AppleTheme.colors.textPrimary,
-    lineHeight: 19,
+    lineHeight: 19.5,
   },
 });
+

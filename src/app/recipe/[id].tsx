@@ -32,6 +32,7 @@ import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
 import { exportRecipeToPdfAndShare } from '@/core/pdfExporter';
 import { pickRecipeImage } from '@/core/recipeScanner';
+import { getRecipeImageSource } from '@/constants/recipeImages';
 
 const EDIT_CATEGORIES: Exclude<RecipeCategory, 'Todos'>[] = [
   'Pescados y Mariscos',
@@ -279,7 +280,7 @@ export default function RecipeDetailScreen() {
         {/* Imagen Hero con Botones Flotantes Estilo iOS (Back, Exportar PDF, Editar, Borrar, Favorito) */}
         <View style={styles.heroWrapper}>
           <Image
-            source={{ uri: recipe.imageUrl }}
+            source={getRecipeImageSource(recipe)}
             style={styles.heroImage}
             contentFit="cover"
             transition={250}
@@ -1223,10 +1224,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
+    fontFamily: AppleTheme.fonts.displayBold,
     fontSize: 28,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.7,
+    letterSpacing: -0.5,
     marginBottom: 6,
   },
   subtitle: {

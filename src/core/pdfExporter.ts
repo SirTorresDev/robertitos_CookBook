@@ -2,6 +2,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import { Alert, Platform } from 'react-native';
 import { Recipe } from '@/types/cookbook';
+import { getRecipeImageBase64 } from '@/constants/recipeImages';
 
 function formatAmount(amount: number): string {
   if (Number.isInteger(amount)) return String(amount);
@@ -13,14 +14,79 @@ function formatTimerLabel(seconds?: number): string {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
-  if (hrs > 0) return `${hrs}h ${mins > 0 ? `${mins} min` : ''}`.trim();
+  if (hrs > 0) return `${hrs}h ${mins > 0 ? `${mins}m` : ''}`.trim();
   if (mins > 0) return `${mins} min${secs > 0 ? ` ${secs}s` : ''}`;
-  return `${secs} seg`;
+  return `${secs}s`;
 }
 
 /**
- * Genera un documento PDF minimalista estilo editorial Apple de la receta
- * y abre el menú nativo de compartir de iOS (AirDrop, WhatsApp, Mail, Archivos).
+ * Determina el nivel de densidad para forzar estrictamente que toda la receta
+ * (imagen, todos los ingredientes, clave técnica y todos los pasos)
+ * quepa en UNA ÚNICA PÁGINA A4 sin desbordamientos ni saltos de página.
+ */
+function getDensityProfile(recipe: Recipe) {
+  const numIngs = recipe.ingredients.length;
+  const numSteps = recipe.steps.length;
+  const totalChars =
+    recipe.steps.reduce((acc, s) => acc + s.instruction.length + (s.tip?.length || 0), 0) +
+    recipe.chefNote.length +
+    (recipe.pairing?.length || 0);
+
+  if (numSteps >= 8 || numIngs >= 13 || totalChars > 1500) {
+    return {
+      bodyFontSize: '8.2pt',
+      titleFontSize: '15pt',
+      subtitleFontSize: '8.5pt',
+      heroImgWidth: '95px',
+      heroImgHeight: '75px',
+      itemPadding: '3px 0',
+      stepCardPadding: '4px 6px',
+      stepCardMargin: '4px',
+      stepTitleSize: '9pt',
+      badgeSize: '7pt',
+      headerMarginBottom: '6px',
+      gapBetweenCols: '12px',
+    };
+  }
+
+  if (numSteps >= 6 || numIngs >= 10 || totalChars > 1000) {
+    return {
+      bodyFontSize: '8.8pt',
+      titleFontSize: '17pt',
+      subtitleFontSize: '9pt',
+      heroImgWidth: '115px',
+      heroImgHeight: '85px',
+      itemPadding: '4px 0',
+      stepCardPadding: '5px 8px',
+      stepCardMargin: '5px',
+      stepTitleSize: '9.8pt',
+      badgeSize: '7.5pt',
+      headerMarginBottom: '8px',
+      gapBetweenCols: '14px',
+    };
+  }
+
+  return {
+    bodyFontSize: '9.5pt',
+    titleFontSize: '19pt',
+    subtitleFontSize: '9.8pt',
+    heroImgWidth: '135px',
+    heroImgHeight: '100px',
+    itemPadding: '5px 0',
+    stepCardPadding: '7px 10px',
+    stepCardMargin: '7px',
+    stepTitleSize: '10.5pt',
+    badgeSize: '8pt',
+    headerMarginBottom: '10px',
+    gapBetweenCols: '16px',
+  };
+}
+
+/**
+ * Genera la ficha técnica culinaria en una ÚNICA HOJA A4 estricta,
+ * con la fotografía del plato incrustada en base64, ingredientes escalados,
+ * clave del chef y todos los pasos de cocción.
+ * No incluye ningún elemento de interfaz de la app.
  */
 export async function exportRecipeToPdfAndShare(
   recipe: Recipe,
@@ -28,15 +94,26 @@ export async function exportRecipeToPdfAndShare(
 ): Promise<void> {
   const targetServings = currentServings || recipe.baseServings;
   const scaleFactor = targetServings / (recipe.baseServings || 1);
+  const density = getDensityProfile(recipe);
+
+  // Obtener imagen en base64 para garantizar renderizado inmediato offline y en AirPrint
+  let imageBase64 = '';
+  try {
+    imageBase64 = await getRecipeImageBase64(recipe);
+  } catch (e) {
+    console.warn('Error resolviendo imagen base64 para PDF:', e);
+    imageBase64 = recipe.imageUrl || '';
+  }
 
   const ingredientsHtml = recipe.ingredients
     .map((ing) => {
       const scaled = formatAmount(ing.amount * scaleFactor);
       return `
         <li class="ing-item">
-          <div class="ing-name">
-            <strong>${ing.name}</strong>
-            ${ing.notes ? `<span class="ing-note">${ing.notes}</span>` : ''}
+          <div class="ing-name-wrap">
+            <span class="ing-bullet">•</span>
+            <span class="ing-name">${ing.name}</span>
+            ${ing.notes ? `<span class="ing-note">(${ing.notes})</span>` : ''}
           </div>
           <span class="ing-amount">${scaled} ${ing.unit}</span>
         </li>
@@ -52,19 +129,21 @@ export async function exportRecipeToPdfAndShare(
           <div class="step-header">
             <span class="step-num">${st.stepNumber}</span>
             <span class="step-title">${st.title}</span>
-            ${
-              st.temperature
-                ? `<span class="badge badge-temp">🌡️ ${st.temperature}</span>`
-                : ''
-            }
-            ${
-              timerLabel
-                ? `<span class="badge badge-timer">⏱️ ${timerLabel}</span>`
-                : ''
-            }
+            <div class="badges-row">
+              ${
+                st.temperature
+                  ? `<span class="badge badge-temp">🌡️ ${st.temperature}</span>`
+                  : ''
+              }
+              ${
+                timerLabel
+                  ? `<span class="badge badge-timer">⏱️ ${timerLabel}</span>`
+                  : ''
+              }
+            </div>
           </div>
           <p class="step-desc">${st.instruction}</p>
-          ${st.tip ? `<div class="step-tip">💡 ${st.tip}</div>` : ''}
+          ${st.tip ? `<div class="step-tip">💡 <span class="tip-text">${st.tip}</span></div>` : ''}
         </div>
       `;
     })
@@ -75,96 +154,439 @@ export async function exportRecipeToPdfAndShare(
     <html lang="es">
     <head>
       <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>${recipe.title} - Ficha Técnica</title>
       <style>
-        @page { margin: 28px; }
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; }
-        body { color: #1D1D1F; background: #FFFFFF; margin: 0; padding: 12px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E5E5EA; padding-bottom: 12px; margin-bottom: 20px; }
-        .brand { font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #C85A32; }
-        .code { font-size: 12px; font-weight: 600; color: #6E6E73; background: #F2F2F7; padding: 4px 10px; border-radius: 99px; }
-        .hero { display: flex; gap: 20px; align-items: stretch; margin-bottom: 22px; }
-        .hero-info { flex: 1; }
-        .hero-img { width: 180px; height: 135px; object-fit: cover; border-radius: 16px; }
-        .category { font-size: 11px; font-weight: 700; color: #C85A32; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
-        h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.6px; margin: 0 0 6px 0; color: #1D1D1F; }
-        .subtitle { font-size: 14px; color: #6E6E73; line-height: 1.45; margin: 0 0 14px 0; }
-        .meta-row { display: flex; gap: 14px; flex-wrap: wrap; }
-        .meta-pill { font-size: 12px; font-weight: 600; background: #F6F6F8; padding: 6px 12px; border-radius: 99px; color: #1D1D1F; }
-        .chef-box { background: #FDF3EF; border-left: 3px solid #C85A32; padding: 14px 16px; border-radius: 12px; margin-bottom: 22px; }
-        .chef-label { font-size: 10px; font-weight: 800; color: #C85A32; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 4px; }
-        .chef-text { font-size: 13.5px; line-height: 1.5; margin: 0; color: #1D1D1F; }
-        .pairing { font-size: 12.5px; color: #6E6E73; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(200,90,50,0.15); }
-        .grid { display: flex; gap: 24px; align-items: flex-start; }
-        .col-ing { width: 36%; background: #F6F6F8; padding: 16px; border-radius: 16px; }
-        .col-steps { width: 64%; }
-        h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; margin: 0 0 12px 0; }
-        .ing-list { list-style: none; padding: 0; margin: 0; }
-        .ing-item { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 13px; gap: 8px; }
-        .ing-item:last-child { border-bottom: none; }
-        .ing-note { display: block; font-size: 11px; color: #86868B; font-weight: 400; }
-        .ing-amount { font-weight: 700; color: #1D1D1F; white-space: nowrap; }
-        .step-card { background: #F6F6F8; border-radius: 14px; padding: 13px 15px; margin-bottom: 10px; page-break-inside: avoid; }
-        .step-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-        .step-num { width: 22px; height: 22px; border-radius: 11px; background: #1D1D1F; color: #FFF; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 22px; }
-        .step-title { font-size: 14px; font-weight: 700; color: #1D1D1F; flex: 1; }
-        .badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 99px; }
-        .badge-temp { background: #FDF3EF; color: #C85A32; }
-        .badge-timer { background: #E8F0FE; color: #1A73E8; }
-        .step-desc { font-size: 13px; color: #3A3A3C; line-height: 1.5; margin: 0; }
-        .step-tip { font-size: 12px; color: #6E6E73; background: #FFFFFF; padding: 7px 10px; border-radius: 8px; margin-top: 8px; }
-        .footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #E5E5EA; font-size: 11px; color: #86868B; text-align: center; }
+        @page {
+          size: 210mm 297mm; /* A4 Portrait */
+          margin: 6mm 7mm 6mm 7mm;
+        }
+        * {
+          box-sizing: border-box;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        html, body {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          max-height: 285mm;
+          overflow: hidden;
+          font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          color: #1E1915;
+          background-color: #FFFFFF;
+          font-size: ${density.bodyFontSize};
+          line-height: 1.35;
+        }
+        .page-container {
+          height: 100%;
+          max-height: 284mm;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          overflow: hidden;
+        }
+
+        /* Cabecera Técnica Superior */
+        .top-masthead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1.5px solid #C4532B;
+          padding-bottom: 3px;
+          margin-bottom: 6px;
+        }
+        .masthead-brand {
+          font-size: 8pt;
+          font-weight: 800;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: #C4532B;
+        }
+        .masthead-code {
+          font-size: 7.5pt;
+          font-weight: 700;
+          color: #6F645B;
+          background: #F4EFEA;
+          padding: 2px 7px;
+          border-radius: 4px;
+        }
+
+        /* Hero: Información del Plato + Fotografía Emplatada */
+        .hero {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          background: #FAF7F2;
+          border: 1px solid #ECE4DA;
+          border-radius: 8px;
+          padding: 6px 10px;
+          margin-bottom: ${density.headerMarginBottom};
+        }
+        .hero-details {
+          flex: 1;
+          min-width: 0;
+        }
+        .category-tag {
+          font-size: 7pt;
+          font-weight: 800;
+          color: #C4532B;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+          margin-bottom: 2px;
+        }
+        h1.dish-title {
+          font-family: 'Georgia', serif;
+          font-size: ${density.titleFontSize};
+          font-weight: 700;
+          color: #1E1915;
+          margin: 0 0 2px 0;
+          line-height: 1.15;
+          letter-spacing: -0.2px;
+        }
+        p.dish-subtitle {
+          font-size: ${density.subtitleFontSize};
+          color: #6F645B;
+          font-style: italic;
+          margin: 0 0 5px 0;
+          line-height: 1.25;
+        }
+        .meta-strip {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .meta-pill {
+          font-size: 7.5pt;
+          font-weight: 600;
+          background: #FFFFFF;
+          border: 1px solid #DFD5C8;
+          padding: 2px 7px;
+          border-radius: 12px;
+          color: #1E1915;
+        }
+        .meta-pill strong {
+          color: #C4532B;
+        }
+        .hero-image-wrap {
+          flex-shrink: 0;
+          width: ${density.heroImgWidth};
+          height: ${density.heroImgHeight};
+          border-radius: 6px;
+          overflow: hidden;
+          border: 1px solid #DFD5C8;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+          background: #EFE8DF;
+        }
+        .hero-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+
+        /* Distribución en 2 Columnas */
+        .content-columns {
+          flex: 1;
+          display: flex;
+          gap: ${density.gapBetweenCols};
+          min-height: 0;
+          overflow: hidden;
+        }
+
+        /* Columna Izquierda: Ingredientes + Clave Técnica + Maridaje */
+        .col-left {
+          width: 38%;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          overflow: hidden;
+        }
+        .section-box {
+          background: #FAF7F2;
+          border: 1px solid #ECE4DA;
+          border-radius: 7px;
+          padding: 6px 8px;
+        }
+        .ingredients-box {
+          flex: 1;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+        .section-header {
+          font-size: 7.8pt;
+          font-weight: 800;
+          color: #C4532B;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid #E5DCD1;
+          padding-bottom: 2px;
+          margin-bottom: 4px;
+          display: flex;
+          justify-content: space-between;
+        }
+        .ing-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          overflow: hidden;
+        }
+        .ing-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding: ${density.itemPadding};
+          border-bottom: 1px dotted rgba(62,42,24,0.12);
+          gap: 6px;
+          line-height: 1.25;
+        }
+        .ing-item:last-child {
+          border-bottom: none;
+        }
+        .ing-name-wrap {
+          flex: 1;
+          min-width: 0;
+        }
+        .ing-bullet {
+          color: #C4532B;
+          font-weight: bold;
+          margin-right: 3px;
+        }
+        .ing-name {
+          font-weight: 600;
+          color: #1E1915;
+        }
+        .ing-note {
+          font-size: 7.2pt;
+          color: #877A6F;
+          margin-left: 2px;
+        }
+        .ing-amount {
+          font-weight: 700;
+          color: #1E1915;
+          white-space: nowrap;
+          font-feature-settings: 'tnum';
+        }
+
+        .chef-note-box {
+          border-left: 3px solid #C4532B;
+          background: #FAF5F0;
+          border-top: 1px solid #EEDFCE;
+          border-right: 1px solid #EEDFCE;
+          border-bottom: 1px solid #EEDFCE;
+          border-radius: 5px;
+          padding: 5px 7px;
+        }
+        .chef-note-title {
+          font-size: 7.2pt;
+          font-weight: 800;
+          color: #C4532B;
+          text-transform: uppercase;
+          margin-bottom: 2px;
+          letter-spacing: 0.4px;
+        }
+        .chef-note-text {
+          margin: 0;
+          font-size: 7.5pt;
+          line-height: 1.3;
+          color: #2F2720;
+        }
+        .pairing-box {
+          font-size: 7.2pt;
+          color: #5D534A;
+          padding: 4px 6px;
+          background: #FFFFFF;
+          border: 1px solid #E5DCD1;
+          border-radius: 5px;
+          line-height: 1.25;
+        }
+        .pairing-box strong {
+          color: #C4532B;
+        }
+
+        /* Columna Derecha: Elaboración Paso a Paso */
+        .col-right {
+          width: 62%;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .steps-container {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          gap: ${density.stepCardMargin};
+          overflow: hidden;
+        }
+        .step-card {
+          background: #FAF7F2;
+          border: 1px solid #ECE4DA;
+          border-radius: 6px;
+          padding: ${density.stepCardPadding};
+          page-break-inside: avoid;
+        }
+        .step-header {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 2px;
+        }
+        .step-num {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          background: #C4532B;
+          color: #FFFFFF;
+          font-size: 7pt;
+          font-weight: 800;
+          flex-shrink: 0;
+          line-height: 15px;
+          text-align: center;
+        }
+        .step-title {
+          font-size: ${density.stepTitleSize};
+          font-weight: 700;
+          color: #1E1915;
+          flex: 1;
+          line-height: 1.2;
+        }
+        .badges-row {
+          display: flex;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+        .badge {
+          font-size: ${density.badgeSize};
+          font-weight: 700;
+          padding: 1px 5px;
+          border-radius: 3px;
+          white-space: nowrap;
+        }
+        .badge-temp {
+          background: #FDF0E9;
+          color: #C4532B;
+          border: 1px solid #F6D6C6;
+        }
+        .badge-timer {
+          background: #EDF4FE;
+          color: #1A73E8;
+          border: 1px solid #CCE0FC;
+        }
+        .step-desc {
+          margin: 0;
+          color: #332B24;
+          line-height: 1.28;
+        }
+        .step-tip {
+          margin-top: 3px;
+          padding: 2px 6px;
+          background: #FFFFFF;
+          border-left: 2px solid #C08A3E;
+          border-radius: 0 4px 4px 0;
+          font-size: 7.2pt;
+          color: #5D534A;
+          line-height: 1.2;
+        }
+        .tip-text {
+          font-style: italic;
+        }
+
+        /* Pie de Página Minimalista */
+        .page-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-top: 1px solid #ECE4DA;
+          padding-top: 3px;
+          margin-top: 4px;
+          font-size: 6.8pt;
+          color: #9C8E82;
+        }
+        .footer-brand {
+          font-weight: 600;
+        }
       </style>
     </head>
     <body>
-      <div class="top-bar">
-        <span class="brand">Robertito´s CookBook · Ficha Técnica</span>
-        ${recipe.code ? `<span class="code">Manual § ${recipe.code}</span>` : ''}
-      </div>
+      <div class="page-container">
+        <!-- Masthead -->
+        <div class="top-masthead">
+          <span class="masthead-brand">Robertito´s CookBook · Ficha Técnica de Alta Cocina</span>
+          <span class="masthead-code">${recipe.code ? `MANUAL TÉCNICO § ${recipe.code}` : recipe.category}</span>
+        </div>
 
-      <div class="hero">
-        <div class="hero-info">
-          <div class="category">${recipe.category}</div>
-          <h1>${recipe.title}</h1>
-          <p class="subtitle">${recipe.subtitle}</p>
-          <div class="meta-row">
-            <span class="meta-pill">⏱️ ${recipe.prepTimeMinutes} min</span>
-            <span class="meta-pill">👨‍🍳 Dificultad: ${recipe.difficulty}</span>
-            <span class="meta-pill">🍽️ Escalado para ${targetServings} pax</span>
+        <!-- Hero: Título, Datos y Fotografía del Plato -->
+        <div class="hero">
+          <div class="hero-details">
+            <div class="category-tag">${recipe.category}</div>
+            <h1 class="dish-title">${recipe.title}</h1>
+            <p class="dish-subtitle">${recipe.subtitle}</p>
+            <div class="meta-strip">
+              <span class="meta-pill">⏱️ <strong>${recipe.prepTimeMinutes}</strong> min</span>
+              <span class="meta-pill">👨‍🍳 Dificultad: <strong>${recipe.difficulty}</strong></span>
+              <span class="meta-pill">🍽️ Escalado: <strong>${targetServings} pax</strong></span>
+              ${recipe.code ? `<span class="meta-pill">Cod: § ${recipe.code}</span>` : ''}
+            </div>
+          </div>
+          ${
+            imageBase64
+              ? `<div class="hero-image-wrap">
+                  <img class="hero-img" src="${imageBase64}" alt="${recipe.title}" />
+                 </div>`
+              : ''
+          }
+        </div>
+
+        <!-- Columnas: Ingredientes y Elaboración -->
+        <div class="content-columns">
+          <!-- Columna Izquierda: Ingredientes + Claves del Chef -->
+          <div class="col-left">
+            <div class="section-box ingredients-box">
+              <div class="section-header">
+                <span>Ingredientes</span>
+                <span>${targetServings} pax</span>
+              </div>
+              <ul class="ing-list">
+                ${ingredientsHtml}
+              </ul>
+            </div>
+
+            <div class="chef-note-box">
+              <div class="chef-note-title">Clave Técnica · Roberto Torres</div>
+              <p class="chef-note-text">${recipe.chefNote}</p>
+            </div>
+
+            ${
+              recipe.pairing
+                ? `<div class="pairing-box">
+                    <strong>Maridaje:</strong> ${recipe.pairing}
+                   </div>`
+                : ''
+            }
+          </div>
+
+          <!-- Columna Derecha: Pasos Numerados de Elaboración -->
+          <div class="col-right">
+            <div class="section-header">
+              <span>Elaboración Paso a Paso (${recipe.steps.length} pasos)</span>
+              <span>Precisión & Tiempos</span>
+            </div>
+            <div class="steps-container">
+              ${stepsHtml}
+            </div>
           </div>
         </div>
-        ${
-          recipe.imageUrl
-            ? `<img class="hero-img" src="${recipe.imageUrl}" alt="${recipe.title}" />`
-            : ''
-        }
-      </div>
 
-      <div class="chef-box">
-        <div class="chef-label">Clave Técnica de Roberto Torres</div>
-        <p class="chef-text">${recipe.chefNote}</p>
-        ${
-          recipe.pairing
-            ? `<div class="pairing"><strong>Maridaje recomendado:</strong> ${recipe.pairing}</div>`
-            : ''
-        }
-      </div>
-
-      <div class="grid">
-        <div class="col-ing">
-          <h2>Ingredientes (${targetServings} pax)</h2>
-          <ul class="ing-list">
-            ${ingredientsHtml}
-          </ul>
+        <!-- Pie de página técnico (1 única hoja) -->
+        <div class="page-footer">
+          <span class="footer-brand">Robertito´s CookBook · Precisión Culinaria & Ciencia en Cocina</span>
+          <span>Página 1 de 1 · Emisión Técnica</span>
         </div>
-        <div class="col-steps">
-          <h2>Ejecución Paso a Paso</h2>
-          ${stepsHtml}
-        </div>
-      </div>
-
-      <div class="footer">
-        Exportado desde Robertito´s CookBook para iOS · Roberto Torres
       </div>
     </body>
     </html>
@@ -176,8 +598,11 @@ export async function exportRecipeToPdfAndShare(
       return;
     }
 
+    // Dimensiones fijas de A4 a 72 dpi (595 x 842 pt) para asegurar 1 página exacta
     const { uri } = await Print.printToFileAsync({
       html,
+      width: 595,
+      height: 842,
       base64: false,
     });
 
@@ -186,7 +611,7 @@ export async function exportRecipeToPdfAndShare(
       await Sharing.shareAsync(uri, {
         UTI: '.pdf',
         mimeType: 'application/pdf',
-        dialogTitle: `Exportar receta: ${recipe.title}`,
+        dialogTitle: `Ficha Técnica: ${recipe.title}`,
       });
     } else {
       await Print.printAsync({ html });

@@ -24,9 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F5F2EB",
-        "foregroundImage": "./assets/images/chef.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/chef.png"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -49,7 +47,8 @@
           "imageWidth": 140
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,

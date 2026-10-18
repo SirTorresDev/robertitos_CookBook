@@ -4,6 +4,11 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import {
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+  Fraunces_500Medium_Italic,
+} from '@expo-google-fonts/fraunces';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import { AppleTheme } from '@/constants/appleTheme';
@@ -17,7 +22,14 @@ export default function RootLayout() {
   useEffect(() => {
     Promise.all([
       initialize(),
-      Font.loadAsync(Ionicons.font).catch(() => {}),
+      Font.loadAsync({
+        ...Ionicons.font,
+        Fraunces_600SemiBold,
+        Fraunces_700Bold,
+        Fraunces_500Medium_Italic,
+      }).catch((e) => {
+        console.warn('Font loading fallback:', e);
+      }),
     ]).finally(() => {
       SplashScreen.hideAsync().catch(() => {});
     });

@@ -62,11 +62,11 @@ export default function TabsLayout() {
         headerShown: false,
         animation: 'fade',
       }}
-      tabBar={({ state, navigation }) => (
+      tabBar={({ state, navigation }: any) => (
         <View style={[styles.tabBarContainer, { paddingBottom: bottomPadding }]}>
           <View style={styles.tabBarRow}>
             {TAB_ITEMS.map((item) => {
-              const routeIndex = state.routes.findIndex((r) => r.name === item.name);
+              const routeIndex = state.routes.findIndex((r: any) => r.name === item.name);
               const route = state.routes[routeIndex];
               const focused = state.index === routeIndex;
               const color = focused

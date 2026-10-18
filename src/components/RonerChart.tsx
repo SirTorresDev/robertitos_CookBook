@@ -10,8 +10,7 @@ import {
   UIManager,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
-import { AppleTheme, AppleSprings } from '@/constants/appleTheme';
+import { AppleTheme } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
 import { RonerCategory, RonerMeatFilter } from '@/types/roner';
@@ -100,7 +99,7 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
   return (
     <View style={styles.container}>
       {/* Header Rocook */}
-      <Animated.View entering={FadeInDown.duration(380).springify()} style={styles.header}>
+      <View style={styles.header}>
         {showHeaderBack && onBack && (
           <ApplePressable onPress={onBack} style={styles.backBtn} scaleTo={0.92}>
             <Ionicons name="chevron-back" size={20} color={AppleTheme.colors.textPrimary} />
@@ -121,14 +120,14 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
         <Text style={styles.subtitle}>
           Tiempos, temperaturas y técnicas de cocción al vacío calibradas por Joan Roca para resultados de tres estrellas Michelin.
         </Text>
-      </Animated.View>
+      </View>
 
       {/* Banner 4 Reglas Fundamentales (Colapsable) */}
-      <Animated.View entering={FadeInDown.delay(50).duration(380).springify()}>
+      <View>
         <ApplePressable onPress={toggleRules} scaleTo={0.99} style={styles.rulesAccordionBtn}>
           <View style={styles.rulesBtnLeft}>
             <Ionicons name="sparkles" size={17} color={AppleTheme.colors.accentWarm} />
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.rulesBtnTitle}>4 Reglas de Oro de Cocción Rocook</Text>
               <Text style={styles.rulesBtnSubtitle}>
                 {showRules ? 'Toca para contraer' : '5 °C de partida, Maillard, medio líquido y opciones'}
@@ -161,12 +160,10 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
             ))}
           </View>
         )}
-      </Animated.View>
+      </View>
 
       {/* Buscador */}
-      <Animated.View
-        entering={FadeInDown.delay(90).duration(380).springify()}
-        style={styles.searchWrapper}>
+      <View style={styles.searchWrapper}>
         <Ionicons name="search-outline" size={18} color={AppleTheme.colors.textTertiary} />
         <TextInput
           value={search}
@@ -184,7 +181,7 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
             <Ionicons name="close-circle" size={18} color={AppleTheme.colors.textTertiary} />
           </ApplePressable>
         )}
-      </Animated.View>
+      </View>
 
       {/* Selector de Categorías */}
       <ScrollView
@@ -259,12 +256,12 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
 
       {/* Notificación de Selección / Ajuste copiado */}
       {copiedNotification && (
-        <Animated.View entering={FadeInDown.duration(200)} style={styles.notificationToast}>
+        <View style={styles.notificationToast}>
           <Ionicons name="checkmark-circle" size={17} color={AppleTheme.colors.success} />
           <Text style={styles.notificationToastText}>
             Parámetro Roner: <Text style={{ fontWeight: '700' }}>{copiedNotification}</Text>
           </Text>
-        </Animated.View>
+        </View>
       )}
 
       {/* Lista de Registros */}
@@ -278,19 +275,11 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
             </Text>
           </View>
         ) : (
-          filteredEntries.map((entry, index) => {
+          filteredEntries.map((entry) => {
             const hasMultipleOptions = entry.options.length > 1;
 
             return (
-              <Animated.View
-                key={entry.id}
-                entering={FadeInDown.delay(Math.min(index * 30, 180))
-                  .duration(380)
-                  .springify()}
-                layout={LinearTransition.springify()
-                  .damping(AppleSprings.smooth.damping!)
-                  .stiffness(AppleSprings.smooth.stiffness!)}
-                style={styles.card}>
+              <View key={entry.id} style={styles.card}>
                 {/* Cabecera del alimento */}
                 <View style={styles.cardHeader}>
                   <View style={styles.cardTitleCol}>
@@ -437,7 +426,7 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
                     <Text style={styles.notesText}>{entry.notes}</Text>
                   </View>
                 )}
-              </Animated.View>
+              </View>
             );
           })
         )}
@@ -497,10 +486,11 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.textSecondary,
   },
   title: {
-    fontSize: 27,
+    fontFamily: AppleTheme.fonts.displayBold,
+    fontSize: 28,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.7,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 14,
@@ -594,6 +584,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minWidth: 0,
     fontSize: 14,
     color: AppleTheme.colors.textPrimary,
     paddingVertical: 0,
@@ -805,7 +796,8 @@ const styles = StyleSheet.create({
     color: '#9C421C',
   },
   entryName: {
-    fontSize: 17,
+    fontFamily: AppleTheme.fonts.display,
+    fontSize: 18,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
     letterSpacing: -0.3,
