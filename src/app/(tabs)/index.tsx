@@ -65,6 +65,8 @@ export default function RecipesScreen() {
           entering={FadeInDown.duration(420).springify()}
           style={styles.header}>
           <View style={styles.headerTopRow}>
+            <Text style={styles.headerEyebrow}>RECETARIO DE AUTOR</Text>
+
             <ApplePressable
               scaleTo={0.94}
               onPress={() => {
@@ -90,9 +92,9 @@ export default function RecipesScreen() {
             </ApplePressable>
           </View>
 
-          <Text style={styles.brandTitle}>Robertito´s CookBook</Text>
+          <Text style={styles.brandTitle}>Recetas & Precisión</Text>
           <Text style={styles.brandSubtitle}>
-            Fundamentos, texturas, tiempos de precisión y recetario de autor.
+            Fundamentos, texturas, tiempos exactos y recetario paso a paso.
           </Text>
         </Animated.View>
 
@@ -324,8 +326,14 @@ const styles = StyleSheet.create({
   headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  headerEyebrow: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: AppleTheme.colors.accentWarm,
+    letterSpacing: 0.8,
   },
   ronerBannerCard: {
     flexDirection: 'row',

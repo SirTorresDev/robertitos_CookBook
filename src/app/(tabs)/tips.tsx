@@ -81,16 +81,19 @@ export default function TipsScreen() {
               styles.segmentBtn,
               activeTab === 'fundamentos' && styles.segmentBtnActive,
             ]}>
-            <Ionicons
-              name="book-outline"
-              size={15}
-              color={
-                activeTab === 'fundamentos'
-                  ? AppleTheme.colors.textPrimary
-                  : AppleTheme.colors.textSecondary
-              }
-            />
+            <View style={styles.segmentIconWrap}>
+              <Ionicons
+                name="book-outline"
+                size={15}
+                color={
+                  activeTab === 'fundamentos'
+                    ? AppleTheme.colors.textPrimary
+                    : AppleTheme.colors.textSecondary
+                }
+              />
+            </View>
             <Text
+              numberOfLines={1}
               style={[
                 styles.segmentText,
                 activeTab === 'fundamentos' && styles.segmentTextActive,
@@ -109,21 +112,24 @@ export default function TipsScreen() {
               styles.segmentBtn,
               activeTab === 'roner' && styles.segmentBtnActive,
             ]}>
-            <Ionicons
-              name="flame"
-              size={15}
-              color={
-                activeTab === 'roner'
-                  ? AppleTheme.colors.accentWarm
-                  : AppleTheme.colors.textSecondary
-              }
-            />
+            <View style={styles.segmentIconWrap}>
+              <Ionicons
+                name="flame"
+                size={15}
+                color={
+                  activeTab === 'roner'
+                    ? AppleTheme.colors.accentWarm
+                    : AppleTheme.colors.textSecondary
+                }
+              />
+            </View>
             <Text
+              numberOfLines={1}
               style={[
                 styles.segmentText,
                 activeTab === 'roner' && styles.segmentTextActive,
               ]}>
-              Tabla Roner Rocook
+              Tabla Roner
             </Text>
             <View
               style={[
@@ -349,9 +355,10 @@ const styles = StyleSheet.create({
   },
   segmentContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: AppleTheme.colors.surfaceSubtle,
     borderRadius: AppleTheme.radius.pill,
-    padding: 3,
+    padding: 4,
     marginBottom: 16,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
@@ -362,17 +369,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    minHeight: 40,
     paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: AppleTheme.radius.pill,
   },
   segmentBtnActive: {
     backgroundColor: AppleTheme.colors.surface,
     ...AppleTheme.shadow.card,
   },
+  segmentIconWrap: {
+    width: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   segmentText: {
     fontSize: 13,
+    lineHeight: 17,
     fontWeight: '600',
     color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
   },
   segmentTextActive: {
     color: AppleTheme.colors.textPrimary,
@@ -381,18 +398,22 @@ const styles = StyleSheet.create({
   segmentTag: {
     backgroundColor: '#FAF5EF',
     paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: 8,
+    paddingVertical: 2,
+    borderRadius: 9,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: '#E6D7C3',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   segmentTagActive: {
     backgroundColor: '#FAF0E6',
   },
   segmentTagText: {
     fontSize: 10,
+    lineHeight: 12,
     fontWeight: '700',
     color: '#8D4F22',
+    textAlign: 'center',
   },
   segmentTagTextActive: {
     color: AppleTheme.colors.accentWarm,

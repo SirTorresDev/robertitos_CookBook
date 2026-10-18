@@ -206,11 +206,13 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
                 }
               }}
               style={[styles.categoryPill, active && styles.categoryPillActive]}>
-              <Ionicons
-                name={cat.icon}
-                size={14}
-                color={active ? '#FFFFFF' : AppleTheme.colors.textSecondary}
-              />
+              <View style={styles.categoryIconBox}>
+                <Ionicons
+                  name={cat.icon}
+                  size={14}
+                  color={active ? '#FFFFFF' : AppleTheme.colors.textSecondary}
+                />
+              </View>
               <Text style={[styles.categoryPillText, active && styles.categoryPillTextActive]}>
                 {cat.label}
               </Text>
@@ -231,7 +233,7 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
             const active = meatFilter === filter;
             const label =
               filter === 'Todas'
-                ? 'Todas las Carnes'
+                ? 'Todas'
                 : filter === 'Directas'
                 ? 'Directas (Servir)'
                 : 'Indirectas (Conservar)';
@@ -244,7 +246,9 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
                   setMeatFilter(filter);
                 }}
                 style={[styles.subfilterPill, active && styles.subfilterPillActive]}>
-                <Text style={[styles.subfilterText, active && styles.subfilterTextActive]}>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.subfilterText, active && styles.subfilterTextActive]}>
                   {label}
                 </Text>
               </ApplePressable>
@@ -597,13 +601,15 @@ const styles = StyleSheet.create({
   categoriesRow: {
     gap: 8,
     paddingBottom: 10,
+    alignItems: 'center',
   },
   categoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: AppleTheme.colors.surface,
     paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingVertical: 8,
     borderRadius: AppleTheme.radius.pill,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
@@ -613,40 +619,56 @@ const styles = StyleSheet.create({
     backgroundColor: AppleTheme.colors.textPrimary,
     borderColor: AppleTheme.colors.textPrimary,
   },
+  categoryIconBox: {
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   categoryPillText: {
     fontSize: 12.5,
+    lineHeight: 16,
     fontWeight: '600',
     color: AppleTheme.colors.textPrimary,
+    textAlign: 'center',
   },
   categoryPillTextActive: {
     color: '#FFFFFF',
   },
   countTag: {
     backgroundColor: AppleTheme.colors.surfaceSubtle,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
     borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   countTagActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.22)',
   },
   countTagText: {
     fontSize: 10.5,
+    lineHeight: 13,
     fontWeight: '700',
     color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
   },
   countTagTextActive: {
     color: '#FFFFFF',
   },
   subfilterRow: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 12,
     marginTop: 2,
   },
   subfilterPill: {
-    paddingHorizontal: 11,
-    paddingVertical: 6,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 7,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: AppleTheme.colors.surfaceSubtle,
   },
@@ -655,8 +677,10 @@ const styles = StyleSheet.create({
   },
   subfilterText: {
     fontSize: 11.5,
+    lineHeight: 14,
     fontWeight: '600',
     color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
   },
   subfilterTextActive: {
     color: AppleTheme.colors.textPrimary,

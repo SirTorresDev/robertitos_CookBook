@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import { AppleTheme } from '@/constants/appleTheme';
+import { AppHeader } from '@/components/AppHeader';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -25,6 +26,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: AppleTheme.colors.background }}>
       <StatusBar style="dark" />
+      <AppHeader />
       <Stack
         screenOptions={{
           headerShown: false,

@@ -85,6 +85,17 @@ if (fs.existsSync(indexHtmlPath)) {
         font-style: normal;
         font-display: block;
       }
+      @supports (height: 100dvh) {
+        html, body, #root {
+          height: 100dvh !important;
+          max-height: 100dvh !important;
+        }
+      }
+      body {
+        background-color: #F5F5F7;
+        margin: 0;
+        padding: 0;
+      }
     </style>
   </head>`;
 
