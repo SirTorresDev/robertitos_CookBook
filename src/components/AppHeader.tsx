@@ -28,10 +28,10 @@ export function AppHeader() {
 
   const topPadding =
     Platform.OS === 'ios'
-      ? (insets.top || 44)
+      ? Math.max(insets.top, 44)
       : isIOSWeb && isStandalonePWA
-      ? (insets.top || 44)
-      : Math.max(insets.top, 6);
+      ? Math.max(insets.top, 46)
+      : Math.max(insets.top, 8);
 
   const isRecipeDetail = pathname?.startsWith('/recipe/');
 
