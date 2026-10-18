@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',
@@ -30,7 +30,13 @@ export function getFirebaseDb(): Firestore | null {
       appInstance = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     }
     if (!dbInstance) {
-      dbInstance = getFirestore(appInstance);
+      try {
+        dbInstance = initializeFirestore(appInstance, {
+          ignoreUndefinedProperties: true,
+        });
+      } catch {
+        dbInstance = getFirestore(appInstance);
+      }
     }
     return dbInstance;
   } catch (err) {
