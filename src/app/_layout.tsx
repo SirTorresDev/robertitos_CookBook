@@ -10,7 +10,6 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export default function RootLayout() {
   const initialize = useCookBookStore((s) => s.initialize);
-  const hydrated = useCookBookStore((s) => s.hydrated);
 
   useEffect(() => {
     initialize().finally(() => {

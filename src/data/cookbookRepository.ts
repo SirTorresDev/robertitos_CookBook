@@ -2,7 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   collection,
   doc,
-  getDocs,
   onSnapshot,
   setDoc,
   deleteDoc,
