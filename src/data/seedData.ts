@@ -4,6 +4,7 @@ import {
   KitchenUtensil,
   FoodiePlace,
 } from '@/types/cookbook';
+import { COURSE_RECIPES } from './courseRecipes';
 
 export const INITIAL_RECIPES: Recipe[] = [
   {
@@ -224,7 +225,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'Ratio clásico de 120 g de mantequilla y 120 g de harina por cada 500 ml de leche. Pasar del aceite al papel solo 30 segundos y enseguida a rejilla para que el vapor no ablande el rebozado.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:12:00Z',
     ingredients: [
       { id: 'cc-1', name: 'Mantequilla', amount: 120, unit: 'g' },
@@ -314,7 +315,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'La tapioca se cuece aparte 15 min, se reposa y se lava en agua fría para soltar el almidón sobrante. Se incorpora a la salsa montada con mantequilla justo al final solo para calentar.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:18:00Z',
     ingredients: [
       { id: 'st-1', name: 'Perlas de tapioca pequeñas', amount: 50, unit: 'g' },
@@ -419,7 +420,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'Usa un gofre tipo belga que no sea muy dulce. Montar los 200 g de ricota con 50 g de nata 35% MG crea una nube láctea que equilibra la potencia salina de la anchoa grande y el aroma de la trufa.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:25:00Z',
     ingredients: [
       { id: 'gf-1', name: 'Gofre tipo belga (poco dulce)', amount: 1, unit: 'ud', notes: 'Da para 2-4 pinchos' },
@@ -552,7 +553,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'Nunca pongas el magret en sartén caliente: partir de sartén FRÍA con la piel hacia abajo a fuego medio funde la grasa subcutánea lentamente sin quemar la piel, dejándola ultra crujiente.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:40:00Z',
     ingredients: [
       { id: 'mp-1', name: 'Magret de pato fresco', amount: 1, unit: 'ud', notes: 'Aprox. 400 g' },
@@ -640,7 +641,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1592417817098-8f3d691a4bf5?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'Usamos Esferificación Inversa porque los lácteos ya contienen calcio propio. Al sumergir en el baño de alginato (5 g/L en agua mineral reposado 12-24h), la membrana se forma hacia fuera y la gelificación se detiene al lavarla, dejando el centro líquido estable.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:50:00Z',
     ingredients: [
       { id: 'em-1', name: 'Mozzarella de búfala fresca', amount: 220, unit: 'g' },
@@ -688,7 +689,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=1200&q=85',
     chefNote:
       'Para el Aire de Tomate con lecitina (ratio 6-8 g/L), inclina el recipiente y coloca la cabeza de la túrmix a 45° justo en la superficie para inyectar aire. Para las espumas de sifón, cuela siempre por chino antes de cargar N2O.',
-    isFavorite: false,
+    isFavorite: true,
     createdAt: '2026-10-17T10:55:00Z',
     ingredients: [
       { id: 'ae-1', name: 'Agua de tomate clarificada (Aire)', amount: 520, unit: 'g' },
@@ -716,6 +717,7 @@ export const INITIAL_RECIPES: Recipe[] = [
       },
     ],
   },
+  ...COURSE_RECIPES,
 ];
 
 export const INITIAL_TIPS: CookingTip[] = [

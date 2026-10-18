@@ -23,7 +23,7 @@ import {
 } from './seedData';
 
 const STORAGE_KEYS = {
-  RECIPES: '@robertito_cookbook_recipes_v1',
+  RECIPES: '@robertito_cookbook_recipes_v2',
   TIPS: '@robertito_cookbook_tips_v1',
   UTENSILS: '@robertito_cookbook_utensils_v1',
   PLACES: '@robertito_cookbook_places_v1',
@@ -37,19 +37,57 @@ export const CookBookRepository = {
     places: FoodiePlace[];
   }> {
     try {
-      const [rRaw, tRaw, uRaw, pRaw] = await Promise.all([
+      const [rRawV2, rRawV1, tRaw, uRaw, pRaw] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.RECIPES),
+        AsyncStorage.getItem('@robertito_cookbook_recipes_v1'),
         AsyncStorage.getItem(STORAGE_KEYS.TIPS),
         AsyncStorage.getItem(STORAGE_KEYS.UTENSILS),
         AsyncStorage.getItem(STORAGE_KEYS.PLACES),
       ]);
 
-      const recipes: Recipe[] = rRaw ? JSON.parse(rRaw) : INITIAL_RECIPES;
+      let recipes: Recipe[] = INITIAL_RECIPES;
+
+      if (rRawV2) {
+        const storedList: Recipe[] = JSON.parse(rRawV2);
+        const storedMap = new Map(storedList.map((r) => [r.id, r]));
+        const mergedInitial = INITIAL_RECIPES.map((initR) => {
+          const stored = storedMap.get(initR.id);
+          if (stored) {
+            return {
+              ...initR,
+              ...stored,
+              isFavorite: initR.isFavorite || stored.isFavorite,
+            };
+          }
+          return initR;
+        });
+        const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
+        const userCustomRecipes = storedList.filter((r) => !initialIds.has(r.id));
+        recipes = [...mergedInitial, ...userCustomRecipes];
+      } else if (rRawV1) {
+        const oldList: Recipe[] = JSON.parse(rRawV1);
+        const oldMap = new Map(oldList.map((r) => [r.id, r]));
+        const mergedInitial = INITIAL_RECIPES.map((initR) => {
+          const old = oldMap.get(initR.id);
+          if (old) {
+            return {
+              ...initR,
+              ...old,
+              isFavorite: initR.isFavorite || old.isFavorite,
+            };
+          }
+          return initR;
+        });
+        const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
+        const userCustomRecipes = oldList.filter((r) => !initialIds.has(r.id));
+        recipes = [...mergedInitial, ...userCustomRecipes];
+      }
+
       const tips: CookingTip[] = tRaw ? JSON.parse(tRaw) : INITIAL_TIPS;
       const utensils: KitchenUtensil[] = uRaw ? JSON.parse(uRaw) : INITIAL_UTENSILS;
       const places: FoodiePlace[] = pRaw ? JSON.parse(pRaw) : INITIAL_PLACES;
 
-      if (!rRaw) await AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
+      await AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
       if (!tRaw) await AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
       if (!uRaw) await AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(utensils));
       if (!pRaw) await AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(places));

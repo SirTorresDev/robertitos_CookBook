@@ -34,7 +34,6 @@ export default function RecipesScreen() {
   const router = useRouter();
   const recipes = useCookBookStore((s) => s.recipes);
   const toggleFavoriteRecipe = useCookBookStore((s) => s.toggleFavoriteRecipe);
-  const syncStatus = useCookBookStore((s) => s.syncStatus);
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<RecipeCategory>('Todos');
@@ -66,22 +65,16 @@ export default function RecipesScreen() {
           entering={FadeInDown.duration(420).springify()}
           style={styles.header}>
           <View style={styles.headerTopRow}>
-            <View style={styles.statusPill}>
-              <View
-                style={[
-                  styles.statusDot,
-                  {
-                    backgroundColor:
-                      syncStatus === 'connected'
-                        ? AppleTheme.colors.success
-                        : AppleTheme.colors.textPrimary,
-                  },
-                ]}
-              />
-              <Text style={styles.statusText}>
-                {syncStatus === 'connected' ? 'Firebase Live' : 'Manual Técnico · Offline Ready'}
-              </Text>
-            </View>
+            <ApplePressable
+              scaleTo={0.94}
+              onPress={() => {
+                AppleHaptics.selection();
+                router.push({ pathname: '/(tabs)/tips', params: { view: 'roner' } });
+              }}
+              style={styles.ronerQuickBtn}>
+              <Ionicons name="flame" size={13} color={AppleTheme.colors.accentWarm} />
+              <Text style={styles.ronerQuickText}>Tabla Roner Rocook</Text>
+            </ApplePressable>
 
             <ApplePressable
               scaleTo={0.94}
@@ -173,6 +166,36 @@ export default function RecipesScreen() {
               );
             })}
           </ScrollView>
+        </Animated.View>
+
+        {/* Banner Acceso Directo Tabla Roner Rocook */}
+        <Animated.View entering={FadeInDown.delay(120).duration(420).springify()}>
+          <ApplePressable
+            scaleTo={0.98}
+            onPress={() => {
+              AppleHaptics.selection();
+              router.push({ pathname: '/(tabs)/tips', params: { view: 'roner' } });
+            }}
+            style={styles.ronerBannerCard}>
+            <View style={styles.ronerBannerLeft}>
+              <View style={styles.ronerBannerIconCircle}>
+                <Ionicons name="water" size={17} color={AppleTheme.colors.accentWarm} />
+              </View>
+              <View style={styles.ronerBannerTextContainer}>
+                <View style={styles.ronerBannerEyebrowRow}>
+                  <Text style={styles.ronerBannerEyebrow}>ROCOOK · CAN ROCA</Text>
+                  <View style={styles.ronerBannerPill}>
+                    <Text style={styles.ronerBannerPillText}>99 Alimentos</Text>
+                  </View>
+                </View>
+                <Text style={styles.ronerBannerTitle}>Tabla de Tiempo y Temperatura</Text>
+                <Text style={styles.ronerBannerDesc}>
+                  Carnes directas/indirectas, pescado, marisco, verduras y frutas al vacío.
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={17} color={AppleTheme.colors.textTertiary} />
+          </ApplePressable>
         </Animated.View>
 
         {/* Contador Sutil */}
@@ -315,27 +338,89 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 12,
   },
-  statusPill: {
+  ronerQuickBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: AppleTheme.colors.surface,
-    paddingHorizontal: 11,
+    gap: 6,
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: AppleTheme.radius.pill,
+    backgroundColor: '#FAF5EF',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E6D7C3',
+  },
+  ronerQuickText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#8D4F22',
+    letterSpacing: -0.1,
+  },
+  ronerBannerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: AppleTheme.colors.surface,
+    padding: 14,
+    borderRadius: AppleTheme.radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
+    marginBottom: 14,
+    ...AppleTheme.shadow.card,
+  },
+  ronerBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    paddingRight: 8,
+  },
+  ronerBannerIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FAF5EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E6D7C3',
+  },
+  ronerBannerTextContainer: {
+    flex: 1,
+  },
+  ronerBannerEyebrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
+    marginBottom: 2,
   },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+  ronerBannerEyebrow: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#8D4F22',
+    letterSpacing: 0.6,
   },
-  statusText: {
-    fontSize: 11.5,
-    fontWeight: '600',
+  ronerBannerPill: {
+    backgroundColor: AppleTheme.colors.surfaceSubtle,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 8,
+  },
+  ronerBannerPillText: {
+    fontSize: 9.5,
+    fontWeight: '700',
     color: AppleTheme.colors.textSecondary,
-    letterSpacing: -0.1,
+  },
+  ronerBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: AppleTheme.colors.textPrimary,
+    letterSpacing: -0.2,
+  },
+  ronerBannerDesc: {
+    fontSize: 11.5,
+    color: AppleTheme.colors.textSecondary,
+    marginTop: 2,
+    lineHeight: 15,
   },
   favFilterBtn: {
     flexDirection: 'row',
