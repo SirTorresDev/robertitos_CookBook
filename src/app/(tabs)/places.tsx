@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,10 +34,34 @@ const PLACE_CATEGORIES: PlaceCategory[] = [
 
 export default function PlacesScreen() {
   const places = useCookBookStore((s) => s.places);
+  const deletePlace = useCookBookStore((s) => s.deletePlace);
   const [selectedCategory, setSelectedCategory] = useState<PlaceCategory>('Todos');
   const [selectedPlace, setSelectedPlace] = useState<FoodiePlace | null>(
     places[0] || null
   );
+
+  const handleDeletePlace = (place: FoodiePlace) => {
+    AppleHaptics.medium();
+    Alert.alert(
+      '¿Eliminar sitio?',
+      `¿Estás seguro de que quieres borrar "${place.name}" de tus sitios guardados?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Sí, eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            AppleHaptics.success();
+            await deletePlace(place.id);
+            if (selectedPlace?.id === place.id) {
+              const remaining = places.filter((p) => p.id !== place.id);
+              setSelectedPlace(remaining[0] || null);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const filteredPlaces = useMemo(() => {
     return places.filter((p) =>
@@ -195,10 +220,24 @@ export default function PlacesScreen() {
 
               <View style={styles.placeBody}>
                 <View style={styles.placeMetaRow}>
-                  <Text style={styles.placeCategory}>{place.category.toUpperCase()}</Text>
-                  <Text style={styles.placePrice}>
-                    {place.priceLevel} · {place.city}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+                    <Text style={styles.placeCategory}>{place.category.toUpperCase()}</Text>
+                    <Text style={styles.placePrice}>
+                      · {place.priceLevel} · {place.city}
+                    </Text>
+                  </View>
+
+                  <ApplePressable
+                    scaleTo={0.9}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    onPress={() => handleDeletePlace(place)}
+                    style={styles.deletePlaceQuickBtn}>
+                    <Ionicons
+                      name="trash-outline"
+                      size={16}
+                      color={AppleTheme.colors.textTertiary}
+                    />
+                  </ApplePressable>
                 </View>
 
                 <Text style={styles.placeTitle}>{place.name}</Text>
@@ -218,7 +257,7 @@ export default function PlacesScreen() {
 
                 <Text style={styles.placeReview}>{place.review}</Text>
 
-                {/* Botones Directos a Google Maps App */}
+                {/* Botones Directos a Google Maps App + Eliminar */}
                 <View style={styles.actionsRow}>
                   <ApplePressable
                     scaleTo={0.96}
@@ -229,7 +268,7 @@ export default function PlacesScreen() {
                     style={styles.googleMapsPrimaryBtn}>
                     <Ionicons name="location" size={16} color="#FFFFFF" />
                     <Text style={styles.googleMapsPrimaryText}>
-                      Abrir en Google Maps
+                      Abrir en Maps
                     </Text>
                   </ApplePressable>
 
@@ -245,12 +284,37 @@ export default function PlacesScreen() {
                       size={15}
                       color={AppleTheme.colors.googleBlue}
                     />
-                    <Text style={styles.googleMapsSecondaryText}>Cómo llegar</Text>
+                    <Text style={styles.googleMapsSecondaryText}>Ruta</Text>
+                  </ApplePressable>
+
+                  <ApplePressable
+                    scaleTo={0.92}
+                    onPress={() => handleDeletePlace(place)}
+                    style={styles.deletePlaceBtn}>
+                    <Ionicons
+                      name="trash-outline"
+                      size={16}
+                      color={AppleTheme.colors.danger}
+                    />
                   </ApplePressable>
                 </View>
               </View>
             </Animated.View>
           ))}
+
+          {filteredPlaces.length === 0 && (
+            <View style={styles.emptyStateBox}>
+              <Ionicons
+                name="location-outline"
+                size={42}
+                color={AppleTheme.colors.textTertiary}
+              />
+              <Text style={styles.emptyStateTitle}>No hay sitios guardados</Text>
+              <Text style={styles.emptyStateSub}>
+                Añade tus restaurantes, mercados y tiendas gourmet favoritos desde la pestaña Crear.
+              </Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -532,5 +596,38 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.googleBlue,
     fontSize: 13,
     fontWeight: '700',
+  },
+  deletePlaceQuickBtn: {
+    padding: 4,
+    borderRadius: 8,
+  },
+  deletePlaceBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: AppleTheme.colors.dangerSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(210, 65, 47, 0.15)',
+  },
+  emptyStateBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+    gap: 8,
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: AppleTheme.colors.textPrimary,
+    marginTop: 6,
+  },
+  emptyStateSub: {
+    fontSize: 13,
+    color: AppleTheme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });

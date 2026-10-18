@@ -81,8 +81,7 @@ export default function StudioScreen() {
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [processingVoice, setProcessingVoice] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
-  const [voiceTargetKind, setVoiceTargetKind] = useState<VoiceItemKind | 'auto'>('auto');
-  const [autoSaveVoice, setAutoSaveVoice] = useState(true);
+  const voiceTargetKind: VoiceItemKind | 'auto' = 'auto';
   const voiceHandleRef = useRef<VoiceRecordingHandle | null>(null);
 
   // Campos Completos de Receta Manual / Escaneada
@@ -237,23 +236,10 @@ export default function StudioScreen() {
         setRIngredients(rec.ingredients);
         setRSteps(rec.steps);
 
-        if (autoSaveVoice) {
-          await addRecipe({
-            ...rec,
-            id: `rec-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-          });
-          AppleHaptics.success();
-          setVoiceTranscript('');
-          setStatusFeedback(
-            `✅ ¡Receta "${rec.title}" creada y guardada por voz! Ya aparece en tus Recetas Favoritas.`
-          );
-        } else {
-          AppleHaptics.success();
-          setStatusFeedback(
-            `✨ Receta "${rec.title}" estructurada por voz. Revísala abajo y pulsa Guardar.`
-          );
-        }
+        AppleHaptics.success();
+        setStatusFeedback(
+          `✨ Receta "${rec.title}" estructurada con IA. Revisa los campos abajo y pulsa "Guardar en Robertito´s CookBook".`
+        );
       } else if (result.kind === 'place' && result.place) {
         const pl = result.place;
         setMode('place');
@@ -262,23 +248,10 @@ export default function StudioScreen() {
         setPCity(pl.city);
         setPMustOrder(pl.mustOrder);
 
-        if (autoSaveVoice) {
-          await addPlace({
-            ...pl,
-            id: `place-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-          });
-          AppleHaptics.success();
-          setVoiceTranscript('');
-          setStatusFeedback(
-            `✅ ¡Sitio "${pl.name}" (${pl.city}) guardado por voz en tu Mapa Foodie!`
-          );
-        } else {
-          AppleHaptics.success();
-          setStatusFeedback(
-            `✨ Sitio "${pl.name}" estructurado por voz. Revísalo abajo y pulsa Guardar.`
-          );
-        }
+        AppleHaptics.success();
+        setStatusFeedback(
+          `✨ Sitio "${pl.name}" (${pl.city}) estructurado con IA. Revisa los datos abajo y pulsa "Guardar en Robertito´s CookBook".`
+        );
       } else if (result.kind === 'utensil' && result.utensil) {
         const ut = result.utensil;
         setMode('utensil');
@@ -288,23 +261,10 @@ export default function StudioScreen() {
         setUUsedFor(ut.usedFor);
         setUPrice(ut.estimatedPrice || '');
 
-        if (autoSaveVoice) {
-          await addUtensil({
-            ...ut,
-            id: `ut-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-          });
-          AppleHaptics.success();
-          setVoiceTranscript('');
-          setStatusFeedback(
-            `✅ ¡"${ut.name}" guardado por voz en tu lista de Utensilios / Cosas que necesitas!`
-          );
-        } else {
-          AppleHaptics.success();
-          setStatusFeedback(
-            `✨ "${ut.name}" preparado en el formulario. Revísalo abajo y pulsa Guardar.`
-          );
-        }
+        AppleHaptics.success();
+        setStatusFeedback(
+          `✨ "${ut.name}" estructurado con IA en el formulario. Revisa los datos abajo y pulsa "Guardar en Robertito´s CookBook".`
+        );
       } else if (result.kind === 'tip' && result.tip) {
         const tp = result.tip;
         setMode('tip');
@@ -312,23 +272,10 @@ export default function StudioScreen() {
         setTSummary(tp.summary);
         setTSecret(tp.proSecret);
 
-        if (autoSaveVoice) {
-          await addTip({
-            ...tp,
-            id: `tip-${Date.now()}`,
-            createdAt: new Date().toISOString(),
-          });
-          AppleHaptics.success();
-          setVoiceTranscript('');
-          setStatusFeedback(
-            `✅ ¡Técnica "${tp.title}" guardada directamente por voz!`
-          );
-        } else {
-          AppleHaptics.success();
-          setStatusFeedback(
-            `✨ Técnica "${tp.title}" estructurada por voz. Revísala abajo y pulsa Guardar.`
-          );
-        }
+        AppleHaptics.success();
+        setStatusFeedback(
+          `✨ Técnica "${tp.title}" estructurada con IA. Revisa los datos abajo y pulsa "Guardar en Robertito´s CookBook".`
+        );
       }
     } finally {
       setProcessingVoice(false);
@@ -510,174 +457,37 @@ export default function StudioScreen() {
         <Animated.View
           entering={FadeInDown.duration(400).springify()}
           style={styles.header}>
-          <Text style={styles.eyebrow}>VOZ CON IA, ESCÁNER ÓPTICO & CLOUD</Text>
+          <Text style={styles.eyebrow}>CREAR, ESCANEAR & DICTAR CON IA</Text>
           <Text style={styles.title}>Añadir a mi CookBook</Text>
           <Text style={styles.subtitle}>
-            Dicta por voz recetas, sitios o cosas que necesites con ayuda de la IA, escanea una foto o créalo manualmente.
+            Escanea recetas por fotografía, dicta por voz con IA o introduce los datos manualmente.
           </Text>
         </Animated.View>
 
-        {/* Tarjeta Principal: Dictado por Voz con IA */}
+        {/* Tarjeta Unificada: Escanear Receta (Foto, Galería o Dictar por Voz) */}
         <Animated.View
-          entering={FadeInDown.delay(25).duration(400).springify()}
+          entering={FadeInDown.delay(30).duration(400).springify()}
           style={[
-            styles.voiceCard,
-            isRecordingVoice && styles.voiceCardRecording,
+            styles.scannerCard,
+            isRecordingVoice && styles.scannerCardRecording,
           ]}>
-          <View style={styles.voiceHeader}>
+          <View style={styles.scannerHeader}>
             <View style={styles.scannerTitleRow}>
               <View
                 style={[
-                  styles.voiceIconBadge,
-                  isRecordingVoice && styles.voiceIconBadgeActive,
+                  styles.scannerIconBadge,
+                  isRecordingVoice && styles.scannerIconBadgeRecording,
                 ]}>
                 <Ionicons
-                  name={isRecordingVoice ? 'radio' : 'mic'}
-                  size={20}
+                  name={isRecordingVoice ? 'mic' : 'scan'}
+                  size={19}
                   color="#FFFFFF"
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.scannerTitle}>Guardar por Voz con IA</Text>
+                <Text style={styles.scannerTitle}>Escanear Receta</Text>
                 <Text style={styles.scannerSub}>
-                  Dicta una receta, un restaurante o algo que necesites comprar
-                </Text>
-              </View>
-            </View>
-
-            <ApplePressable
-              scaleTo={0.95}
-              onPress={() => {
-                AppleHaptics.selection();
-                setAutoSaveVoice((v) => !v);
-              }}
-              style={[
-                styles.autoSavePill,
-                autoSaveVoice && styles.autoSavePillActive,
-              ]}>
-              <Ionicons
-                name={autoSaveVoice ? 'flash' : 'create-outline'}
-                size={12}
-                color={autoSaveVoice ? '#FFFFFF' : AppleTheme.colors.textSecondary}
-              />
-              <Text
-                style={[
-                  styles.autoSavePillText,
-                  autoSaveVoice && { color: '#FFFFFF' },
-                ]}>
-                {autoSaveVoice ? 'Guardado directo' : 'Revisar antes'}
-              </Text>
-            </ApplePressable>
-          </View>
-
-          {/* Selector de qué quieres dictar (Auto o específico) */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.voiceTargetRow}>
-            {(
-              [
-                { key: 'auto', label: '✨ Auto-detectar', icon: 'sparkles' },
-                { key: 'recipe', label: '🍳 Receta', icon: 'restaurant-outline' },
-                { key: 'place', label: '📍 Sitio / Mapa', icon: 'location-outline' },
-                { key: 'utensil', label: '🛒 Cosa que necesito', icon: 'cart-outline' },
-                { key: 'tip', label: '💡 Técnica', icon: 'bulb-outline' },
-              ] as const
-            ).map((item) => {
-              const active = voiceTargetKind === item.key;
-              return (
-                <ApplePressable
-                  key={item.key}
-                  scaleTo={0.96}
-                  onPress={() => {
-                    AppleHaptics.selection();
-                    setVoiceTargetKind(item.key);
-                  }}
-                  style={[
-                    styles.voiceKindChip,
-                    active && styles.voiceKindChipActive,
-                  ]}>
-                  <Text
-                    style={[
-                      styles.voiceKindChipText,
-                      active && styles.voiceKindChipTextActive,
-                    ]}>
-                    {item.label}
-                  </Text>
-                </ApplePressable>
-              );
-            })}
-          </ScrollView>
-
-          {/* Botón Principal de Micrófono */}
-          <ApplePressable
-            scaleTo={0.97}
-            disabled={processingVoice}
-            onPress={handleToggleVoiceRecording}
-            style={[
-              styles.voiceMicBtn,
-              isRecordingVoice && styles.voiceMicBtnRecording,
-            ]}>
-            {processingVoice ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Ionicons
-                name={isRecordingVoice ? 'stop-circle' : 'mic'}
-                size={22}
-                color="#FFFFFF"
-              />
-            )}
-            <Text style={styles.voiceMicBtnText}>
-              {processingVoice
-                ? 'Estructurando con IA...'
-                : isRecordingVoice
-                ? 'Escuchando... Pulsa para Detener y Guardar'
-                : 'Pulsar para Dictar por Voz'}
-            </Text>
-          </ApplePressable>
-
-          {/* Cuadro de transcripción en vivo / dictado nativo iOS */}
-          <View style={styles.voiceTranscriptBox}>
-            <TextInput
-              value={voiceTranscript}
-              onChangeText={setVoiceTranscript}
-              placeholder='Ej: "Guarda una receta de carrillera en roner a 80 grados 12 horas", "Apunta el restaurante Sacha en Madrid" o "Necesito comprar bolsas de vacío"...'
-              placeholderTextColor={AppleTheme.colors.textTertiary}
-              multiline
-              style={styles.voiceTranscriptInput}
-            />
-            {voiceTranscript.trim().length > 0 && !isRecordingVoice && (
-              <ApplePressable
-                scaleTo={0.96}
-                disabled={processingVoice}
-                onPress={() =>
-                  executeVoiceAiPipeline({ transcript: voiceTranscript })
-                }
-                style={styles.voiceProcessTextBtn}>
-                <Ionicons name="sparkles" size={15} color="#FFFFFF" />
-                <Text style={styles.voiceProcessTextBtnLabel}>
-                  {autoSaveVoice
-                    ? 'Guardar directamente con IA'
-                    : 'Rellenar formulario con IA'}
-                </Text>
-              </ApplePressable>
-            )}
-          </View>
-        </Animated.View>
-
-        {/* Tarjeta Destacada: Escanear Receta desde Cámara o Galería */}
-        <Animated.View
-          entering={FadeInDown.delay(45).duration(400).springify()}
-          style={styles.scannerCard}>
-          <View style={styles.scannerHeader}>
-            <View style={styles.scannerTitleRow}>
-              <View style={styles.scannerIconBadge}>
-                <Ionicons name="scan" size={18} color="#FFFFFF" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.scannerTitle}>Escanear Receta por Fotografía</Text>
-                <Text style={styles.scannerSub}>
-                  Haz una foto a un libro, nota manuscrita o captura de tu galería
+                  Haz una foto, sube desde tu galería o dicta por voz con IA
                 </Text>
               </View>
             </View>
@@ -693,33 +503,111 @@ export default function StudioScreen() {
             </ApplePressable>
           </View>
 
+          {/* 3 Opciones: Hacer Foto | De la Galería | Dictar por Voz */}
           <View style={styles.scannerBtnsRow}>
             <ApplePressable
               scaleTo={0.96}
-              disabled={scanningImage}
+              disabled={scanningImage || isRecordingVoice || processingVoice}
               onPress={() => handleScanFromCameraOrGallery('camera')}
               style={styles.scanPrimaryBtn}>
               {scanningImage ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Ionicons name="camera" size={18} color="#FFFFFF" />
+                <Ionicons name="camera" size={17} color="#FFFFFF" />
               )}
-              <Text style={styles.scanPrimaryBtnText}>Hacer Fotografía</Text>
+              <Text numberOfLines={1} style={styles.scanPrimaryBtnText}>
+                Hacer Foto
+              </Text>
             </ApplePressable>
 
             <ApplePressable
               scaleTo={0.96}
-              disabled={scanningImage}
+              disabled={scanningImage || isRecordingVoice || processingVoice}
               onPress={() => handleScanFromCameraOrGallery('gallery')}
               style={styles.scanSecondaryBtn}>
               <Ionicons
                 name="images"
-                size={18}
+                size={17}
                 color={AppleTheme.colors.textPrimary}
               />
-              <Text style={styles.scanSecondaryBtnText}>De la Galería</Text>
+              <Text numberOfLines={1} style={styles.scanSecondaryBtnText}>
+                De la Galería
+              </Text>
+            </ApplePressable>
+
+            <ApplePressable
+              scaleTo={0.96}
+              disabled={scanningImage || processingVoice}
+              onPress={handleToggleVoiceRecording}
+              style={[
+                styles.scanVoiceBtn,
+                isRecordingVoice && styles.scanVoiceBtnActive,
+              ]}>
+              <Ionicons
+                name={isRecordingVoice ? 'stop-circle' : 'mic'}
+                size={18}
+                color={isRecordingVoice ? '#FFFFFF' : AppleTheme.colors.accentWarm}
+              />
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.scanVoiceBtnText,
+                  isRecordingVoice && { color: '#FFFFFF' },
+                ]}>
+                {isRecordingVoice ? 'Detener' : 'Dictar por Voz'}
+              </Text>
             </ApplePressable>
           </View>
+
+          {/* Indicador de escucha en vivo */}
+          {isRecordingVoice && (
+            <View style={styles.voiceLiveStatus}>
+              <View style={styles.recordingPulseDot} />
+              <Text style={styles.voiceLiveStatusText}>
+                Escuchando en vivo... Di los ingredientes y pasos de tu receta. Pulsa Detener para estructurar.
+              </Text>
+            </View>
+          )}
+
+          {/* Indicador de procesamiento con IA */}
+          {processingVoice && (
+            <View style={styles.voiceLiveStatus}>
+              <ActivityIndicator size="small" color={AppleTheme.colors.accentWarm} />
+              <Text style={styles.voiceLiveStatusText}>
+                Estructurando campos con IA (sin guardar automáticamente)...
+              </Text>
+            </View>
+          )}
+
+          {/* Transcripción por voz si existe */}
+          {voiceTranscript.trim().length > 0 && !isRecordingVoice && !processingVoice && (
+            <View style={styles.voiceTranscriptBar}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <Text style={styles.voiceTranscriptBarTitle}>Texto dictado por voz:</Text>
+                <ApplePressable onPress={() => setVoiceTranscript('')}>
+                  <Text style={styles.voiceTranscriptClear}>Borrar</Text>
+                </ApplePressable>
+              </View>
+              <Text style={styles.voiceTranscriptBarContent} numberOfLines={3}>
+                &ldquo;{voiceTranscript}&rdquo;
+              </Text>
+              <ApplePressable
+                scaleTo={0.96}
+                disabled={processingVoice}
+                onPress={() => executeVoiceAiPipeline({ transcript: voiceTranscript })}
+                style={styles.voiceReapplyBtn}>
+                <Ionicons name="sparkles" size={14} color="#FFFFFF" />
+                <Text style={styles.voiceReapplyBtnText}>
+                  Re-rellenar formulario con IA
+                </Text>
+              </ApplePressable>
+            </View>
+          )}
 
           {showAiConfig && (
             <View style={styles.aiConfigBox}>
@@ -1348,124 +1236,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     lineHeight: 20,
   },
-  voiceCard: {
-    backgroundColor: AppleTheme.colors.surface,
-    borderRadius: AppleTheme.radius.lg,
-    padding: 18,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E5DAC8',
-    ...AppleTheme.shadow.card,
-  },
-  voiceCardRecording: {
-    borderColor: AppleTheme.colors.danger,
-    backgroundColor: '#FFFDFB',
-  },
-  voiceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
-  },
-  voiceIconBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    backgroundColor: AppleTheme.colors.accentWarm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  voiceIconBadgeActive: {
-    backgroundColor: AppleTheme.colors.danger,
-  },
-  autoSavePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: AppleTheme.colors.pillBg,
-  },
-  autoSavePillActive: {
-    backgroundColor: AppleTheme.colors.textPrimary,
-  },
-  autoSavePillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: AppleTheme.colors.textSecondary,
-  },
-  voiceTargetRow: {
-    gap: 7,
-    paddingBottom: 12,
-  },
-  voiceKindChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: AppleTheme.colors.pillBg,
-  },
-  voiceKindChipActive: {
-    backgroundColor: AppleTheme.colors.accentWarm,
-  },
-  voiceKindChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: AppleTheme.colors.textSecondary,
-  },
-  voiceKindChipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-  },
-  voiceMicBtn: {
-    height: 50,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: AppleTheme.colors.textPrimary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 9,
-    marginBottom: 12,
-  },
-  voiceMicBtnRecording: {
-    backgroundColor: AppleTheme.colors.danger,
-  },
-  voiceMicBtnText: {
-    color: '#FFFFFF',
-    fontSize: 14.5,
-    fontWeight: '700',
-  },
-  voiceTranscriptBox: {
-    gap: 8,
-  },
-  voiceTranscriptInput: {
-    backgroundColor: AppleTheme.colors.background,
-    borderRadius: AppleTheme.radius.sm,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 10,
-    minHeight: 68,
-    fontSize: 13.5,
-    color: AppleTheme.colors.textPrimary,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: AppleTheme.colors.border,
-    textAlignVertical: 'top',
-  },
-  voiceProcessTextBtn: {
-    height: 42,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: AppleTheme.colors.accentWarm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-  },
-  voiceProcessTextBtnLabel: {
-    color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '700',
-  },
   scannerCard: {
     backgroundColor: AppleTheme.colors.surface,
     borderRadius: AppleTheme.radius.lg,
@@ -1474,6 +1244,10 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
     ...AppleTheme.shadow.card,
+  },
+  scannerCardRecording: {
+    borderColor: AppleTheme.colors.danger,
+    backgroundColor: '#FFFDFB',
   },
   scannerHeader: {
     flexDirection: 'row',
@@ -1494,6 +1268,9 @@ const styles = StyleSheet.create({
     backgroundColor: AppleTheme.colors.textPrimary,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  scannerIconBadgeRecording: {
+    backgroundColor: AppleTheme.colors.danger,
   },
   scannerTitle: {
     fontSize: 16.5,
@@ -1516,36 +1293,125 @@ const styles = StyleSheet.create({
   },
   scannerBtnsRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   scanPrimaryBtn: {
     flex: 1,
-    height: 46,
+    height: 48,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: AppleTheme.colors.textPrimary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 6,
+    paddingHorizontal: 4,
   },
   scanPrimaryBtnText: {
     color: '#FFFFFF',
-    fontSize: 13.5,
+    fontSize: 12.5,
     fontWeight: '700',
   },
   scanSecondaryBtn: {
     flex: 1,
-    height: 46,
+    height: 48,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: AppleTheme.colors.pillBg,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 6,
+    paddingHorizontal: 4,
   },
   scanSecondaryBtnText: {
     color: AppleTheme.colors.textPrimary,
-    fontSize: 13.5,
+    fontSize: 12.5,
+    fontWeight: '700',
+  },
+  scanVoiceBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: '#F7EFE2',
+    borderWidth: 1,
+    borderColor: '#E8D5BF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 4,
+  },
+  scanVoiceBtnActive: {
+    backgroundColor: AppleTheme.colors.danger,
+    borderColor: AppleTheme.colors.danger,
+  },
+  scanVoiceBtnText: {
+    color: AppleTheme.colors.accentWarm,
+    fontSize: 12.5,
+    fontWeight: '700',
+  },
+  voiceLiveStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+    padding: 10,
+    borderRadius: AppleTheme.radius.sm,
+    backgroundColor: '#FAF5EE',
+    borderWidth: 1,
+    borderColor: '#EFE5D6',
+  },
+  voiceLiveStatusText: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: AppleTheme.colors.textPrimary,
+  },
+  recordingPulseDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: AppleTheme.colors.danger,
+  },
+  voiceTranscriptBar: {
+    marginTop: 12,
+    padding: 11,
+    borderRadius: AppleTheme.radius.sm,
+    backgroundColor: AppleTheme.colors.background,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: AppleTheme.colors.border,
+    gap: 6,
+  },
+  voiceTranscriptBarTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: AppleTheme.colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  voiceTranscriptBarContent: {
+    fontSize: 13,
+    color: AppleTheme.colors.textPrimary,
+    fontStyle: 'italic',
+    lineHeight: 18,
+  },
+  voiceTranscriptClear: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: AppleTheme.colors.textTertiary,
+  },
+  voiceReapplyBtn: {
+    height: 36,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: AppleTheme.colors.accentWarm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginTop: 4,
+  },
+  voiceReapplyBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
     fontWeight: '700',
   },
   aiConfigBox: {

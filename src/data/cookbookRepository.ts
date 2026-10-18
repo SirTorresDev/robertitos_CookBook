@@ -253,6 +253,14 @@ export const CookBookRepository = {
     }
   },
 
+  async removePlace(id: string, allPlaces: FoodiePlace[]): Promise<void> {
+    await CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, allPlaces);
+    const db = getFirebaseDb();
+    if (db) {
+      await deleteDoc(doc(db, 'places', id)).catch(() => {});
+    }
+  },
+
   async resetToManualDefaults(): Promise<{
     recipes: Recipe[];
     tips: CookingTip[];

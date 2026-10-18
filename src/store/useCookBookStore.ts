@@ -31,6 +31,7 @@ interface CookBookState {
   toggleUtensilAcquired: (utensilId: string) => Promise<void>;
   deleteUtensil: (utensilId: string) => Promise<void>;
   addPlace: (place: FoodiePlace) => Promise<void>;
+  deletePlace: (placeId: string) => Promise<void>;
   syncWithFirebase: () => Promise<{ ok: boolean; message: string }>;
   resetToFactory: () => Promise<void>;
 }
@@ -125,6 +126,12 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
     const updated = [place, ...get().places];
     set({ places: updated });
     await CookBookRepository.upsertPlace(place, updated);
+  },
+
+  deletePlace: async (placeId) => {
+    const updated = get().places.filter((p) => p.id !== placeId);
+    set({ places: updated });
+    await CookBookRepository.removePlace(placeId, updated);
   },
 
   syncWithFirebase: async () => {
