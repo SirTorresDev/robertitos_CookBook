@@ -188,7 +188,6 @@ export async function exportRecipeToPdfAndShare(
   const targetServings = currentServings || recipe.baseServings;
   const scaleFactor = targetServings / (recipe.baseServings || 1);
   const density = getDensityProfile(recipe);
-  const activeTimersCount = recipe.steps.filter((s) => (s.timerSeconds ?? 0) > 0).length;
 
   let imageBase64 = '';
   try {
@@ -308,19 +307,20 @@ export async function exportRecipeToPdfAndShare(
           overflow: hidden;
         }
 
-        /* 1. Cabecera Integrada con el Banner del Logo */
+        /* 1. Cabecera Integrada con el Banner del Logo Centrado */
         .brand-banner {
           background: #FAF7F0;
           border-bottom: 2px solid #D4912A;
           padding: 8px 20px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          justify-content: center;
           flex-shrink: 0;
         }
         .brand-lockup {
           display: flex;
           align-items: center;
+          justify-content: center;
           gap: 10px;
         }
         .brand-emblem {
@@ -334,16 +334,6 @@ export async function exportRecipeToPdfAndShare(
           width: auto;
           object-fit: contain;
           display: block;
-        }
-        .brand-badge {
-          background: #181512;
-          color: #FAF7F0;
-          font-size: ${density.metaSize};
-          font-weight: 700;
-          letter-spacing: 0.8px;
-          text-transform: uppercase;
-          padding: 5px 12px;
-          border-radius: 999px;
         }
 
         /* 2. Fotografía Grande y Protagonista del Plato con Título Integrado */
@@ -368,27 +358,14 @@ export async function exportRecipeToPdfAndShare(
           inset: 0;
           background: linear-gradient(
             180deg,
-            rgba(18, 14, 10, 0.05) 0%,
-            rgba(18, 14, 10, 0.35) 42%,
-            rgba(18, 14, 10, 0.88) 100%
+            rgba(18, 14, 10, 0.04) 0%,
+            rgba(18, 14, 10, 0.32) 48%,
+            rgba(18, 14, 10, 0.86) 100%
           );
           display: flex;
           flex-direction: column;
           justify-content: flex-end;
           padding: 18px 22px 16px 22px;
-        }
-        .hero-eyebrow {
-          display: inline-block;
-          align-self: flex-start;
-          background: #D4912A;
-          color: #FFFFFF;
-          font-size: 7.5pt;
-          font-weight: 800;
-          letter-spacing: 0.9px;
-          text-transform: uppercase;
-          padding: 3px 10px;
-          border-radius: 999px;
-          margin-bottom: 6px;
         }
         .dish-title {
           font-family: 'Fraunces', Georgia, serif;
@@ -720,9 +697,6 @@ export async function exportRecipeToPdfAndShare(
             <img class="brand-emblem" src="${BRAND_EMBLEM_BASE64}" alt="Emblema Robertito's" />
             <img class="brand-wordmark" src="${BRAND_WORDMARK_BASE64}" alt="Robertito's CookBook" />
           </div>
-          <div class="brand-badge">
-            ${recipe.code ? `§ ${recipe.code} · ` : ''}${recipe.category}
-          </div>
         </div>
 
         <!-- 2. Imagen Grande del Plato con Título Integrado -->
@@ -733,7 +707,6 @@ export async function exportRecipeToPdfAndShare(
               : ''
           }
           <div class="hero-overlay">
-            <span class="hero-eyebrow">FICHA GASTRONÓMICA DE AUTOR</span>
             <h1 class="dish-title">${recipe.title}</h1>
             ${recipe.subtitle ? `<p class="dish-subtitle">${recipe.subtitle}</p>` : ''}
           </div>
@@ -755,11 +728,6 @@ export async function exportRecipeToPdfAndShare(
             <span class="metric-dot"></span>
             <span class="metric-label">Nivel Técnico</span>
             <span class="metric-value">${recipe.difficulty}</span>
-          </div>
-          <div class="metric-cell">
-            <span class="metric-dot"></span>
-            <span class="metric-label">Control Timers</span>
-            <span class="metric-value">${activeTimersCount} ${activeTimersCount === 1 ? 'paso' : 'pasos'}</span>
           </div>
         </div>
 

@@ -166,14 +166,11 @@ export default function RecipesScreen() {
             {filteredRecipes.length}{' '}
             {filteredRecipes.length === 1 ? 'receta técnica' : 'recetas técnicas'}
           </Text>
-          <Text style={styles.sectionHint}>Toca para escalar y abrir timers</Text>
         </View>
 
         {/* Lista de Recetas con Transiciones Spring */}
         <View style={styles.cardsList}>
           {filteredRecipes.map((recipe, idx) => {
-            const timersCount = recipe.steps.filter((s) => (s.timerSeconds ?? 0) > 0).length;
-
             return (
               <Animated.View
                 key={recipe.id}
@@ -245,17 +242,6 @@ export default function RecipesScreen() {
                           color={AppleTheme.colors.textSecondary}
                         />
                         <Text style={styles.footerText}>{recipe.prepTimeMinutes} min</Text>
-                      </View>
-
-                      <View style={styles.footerItem}>
-                        <Ionicons
-                          name="timer-outline"
-                          size={15}
-                          color={AppleTheme.colors.accentWarm}
-                        />
-                        <Text style={[styles.footerText, { color: AppleTheme.colors.accentWarm }]}>
-                          {timersCount} {timersCount === 1 ? 'timer activo' : 'timers activos'}
-                        </Text>
                       </View>
 
                       <View style={styles.footerItem}>
