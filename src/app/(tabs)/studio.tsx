@@ -491,7 +491,7 @@ export default function StudioScreen() {
               </View>
 
               <View style={styles.row}>
-                <View style={{ flex: 1 }}>
+                <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.miniLabel}>Tiempo total (min)</Text>
                   <TextInput
                     value={rPrepMinutes}
@@ -501,7 +501,7 @@ export default function StudioScreen() {
                     style={styles.input}
                   />
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={styles.miniLabel}>Raciones base (pax)</Text>
                   <TextInput
                     value={rBaseServings}
@@ -557,7 +557,7 @@ export default function StudioScreen() {
                     }
                     placeholder="Ingrediente"
                     placeholderTextColor={AppleTheme.colors.textTertiary}
-                    style={[styles.input, { flex: 1 }]}
+                    style={[styles.input, { flex: 1, minWidth: 0 }]}
                   />
                   <TextInput
                     value={String(ing.amount)}
@@ -572,7 +572,7 @@ export default function StudioScreen() {
                     }
                     keyboardType="numeric"
                     placeholder="Cant."
-                    style={[styles.input, { width: 68 }]}
+                    style={[styles.input, { width: 62, paddingHorizontal: 8, textAlign: 'center' }]}
                   />
                   <TextInput
                     value={ing.unit}
@@ -582,7 +582,7 @@ export default function StudioScreen() {
                       )
                     }
                     placeholder="g/ml/ud"
-                    style={[styles.input, { width: 65 }]}
+                    style={[styles.input, { width: 62, paddingHorizontal: 8, textAlign: 'center' }]}
                   />
                   {rIngredients.length > 1 && (
                     <ApplePressable
@@ -624,7 +624,7 @@ export default function StudioScreen() {
 
               {rSteps.map((st, sIdx) => (
                 <View key={sIdx} style={styles.stepBox}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%' }}>
                     <Text style={{ fontWeight: '700', fontSize: 13 }}>#{sIdx + 1}</Text>
                     <TextInput
                       value={st.title}
@@ -634,7 +634,7 @@ export default function StudioScreen() {
                         )
                       }
                       placeholder="Título del paso"
-                      style={[styles.input, { flex: 1 }]}
+                      style={[styles.input, { flex: 1, minWidth: 0 }]}
                     />
                     {rSteps.length > 1 && (
                       <ApplePressable
@@ -684,9 +684,9 @@ export default function StudioScreen() {
                         );
                       }}
                       keyboardType="numeric"
-                      placeholder="Timer (minutos)"
+                      placeholder="Timer (min)"
                       placeholderTextColor={AppleTheme.colors.textTertiary}
-                      style={[styles.input, { flex: 1 }]}
+                      style={[styles.input, { flex: 1, minWidth: 0 }]}
                     />
                     <TextInput
                       value={st.temperature || ''}
@@ -699,7 +699,7 @@ export default function StudioScreen() {
                       }
                       placeholder="Temp (ej. 65 °C)"
                       placeholderTextColor={AppleTheme.colors.textTertiary}
-                      style={[styles.input, { flex: 1 }]}
+                      style={[styles.input, { flex: 1, minWidth: 0 }]}
                     />
                   </View>
                 </View>
@@ -1099,12 +1099,14 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: AppleTheme.colors.background,
     borderRadius: AppleTheme.radius.sm,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     height: 44,
     fontSize: 14.5,
     color: AppleTheme.colors.textPrimary,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
+    minWidth: 0,
+    maxWidth: '100%',
   },
   textArea: {
     height: 82,
@@ -1114,6 +1116,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: 10,
+    width: '100%',
+    minWidth: 0,
   },
   dynamicHeader: {
     flexDirection: 'row',
@@ -1139,12 +1143,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    width: '100%',
+    minWidth: 0,
   },
   stepBox: {
     backgroundColor: AppleTheme.colors.pillBg,
     padding: 12,
     borderRadius: AppleTheme.radius.md,
     gap: 8,
+    width: '100%',
+    overflow: 'hidden',
   },
   submitBtn: {
     marginTop: 8,

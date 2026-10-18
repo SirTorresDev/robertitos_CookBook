@@ -1595,12 +1595,14 @@ const styles = StyleSheet.create({
   editInput: {
     backgroundColor: AppleTheme.colors.surface,
     borderRadius: AppleTheme.radius.sm,
-    paddingHorizontal: 13,
+    paddingHorizontal: 12,
     height: 44,
     fontSize: 14.5,
     color: AppleTheme.colors.textPrimary,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.borderStrong,
+    minWidth: 0,
+    maxWidth: '100%',
   },
   photoPickerRow: {
     flexDirection: 'row',
@@ -1664,6 +1666,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    width: '100%',
+    minWidth: 0,
   },
   removeMiniBtn: {
     padding: 4,
@@ -1673,6 +1677,8 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: AppleTheme.radius.md,
     gap: 8,
+    width: '100%',
+    overflow: 'hidden',
   },
   modalSafe: {
     flex: 1,

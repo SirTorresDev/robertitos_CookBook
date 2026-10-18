@@ -96,6 +96,11 @@ if (fs.existsSync(indexHtmlPath)) {
         margin: 0;
         padding: 0;
       }
+      input, textarea {
+        min-width: 0 !important;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
     </style>
   </head>`;
 

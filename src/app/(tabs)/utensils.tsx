@@ -489,16 +489,20 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: AppleTheme.colors.background,
     borderRadius: AppleTheme.radius.sm,
-    paddingHorizontal: 13,
+    paddingHorizontal: 12,
     height: 44,
     fontSize: 14.5,
     color: AppleTheme.colors.textPrimary,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
+    minWidth: 0,
+    maxWidth: '100%',
   },
   rowInputs: {
     flexDirection: 'row',
     gap: 8,
+    width: '100%',
+    minWidth: 0,
   },
   miniLabel: {
     fontSize: 12,
