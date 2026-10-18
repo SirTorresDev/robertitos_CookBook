@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter, Href } from 'expo-router';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,36 +8,42 @@ import { AppleHaptics } from '@/core/haptics';
 
 const TAB_ITEMS: {
   name: string;
+  href: Href;
   title: string;
   iconFocused: keyof typeof Ionicons.glyphMap;
   iconOutline: keyof typeof Ionicons.glyphMap;
 }[] = [
   {
     name: 'index',
+    href: '/(tabs)',
     title: 'Recetas',
     iconFocused: 'restaurant',
     iconOutline: 'restaurant-outline',
   },
   {
     name: 'tips',
+    href: '/(tabs)/tips',
     title: 'Técnicas',
     iconFocused: 'sparkles',
     iconOutline: 'sparkles-outline',
   },
   {
     name: 'utensils',
+    href: '/(tabs)/utensils',
     title: 'Utensilios',
     iconFocused: 'checkbox',
     iconOutline: 'checkbox-outline',
   },
   {
     name: 'places',
+    href: '/(tabs)/places',
     title: 'Sitios',
     iconFocused: 'location',
     iconOutline: 'location-outline',
   },
   {
     name: 'studio',
+    href: '/(tabs)/studio',
     title: 'Crear',
     iconFocused: 'add-circle',
     iconOutline: 'add-circle-outline',
@@ -45,6 +51,7 @@ const TAB_ITEMS: {
 ];
 
 export default function TabsLayout() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   const isIOS =
@@ -62,12 +69,11 @@ export default function TabsLayout() {
         headerShown: false,
         animation: 'fade',
       }}
-      tabBar={({ state, navigation }: any) => (
+      tabBar={({ state }) => (
         <View style={[styles.tabBarContainer, { paddingBottom: bottomPadding }]}>
           <View style={styles.tabBarRow}>
             {TAB_ITEMS.map((item) => {
-              const routeIndex = state.routes.findIndex((r: any) => r.name === item.name);
-              const route = state.routes[routeIndex];
+              const routeIndex = state.routes.findIndex((r) => r.name === item.name);
               const focused = state.index === routeIndex;
               const color = focused
                 ? AppleTheme.colors.textPrimary
@@ -75,14 +81,8 @@ export default function TabsLayout() {
 
               const onPress = () => {
                 AppleHaptics.selection();
-                if (!route) return;
-                const event = navigation.emit({
-                  type: 'tabPress',
-                  target: route.key,
-                  canPreventDefault: true,
-                });
-                if (!focused && !event.defaultPrevented) {
-                  navigation.navigate(route.name, route.params);
+                if (!focused) {
+                  router.navigate(item.href);
                 }
               };
 
