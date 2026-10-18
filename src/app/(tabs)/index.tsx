@@ -93,7 +93,7 @@ export default function RecipesScreen() {
             </ApplePressable>
           </View>
 
-          <Text style={styles.brandTitle}>Recetas & Precisión</Text>
+          <Text style={styles.brandTitle}>Recetas</Text>
           <Text style={styles.brandSubtitle}>
             Fundamentos, texturas, tiempos exactos y recetario paso a paso.
           </Text>
