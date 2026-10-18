@@ -116,7 +116,7 @@ export function RonerChart({ onBack, showHeaderBack = false }: RonerChartProps) 
           </View>
         </View>
 
-        <Text style={styles.title}>Tabla Roner & Baja Temp.</Text>
+        <Text style={styles.title}>Tabla Maestra de Tiempos y Cocciones</Text>
         <Text style={styles.subtitle}>
           Tiempos, temperaturas y técnicas de cocción al vacío calibradas por Joan Roca para resultados de tres estrellas Michelin.
         </Text>

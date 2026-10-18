@@ -206,7 +206,7 @@ export default function TipsScreen() {
               </Text>
             </View>
 
-            {/* Banner Destacado Editorial hacia la Tabla Rocook */}
+            {/* Acceso Directo Minimalista a la Tabla Maestra */}
             <ApplePressable
               scaleTo={0.985}
               onPress={() => handleSwitchTab('roner')}
@@ -215,17 +215,8 @@ export default function TipsScreen() {
                 <Ionicons name="flame" size={18} color={AppleTheme.colors.accentWarm} />
               </View>
               <View style={styles.ronerCalloutBody}>
-                <View style={styles.ronerCalloutBadgeRow}>
-                  <Text style={styles.ronerCalloutEyebrow}>ROCOOK · EL CELLER DE CAN ROCA</Text>
-                  <View style={styles.ronerCalloutPill}>
-                    <Text style={styles.ronerCalloutPillText}>99 Alimentos</Text>
-                  </View>
-                </View>
                 <Text style={styles.ronerCalloutTitle}>
-                  Abrir Tabla Maestra de Tiempos y Temperaturas
-                </Text>
-                <Text style={styles.ronerCalloutSubtitle}>
-                  Cocción directa e indirecta al vacío para carnes, pescados, mariscos, verduras y frutas.
+                  Tabla Maestra de Tiempos y Cocciones
                 </Text>
               </View>
               <Ionicons

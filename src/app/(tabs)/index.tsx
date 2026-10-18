@@ -160,39 +160,6 @@ export default function RecipesScreen() {
           </ScrollView>
         </Animated.View>
 
-        {/* Banner Acceso Directo Tabla Roner Rocook */}
-        <Animated.View entering={FadeInDown.delay(120).duration(420).springify()}>
-          <ApplePressable
-            scaleTo={0.98}
-            onPress={() => {
-              AppleHaptics.selection();
-              router.push({
-                pathname: '/(tabs)/tips',
-                params: { view: 'roner', t: String(Date.now()) },
-              });
-            }}
-            style={styles.ronerBannerCard}>
-            <View style={styles.ronerBannerLeft}>
-              <View style={styles.ronerBannerIconCircle}>
-                <Ionicons name="water" size={17} color={AppleTheme.colors.accentWarm} />
-              </View>
-              <View style={styles.ronerBannerTextContainer}>
-                <View style={styles.ronerBannerEyebrowRow}>
-                  <Text style={styles.ronerBannerEyebrow}>ROCOOK · CAN ROCA</Text>
-                  <View style={styles.ronerBannerPill}>
-                    <Text style={styles.ronerBannerPillText}>99 Alimentos</Text>
-                  </View>
-                </View>
-                <Text style={styles.ronerBannerTitle}>Tabla de Tiempo y Temperatura</Text>
-                <Text style={styles.ronerBannerDesc}>
-                  Carnes directas/indirectas, pescado, marisco, verduras y frutas al vacío.
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={17} color={AppleTheme.colors.textTertiary} />
-          </ApplePressable>
-        </Animated.View>
-
         {/* Contador Sutil */}
         <View style={styles.sectionMetaRow}>
           <Text style={styles.sectionCount}>
