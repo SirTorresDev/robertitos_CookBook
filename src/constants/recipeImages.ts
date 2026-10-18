@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
 
@@ -74,7 +75,49 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
   if (!recipe) return '';
 
   try {
-    // 1. Si existe imagen local fija por ID (WebP optimizada)
+    // Caso Entorno Web: expo-file-system no tiene backend en browser, se usa fetch + FileReader
+    if (Platform.OS === 'web') {
+      const localModule = recipe.id ? RECIPE_LOCAL_IMAGES[recipe.id] : null;
+      let targetUri = '';
+      if (localModule) {
+        if (typeof localModule === 'string') {
+          targetUri = localModule;
+        } else if (localModule.uri) {
+          targetUri = localModule.uri;
+        } else {
+          try {
+            const asset = Asset.fromModule(localModule);
+            targetUri = asset.uri || asset.localUri || '';
+          } catch {
+            targetUri = '';
+          }
+        }
+      }
+      if (!targetUri && recipe.imageUrl) {
+        targetUri = recipe.imageUrl;
+      }
+
+      if (targetUri) {
+        if (targetUri.startsWith('data:image')) {
+          return targetUri;
+        }
+        try {
+          const resp = await fetch(targetUri);
+          const blob = await resp.blob();
+          return await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = () => resolve(targetUri);
+            reader.readAsDataURL(blob);
+          });
+        } catch {
+          return targetUri;
+        }
+      }
+      return '';
+    }
+
+    // 1. Si existe imagen local fija por ID (WebP optimizada) en iOS/Android nativo
     const localModule = recipe.id ? RECIPE_LOCAL_IMAGES[recipe.id] : null;
     if (localModule) {
       const asset = Asset.fromModule(localModule);
