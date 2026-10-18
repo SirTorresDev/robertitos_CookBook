@@ -6,6 +6,8 @@ import {
   ScrollView,
   TextInput,
   SafeAreaView,
+  Alert,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, {
@@ -50,6 +52,38 @@ export default function UtensilsScreen() {
   const [category, setCategory] = useState<Exclude<UtensilCategory, 'Todos'>>(
     'Precisión y Sous-Vide'
   );
+
+  const handleDeleteUtensil = (item: KitchenUtensil) => {
+    AppleHaptics.medium();
+
+    const doDelete = async () => {
+      AppleHaptics.success();
+      await deleteUtensil(item.id);
+    };
+
+    if (Platform.OS === 'web') {
+      const ok =
+        typeof window !== 'undefined'
+          ? window.confirm(
+              `¿Estás seguro de que quieres eliminar "${item.name}" de tus utensilios?`
+            )
+          : true;
+      if (ok) void doDelete();
+    } else {
+      Alert.alert(
+        '¿Eliminar utensilio?',
+        `¿Estás seguro de que quieres borrar "${item.name}" de tus utensilios?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sí, eliminar',
+            style: 'destructive',
+            onPress: () => void doDelete(),
+          },
+        ]
+      );
+    }
+  };
 
   const stats = useMemo(() => {
     const total = utensils.length;
@@ -286,75 +320,80 @@ export default function UtensilsScreen() {
               layout={LinearTransition.springify()
                 .damping(AppleSprings.smooth.damping!)
                 .stiffness(AppleSprings.smooth.stiffness!)}>
-              <ApplePressable
-                scaleTo={0.985}
-                onPress={() => {
-                  AppleHaptics.medium();
-                  toggleUtensilAcquired(item.id);
-                }}
+              <View
                 style={[styles.itemCard, item.acquired && styles.itemCardOwned]}>
-                <View style={styles.checkCol}>
-                  <Ionicons
-                    name={item.acquired ? 'checkmark-circle' : 'ellipse-outline'}
-                    size={26}
-                    color={
-                      item.acquired
-                        ? AppleTheme.colors.success
-                        : AppleTheme.colors.textTertiary
-                    }
-                  />
-                </View>
-
-                <View style={styles.itemBody}>
-                  <View style={styles.itemMetaRow}>
-                    <View
-                      style={[
-                        styles.priorityPill,
-                        item.priority === 'Necesito' && styles.priorityNeed,
-                        item.priority === 'Capricho Chef' && styles.priorityWish,
-                      ]}>
-                      <Text
-                        style={[
-                          styles.priorityText,
-                          item.priority === 'Necesito' && {
-                            color: AppleTheme.colors.accentWarm,
-                          },
-                        ]}>
-                        {item.acquired ? 'En mi cocina' : item.priority}
-                      </Text>
-                    </View>
-
-                    <Text style={styles.categoryText}>{item.category}</Text>
-                    {item.estimatedPrice && (
-                      <Text style={styles.priceText}>{item.estimatedPrice}</Text>
-                    )}
+                <ApplePressable
+                  scaleTo={0.985}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: item.acquired }}
+                  accessibilityLabel={`${item.name}, ${item.acquired ? 'adquirido' : 'pendiente'}`}
+                  onPress={() => {
+                    AppleHaptics.medium();
+                    toggleUtensilAcquired(item.id);
+                  }}
+                  style={styles.itemMainTouchArea}>
+                  <View style={styles.checkCol}>
+                    <Ionicons
+                      name={item.acquired ? 'checkmark-circle' : 'ellipse-outline'}
+                      size={26}
+                      color={
+                        item.acquired
+                          ? AppleTheme.colors.success
+                          : AppleTheme.colors.textTertiary
+                      }
+                    />
                   </View>
 
-                  <Text
-                    style={[
-                      styles.itemTitle,
-                      item.acquired && styles.itemTitleOwned,
-                    ]}>
-                    {item.name}
-                  </Text>
-                  <Text style={styles.itemUsedFor}>{item.usedFor}</Text>
-                </View>
+                  <View style={styles.itemBody}>
+                    <View style={styles.itemMetaRow}>
+                      <View
+                        style={[
+                          styles.priorityPill,
+                          item.priority === 'Necesito' && styles.priorityNeed,
+                          item.priority === 'Capricho Chef' && styles.priorityWish,
+                        ]}>
+                        <Text
+                          style={[
+                            styles.priorityText,
+                            item.priority === 'Necesito' && {
+                              color: AppleTheme.colors.accentWarm,
+                            },
+                          ]}>
+                          {item.acquired ? 'En mi cocina' : item.priority}
+                        </Text>
+                      </View>
+
+                      <Text style={styles.categoryText}>{item.category}</Text>
+                      {item.estimatedPrice && (
+                        <Text style={styles.priceText}>{item.estimatedPrice}</Text>
+                      )}
+                    </View>
+
+                    <Text
+                      style={[
+                        styles.itemTitle,
+                        item.acquired && styles.itemTitleOwned,
+                      ]}>
+                      {item.name}
+                    </Text>
+                    <Text style={styles.itemUsedFor}>{item.usedFor}</Text>
+                  </View>
+                </ApplePressable>
 
                 <ApplePressable
-                  scaleTo={0.85}
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    AppleHaptics.light();
-                    deleteUtensil(item.id);
-                  }}
+                  scaleTo={0.88}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Eliminar ${item.name}`}
+                  onPress={() => handleDeleteUtensil(item)}
                   style={styles.deleteBtn}>
                   <Ionicons
                     name="trash-outline"
-                    size={16}
-                    color={AppleTheme.colors.textTertiary}
+                    size={18}
+                    color={AppleTheme.colors.danger}
                   />
                 </ApplePressable>
-              </ApplePressable>
+              </View>
             </Animated.View>
           ))}
         </View>
@@ -579,13 +618,20 @@ const styles = StyleSheet.create({
   itemCard: {
     backgroundColor: AppleTheme.colors.surface,
     borderRadius: AppleTheme.radius.md,
-    padding: 15,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
     ...AppleTheme.shadow.card,
+  },
+  itemMainTouchArea: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   itemCardOwned: {
     backgroundColor: 'rgba(255, 255, 255, 0.72)',
@@ -648,6 +694,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   deleteBtn: {
-    padding: 6,
+    width: 40,
+    height: 40,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: AppleTheme.colors.dangerSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(210, 65, 47, 0.15)',
+    marginLeft: 4,
   },
 });

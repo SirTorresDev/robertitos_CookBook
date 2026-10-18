@@ -148,19 +148,15 @@ export const CookBookRepository = {
     });
 
     const unsubUtensils = onSnapshot(collection(db, 'utensils'), (snap) => {
-      if (!snap.empty) {
-        const items = snap.docs.map((d) => d.data() as KitchenUtensil);
-        callbacks.onUtensils(items);
-        CookBookRepository.saveLocalCollection(STORAGE_KEYS.UTENSILS, items);
-      }
+      const items = snap.docs.map((d) => d.data() as KitchenUtensil);
+      callbacks.onUtensils(items);
+      CookBookRepository.saveLocalCollection(STORAGE_KEYS.UTENSILS, items);
     });
 
     const unsubPlaces = onSnapshot(collection(db, 'places'), (snap) => {
-      if (!snap.empty) {
-        const items = snap.docs.map((d) => d.data() as FoodiePlace);
-        callbacks.onPlaces(items);
-        CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, items);
-      }
+      const items = snap.docs.map((d) => d.data() as FoodiePlace);
+      callbacks.onPlaces(items);
+      CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, items);
     });
 
     return () => {

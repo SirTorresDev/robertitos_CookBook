@@ -195,11 +195,7 @@ export default function RecipesScreen() {
                       transition={300}
                     />
                     <View style={styles.imageTopBadges}>
-                      {recipe.code ? (
-                        <View style={styles.codeBadge}>
-                          <Text style={styles.codeBadgeText}>§ {recipe.code}</Text>
-                        </View>
-                      ) : <View />}
+                      <View />
 
                       <ApplePressable
                         scaleTo={0.88}

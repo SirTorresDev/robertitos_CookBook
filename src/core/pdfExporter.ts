@@ -1,5 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Alert, Platform } from 'react-native';
 import { Recipe } from '@/types/cookbook';
 import { getRecipeImageBase64 } from '@/constants/recipeImages';
@@ -791,24 +792,61 @@ export async function exportRecipeToPdfAndShare(
       return;
     }
 
-    const { uri } = await Print.printToFileAsync({
-      html,
-      width: 595,
-      height: 842,
-      base64: false,
-    });
+    let generatedUri = '';
+    try {
+      const result = await Print.printToFileAsync({
+        html,
+        base64: false,
+      });
+      generatedUri = result.uri;
+    } catch (printFileErr: any) {
+      console.warn('[PDFExporter] Error en printToFileAsync, intentando impresión directa AirPrint:', printFileErr);
+      await Print.printAsync({ html });
+      return;
+    }
+
+    if (!generatedUri) {
+      await Print.printAsync({ html });
+      return;
+    }
+
+    // En iOS, copiar a documentDirectory garantiza persistencia y permisos para el Share Sheet
+    let targetShareUri = generatedUri;
+    try {
+      const safeTitle = (recipe.title || 'Receta')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .slice(0, 30);
+      const pdfFileName = `Receta_${safeTitle || 'Ficha'}_${Date.now()}.pdf`;
+      const docPath = `${FileSystem.documentDirectory}${pdfFileName}`;
+
+      await FileSystem.copyAsync({
+        from: generatedUri,
+        to: docPath,
+      });
+      targetShareUri = docPath;
+    } catch (copyErr) {
+      console.warn('[PDFExporter] No se pudo copiar a documents, usando URI temporal:', copyErr);
+    }
 
     const canShare = await Sharing.isAvailableAsync();
     if (canShare) {
-      await Sharing.shareAsync(uri, {
-        UTI: '.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle: `Ficha Técnica: ${recipe.title}`,
-      });
+      try {
+        await Sharing.shareAsync(targetShareUri, {
+          UTI: 'com.adobe.pdf',
+          mimeType: 'application/pdf',
+          dialogTitle: `Ficha Técnica: ${recipe.title}`,
+        });
+      } catch (shareErr: any) {
+        console.warn('[PDFExporter] Error en shareAsync, intentando printAsync como fallback:', shareErr);
+        await Print.printAsync({ html });
+      }
     } else {
       await Print.printAsync({ html });
     }
   } catch (err: any) {
+    console.error('[PDFExporter] Error general al exportar PDF:', err);
     Alert.alert(
       'No se pudo exportar el PDF',
       err?.message || 'Inténtalo de nuevo en unos segundos.'

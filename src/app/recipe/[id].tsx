@@ -297,46 +297,6 @@ export default function RecipeDetailScreen() {
             </ApplePressable>
 
             <View style={styles.heroRightActions}>
-              {/* Botón Flechita Exportar a PDF y Enviar */}
-              <ApplePressable
-                scaleTo={0.9}
-                onPress={handleExportPdf}
-                style={styles.circleNavBtn}>
-                {exportingPdf ? (
-                  <ActivityIndicator size="small" color={AppleTheme.colors.textPrimary} />
-                ) : (
-                  <Ionicons
-                    name="share-outline"
-                    size={20}
-                    color={AppleTheme.colors.textPrimary}
-                  />
-                )}
-              </ApplePressable>
-
-              {/* Botón Editar Receta */}
-              <ApplePressable
-                scaleTo={0.9}
-                onPress={openEditModal}
-                style={styles.circleNavBtn}>
-                <Ionicons
-                  name="create-outline"
-                  size={20}
-                  color={AppleTheme.colors.textPrimary}
-                />
-              </ApplePressable>
-
-              {/* Botón Borrar Receta (con Confirmación) */}
-              <ApplePressable
-                scaleTo={0.9}
-                onPress={handleConfirmDelete}
-                style={styles.circleNavBtn}>
-                <Ionicons
-                  name="trash-outline"
-                  size={19}
-                  color={AppleTheme.colors.danger}
-                />
-              </ApplePressable>
-
               {/* Botón Favorito */}
               <ApplePressable
                 scaleTo={0.9}
@@ -364,11 +324,6 @@ export default function RecipeDetailScreen() {
           entering={FadeInDown.duration(380).springify()}
           style={styles.sheetBody}>
           <View style={styles.topPillsRow}>
-            {recipe.code && (
-              <View style={styles.codePill}>
-                <Text style={styles.codePillText}>Manual § {recipe.code}</Text>
-              </View>
-            )}
             <View style={styles.catPill}>
               <Text style={styles.catPillText}>{recipe.category}</Text>
             </View>
@@ -384,11 +339,19 @@ export default function RecipeDetailScreen() {
           <View style={styles.quickActionRow}>
             <ApplePressable
               scaleTo={0.96}
+              disabled={exportingPdf}
               onPress={handleExportPdf}
-              style={styles.quickActionPillPrimary}>
-              <Ionicons name="share-outline" size={16} color="#FFFFFF" />
-              <Text style={styles.quickActionTextPrimary}>
-                {exportingPdf ? 'Generando PDF...' : 'Exportar PDF y Enviar'}
+              style={[
+                styles.quickActionPillPrimary,
+                exportingPdf && { opacity: 0.8 },
+              ]}>
+              {exportingPdf ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons name="share-outline" size={16} color="#FFFFFF" />
+              )}
+              <Text style={styles.quickActionTextPrimary} numberOfLines={1}>
+                {exportingPdf ? 'Generando PDF...' : 'Exportar PDF'}
               </Text>
             </ApplePressable>
 
@@ -436,7 +399,7 @@ export default function RecipeDetailScreen() {
 
           {/* Escalador Dinámico de Comensales */}
           <View style={styles.sectionHeaderRow}>
-            <View>
+            <View style={styles.sectionHeaderLeft}>
               <Text style={styles.sectionTitle}>Ingredientes</Text>
               <Text style={styles.sectionSub}>
                 Toca cada ingrediente para marcar tu mise en place
@@ -446,13 +409,16 @@ export default function RecipeDetailScreen() {
             <View style={styles.scalerControl}>
               <ApplePressable
                 scaleTo={0.88}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => {
                   if (servings > 1) {
                     AppleHaptics.selection();
                     setServings((s) => s - 1);
                   }
                 }}
-                style={styles.scalerBtn}>
+                style={styles.scalerBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Reducir comensales">
                 <Ionicons name="remove" size={16} color={AppleTheme.colors.textPrimary} />
               </ApplePressable>
               <View style={styles.scalerValueBox}>
@@ -461,11 +427,14 @@ export default function RecipeDetailScreen() {
               </View>
               <ApplePressable
                 scaleTo={0.88}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 onPress={() => {
                   AppleHaptics.selection();
                   setServings((s) => s + 1);
                 }}
-                style={styles.scalerBtn}>
+                style={styles.scalerBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Aumentar comensales">
                 <Ionicons name="add" size={16} color={AppleTheme.colors.textPrimary} />
               </ApplePressable>
             </View>
@@ -530,7 +499,7 @@ export default function RecipeDetailScreen() {
 
           {/* Pasos de Precisión con Timers Integrados */}
           <View style={[styles.sectionHeaderRow, { marginTop: 28 }]}>
-            <View>
+            <View style={styles.sectionHeaderLeft}>
               <Text style={styles.sectionTitle}>Ejecución Paso a Paso</Text>
               <Text style={styles.sectionSub}>
                 Cronómetros integrados con alerta háptica en tu iPhone
@@ -1252,6 +1221,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppleTheme.colors.textPrimary,
     height: 40,
     borderRadius: AppleTheme.radius.pill,
+    paddingHorizontal: 8,
   },
   quickActionTextPrimary: {
     color: '#FFFFFF',
@@ -1264,11 +1234,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 5,
     backgroundColor: AppleTheme.colors.surface,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     height: 40,
     borderRadius: AppleTheme.radius.pill,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.borderStrong,
+    flexShrink: 0,
   },
   quickActionText: {
     color: AppleTheme.colors.textPrimary,
@@ -1282,6 +1253,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF2F1',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   chefNoteCard: {
     backgroundColor: AppleTheme.colors.surface,
@@ -1328,6 +1300,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 12,
+    gap: 12,
+  },
+  sectionHeaderLeft: {
+    flex: 1,
+    paddingRight: 4,
   },
   sectionTitle: {
     fontSize: 20,
@@ -1339,15 +1316,18 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: AppleTheme.colors.textTertiary,
     marginTop: 2,
+    lineHeight: 16.5,
   },
   scalerControl: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: AppleTheme.colors.surface,
     borderRadius: AppleTheme.radius.pill,
-    padding: 4,
+    padding: 3,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
+    flexShrink: 0,
+    ...AppleTheme.shadow.card,
   },
   scalerBtn: {
     width: 30,
@@ -1358,17 +1338,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   scalerValueBox: {
-    paddingHorizontal: 10,
+    minWidth: 34,
+    paddingHorizontal: 6,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   scalerValue: {
-    fontSize: 14,
+    fontSize: 14.5,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
+    lineHeight: 18,
   },
   scalerUnit: {
     fontSize: 10,
+    fontWeight: '600',
     color: AppleTheme.colors.textTertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   ingredientsCard: {
     backgroundColor: AppleTheme.colors.surface,
@@ -1413,6 +1399,8 @@ const styles = StyleSheet.create({
     fontSize: 14.5,
     fontWeight: '700',
     color: AppleTheme.colors.textPrimary,
+    flexShrink: 0,
+    textAlign: 'right',
   },
   stepsList: {
     gap: 14,

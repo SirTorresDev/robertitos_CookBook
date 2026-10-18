@@ -120,14 +120,18 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
     // 1. Si existe imagen local fija por ID (WebP optimizada) en iOS/Android nativo
     const localModule = recipe.id ? RECIPE_LOCAL_IMAGES[recipe.id] : null;
     if (localModule) {
-      const asset = Asset.fromModule(localModule);
-      await asset.downloadAsync();
-      const uri = asset.localUri || asset.uri;
-      if (uri) {
-        const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: 'base64',
-        });
-        return `data:image/webp;base64,${base64}`;
+      try {
+        const asset = Asset.fromModule(localModule);
+        await asset.downloadAsync();
+        const uri = asset.localUri || asset.uri;
+        if (uri && uri.startsWith('file://')) {
+          const base64 = await FileSystem.readAsStringAsync(uri, {
+            encoding: 'base64',
+          });
+          return `data:image/webp;base64,${base64}`;
+        }
+      } catch (assetErr) {
+        console.warn('[RecipeImages] Fallo al leer asset local para PDF:', assetErr);
       }
     }
 
@@ -139,25 +143,35 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
       }
 
       if (imgUrl.startsWith('file://')) {
-        const base64 = await FileSystem.readAsStringAsync(imgUrl, {
-          encoding: 'base64',
-        });
-        const isWebp = imgUrl.toLowerCase().endsWith('.webp');
-        const mime = isWebp ? 'image/webp' : 'image/jpeg';
-        return `data:${mime};base64,${base64}`;
+        try {
+          const base64 = await FileSystem.readAsStringAsync(imgUrl, {
+            encoding: 'base64',
+          });
+          const isWebp = imgUrl.toLowerCase().endsWith('.webp');
+          const mime = isWebp ? 'image/webp' : 'image/jpeg';
+          return `data:${mime};base64,${base64}`;
+        } catch (fileErr) {
+          console.warn('[RecipeImages] Fallo al leer file:// para PDF:', fileErr);
+        }
       }
 
       if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-        const isWebp = imgUrl.toLowerCase().includes('.webp');
-        const ext = isWebp ? 'webp' : 'jpg';
-        const filename = `temp_recipe_${recipe.id || Date.now()}.${ext}`;
-        const localPath = `${FileSystem.cacheDirectory}${filename}`;
-        const downloadRes = await FileSystem.downloadAsync(imgUrl, localPath);
-        const base64 = await FileSystem.readAsStringAsync(downloadRes.uri, {
-          encoding: 'base64',
-        });
-        const mime = isWebp ? 'image/webp' : 'image/jpeg';
-        return `data:${mime};base64,${base64}`;
+        try {
+          const isWebp = imgUrl.toLowerCase().includes('.webp');
+          const ext = isWebp ? 'webp' : 'jpg';
+          const filename = `temp_recipe_${recipe.id || Date.now()}.${ext}`;
+          const localPath = `${FileSystem.cacheDirectory}${filename}`;
+          const downloadRes = await FileSystem.downloadAsync(imgUrl, localPath);
+          if (downloadRes.uri && downloadRes.uri.startsWith('file://')) {
+            const base64 = await FileSystem.readAsStringAsync(downloadRes.uri, {
+              encoding: 'base64',
+            });
+            const mime = isWebp ? 'image/webp' : 'image/jpeg';
+            return `data:${mime};base64,${base64}`;
+          }
+        } catch (netErr) {
+          console.warn('[RecipeImages] Fallo al descargar imagen remota para PDF:', netErr);
+        }
       }
     }
   } catch (error) {

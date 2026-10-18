@@ -324,9 +324,6 @@ export default function TipsScreen() {
                       style={[styles.card, expanded && styles.cardExpanded]}>
                       <View style={styles.cardTopRow}>
                         <View style={styles.badgesGroup}>
-                          <View style={styles.codePill}>
-                            <Text style={styles.codeText}>§ {tip.code}</Text>
-                          </View>
                           <Text style={styles.categoryLabel}>{tip.category}</Text>
                         </View>
 

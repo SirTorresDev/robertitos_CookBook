@@ -6,6 +6,7 @@ import {
   ScrollView,
   SafeAreaView,
   Alert,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -42,25 +43,42 @@ export default function PlacesScreen() {
 
   const handleDeletePlace = (place: FoodiePlace) => {
     AppleHaptics.medium();
-    Alert.alert(
-      '¿Eliminar sitio?',
-      `¿Estás seguro de que quieres borrar "${place.name}" de tus sitios guardados?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sí, eliminar',
-          style: 'destructive',
-          onPress: async () => {
-            AppleHaptics.success();
-            await deletePlace(place.id);
-            if (selectedPlace?.id === place.id) {
-              const remaining = places.filter((p) => p.id !== place.id);
-              setSelectedPlace(remaining[0] || null);
-            }
+
+    const executeDeletion = async () => {
+      AppleHaptics.success();
+      if (selectedPlace?.id === place.id) {
+        const remaining = places.filter((p) => p.id !== place.id);
+        setSelectedPlace(remaining[0] || null);
+      }
+      await deletePlace(place.id);
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmed =
+        typeof window !== 'undefined'
+          ? window.confirm(
+              `¿Estás seguro de que quieres eliminar "${place.name}" de tus sitios guardados?`
+            )
+          : true;
+      if (confirmed) {
+        void executeDeletion();
+      }
+    } else {
+      Alert.alert(
+        '¿Eliminar sitio?',
+        `¿Estás seguro de que quieres borrar "${place.name}" de tus sitios guardados?`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sí, eliminar',
+            style: 'destructive',
+            onPress: () => {
+              void executeDeletion();
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const filteredPlaces = useMemo(() => {
@@ -226,18 +244,6 @@ export default function PlacesScreen() {
                       · {place.priceLevel} · {place.city}
                     </Text>
                   </View>
-
-                  <ApplePressable
-                    scaleTo={0.9}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    onPress={() => handleDeletePlace(place)}
-                    style={styles.deletePlaceQuickBtn}>
-                    <Ionicons
-                      name="trash-outline"
-                      size={16}
-                      color={AppleTheme.colors.textTertiary}
-                    />
-                  </ApplePressable>
                 </View>
 
                 <Text style={styles.placeTitle}>{place.name}</Text>
@@ -257,7 +263,7 @@ export default function PlacesScreen() {
 
                 <Text style={styles.placeReview}>{place.review}</Text>
 
-                {/* Botones Directos a Google Maps App + Eliminar */}
+                {/* Botones Directos a Google Maps App + Único Botón Accesible de Eliminar */}
                 <View style={styles.actionsRow}>
                   <ApplePressable
                     scaleTo={0.96}
@@ -289,11 +295,14 @@ export default function PlacesScreen() {
 
                   <ApplePressable
                     scaleTo={0.92}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Eliminar ${place.name}`}
                     onPress={() => handleDeletePlace(place)}
                     style={styles.deletePlaceBtn}>
                     <Ionicons
                       name="trash-outline"
-                      size={16}
+                      size={18}
                       color={AppleTheme.colors.danger}
                     />
                   </ApplePressable>
@@ -597,10 +606,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  deletePlaceQuickBtn: {
-    padding: 4,
-    borderRadius: 8,
-  },
   deletePlaceBtn: {
     width: 44,
     height: 44,
@@ -609,7 +614,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(210, 65, 47, 0.15)',
+    borderColor: 'rgba(210, 65, 47, 0.2)',
   },
   emptyStateBox: {
     alignItems: 'center',
