@@ -1,7 +1,7 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
-import { Alert, Dimensions, Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { Recipe } from '@/types/cookbook';
 import { getRecipeImageBase64 } from '@/constants/recipeImages';
 import { BRAND_EMBLEM_BASE64, BRAND_WORDMARK_BASE64 } from '@/constants/brandAssets';
@@ -182,216 +182,7 @@ function triggerPrintFallback(html: string): void {
   }, 40);
 }
 
-/**
- * Genera un archivo PDF real en la Web utilizando jsPDF y html2canvas.
- * En dispositivos móviles (iOS / Android), abre directamente la Hoja de Compartir Nativa
- * del sistema operativo (WhatsApp, Guardar en Archivos, AirDrop, etc.).
- * En ordenadores de escritorio (PC / Mac), abre el diálogo nativo "Guardar como..." para que
- * el usuario elija la carpeta donde guardar el documento.
- */
-async function exportPdfOnWeb(
-  html: string,
-  recipeTitle: string,
-  imageBase64?: string,
-  onGenerated?: () => void
-): Promise<void> {
-  const safeTitle = (recipeTitle || 'Receta')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9_-]/g, '_')
-    .slice(0, 32);
-  const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
 
-  const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
-  const isIOS =
-    /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
-    (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
-  const isTouchMobile =
-    isIOS || /Android|Mobile/i.test(nav?.userAgent || '');
-
-  let cleanHtml = html;
-  const styleMatch = html.match(/<style[\s\S]*?<\/style>/i);
-  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  if (styleMatch && bodyMatch) {
-    cleanHtml = `${styleMatch[0]}${bodyMatch[1]}`;
-  }
-
-  const container = document.createElement('div');
-  container.id = 'cookbook-pdf-web-export';
-  container.style.position = 'fixed';
-  container.style.left = '0';
-  container.style.top = '0';
-  container.style.width = '794px';
-  container.style.height = '1123px';
-  container.style.minHeight = '1123px';
-  container.style.maxHeight = '1123px';
-  container.style.opacity = '0.99';
-  container.style.zIndex = '-1';
-  container.style.overflow = 'hidden';
-  container.style.pointerEvents = 'none';
-  container.style.backgroundColor = '#FAF7F0';
-  container.innerHTML = cleanHtml;
-  document.body.appendChild(container);
-
-  try {
-    const rawH2C = cachedHtml2canvas || (await import('html2canvas'));
-    const html2canvasFn = typeof rawH2C === 'function' ? rawH2C : (rawH2C?.default || rawH2C);
-
-    const rawJsPDF = cachedJsPDF || (await import('jspdf'));
-    const JsPdfClass = typeof rawJsPDF === 'function' ? rawJsPDF : (rawJsPDF?.jsPDF || rawJsPDF?.default || rawJsPDF);
-
-    if (typeof html2canvasFn !== 'function') {
-      throw new Error('html2canvas no se pudo inicializar como función');
-    }
-
-    if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
-      try {
-        await Promise.race([
-          (document as any).fonts.ready,
-          new Promise((r) => setTimeout(r, 100)),
-        ]);
-      } catch {}
-    }
-
-    const imgs = Array.from(container.querySelectorAll('img'));
-    if (imgs.length > 0) {
-      await Promise.all(
-        imgs.map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise<void>((res) => {
-            img.onload = () => res();
-            img.onerror = () => res();
-            setTimeout(res, 150);
-          });
-        })
-      );
-    }
-
-    const canvasPromise = html2canvasFn(container, {
-      scale: isTouchMobile ? 1.25 : 2,
-      useCORS: true,
-      allowTaint: false,
-      logging: false,
-      backgroundColor: '#FAF7F0',
-      width: 794,
-      height: 1123,
-      windowWidth: 794,
-      windowHeight: 1123,
-      x: 0,
-      y: 0,
-      scrollX: 0,
-      scrollY: 0,
-    });
-
-    const canvasTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('html2canvas timeout')), 3500)
-    );
-
-    const canvas = await Promise.race([canvasPromise, canvasTimeout]);
-
-    const imgData = canvas.toDataURL('image/jpeg', 0.88);
-    const pdf = new JsPdfClass({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true,
-    });
-
-    const imgHeight = (canvas.height * 210) / canvas.width;
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeight, 297));
-
-    const pdfBlob = pdf.output('blob');
-    const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-    const blobUrl = URL.createObjectURL(pdfBlob);
-
-    onGenerated?.();
-
-    // 1. En ordenadores de escritorio (PC / Mac):
-    if (!isTouchMobile) {
-      const win = typeof window !== 'undefined' ? (window as any) : null;
-      if (win && typeof win.showSaveFilePicker === 'function') {
-        try {
-          const handle = await win.showSaveFilePicker({
-            suggestedName: fileName,
-            types: [
-              {
-                description: 'Documento PDF (*.pdf)',
-                accept: { 'application/pdf': ['.pdf'] },
-              },
-            ],
-          });
-          const writable = await handle.createWritable();
-          await writable.write(pdfBlob);
-          await writable.close();
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-          return;
-        } catch (pickerErr: any) {
-          if (pickerErr?.name === 'AbortError') {
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-            return;
-          }
-          console.warn('[PDFExporter] Error en showSaveFilePicker, recurriendo a descarga tradicional:', pickerErr);
-        }
-      }
-
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-      return;
-    }
-
-    // 2. En dispositivos móviles (iOS / Android):
-    // Intentar compartir nativamente el archivo PDF
-    if (nav?.share && nav?.canShare && nav.canShare({ files: [pdfFile] })) {
-      try {
-        // En iOS WebKit es crítico compartir ÚNICAMENTE { files: [pdfFile] } sin title/text
-        // para máxima compatibilidad con el sistema operativo
-        const sharePayload: any = isIOS
-          ? { files: [pdfFile] }
-          : { files: [pdfFile], title: `Ficha: ${recipeTitle}` };
-
-        await nav.share(sharePayload);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 20000);
-        return;
-      } catch (shareErr: any) {
-        if (shareErr?.name === 'AbortError') {
-          // El usuario canceló la hoja de compartir voluntariamente
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-          return;
-        }
-        console.warn('[PDFExporter] nav.share falló en móvil, usando fallback:', shareErr);
-      }
-    }
-
-    // Fallback 1: En Android, descarga directa de archivo mediante enlace
-    if (!isIOS) {
-      const mobileLink = document.createElement('a');
-      mobileLink.href = blobUrl;
-      mobileLink.download = fileName;
-      document.body.appendChild(mobileLink);
-      mobileLink.click();
-      document.body.removeChild(mobileLink);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-      return;
-    }
-
-    // Fallback 2: En iOS (cuando nav.share no está disponible o el gesto expiró)
-    // Se activa la vista previa de impresión de Apple con la ficha A4 formateada.
-    // NUNCA usamos window.location.assign(blobUrl) para evitar pestañas rotas en SFSafariViewController.
-    triggerPrintFallback(html);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
-  } catch (err) {
-    console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
-    onGenerated?.();
-    triggerPrintFallback(html);
-  } finally {
-    container.remove();
-  }
-}
 
 /**
  * Exporta la Ficha Gastronómica en un diseño editorial unificado de alta cocina:
@@ -401,26 +192,27 @@ async function exportPdfOnWeb(
  * - Sistema tipográfico nativo de alta fidelidad (-apple-system-ui-serif para títulos editoriales + SF Pro para texto técnico).
  * - Fotografía del plato grande y protagonista (205px–255px de alto) con el título editorial integrado.
  */
-export async function exportRecipeToPdfAndShare(
+export interface RecipePdfData {
+  previewImageUrl: string;
+  pdfBlob?: Blob;
+  pdfFile?: File;
+  fileName: string;
+  blobUrl?: string;
+  html: string;
+  localPdfUri?: string;
+}
+
+/**
+ * Construye el documento HTML completo de la Ficha Gastronómica A4
+ * con estilos integrados, tipografía editorial y proporciones exactas.
+ */
+export function buildRecipeHtml(
   recipe: Recipe,
-  currentServings?: number,
-  onGenerated?: () => void
-): Promise<void> {
-  const targetServings = currentServings || recipe.baseServings;
+  targetServings: number,
+  imageBase64: string
+): string {
   const scaleFactor = targetServings / (recipe.baseServings || 1);
   const density = getDensityProfile(recipe);
-
-  let imageBase64 = '';
-  try {
-    const imgPromise = getRecipeImageBase64(recipe);
-    const timeoutPromise = new Promise<string>((resolve) =>
-      setTimeout(() => resolve(recipe.imageUrl || ''), 1200)
-    );
-    imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
-  } catch (e) {
-    console.warn('[PDFExporter] Error o timeout resolviendo imagen base64 para PDF:', e);
-    imageBase64 = recipe.imageUrl || '';
-  }
 
   const ingredientsHtml = recipe.ingredients
     .map((ing) => {
@@ -1010,74 +802,256 @@ export async function exportRecipeToPdfAndShare(
     </body>
     </html>
   `;
+  return html;
+}
 
+/**
+ * Genera de forma asíncrona la Ficha Gastronómica y devuelve los datos
+ * (imagen de previsualización, PDF blob, File y URLs) listos para que la UI
+ * pueda mostrarlos en un modal y activar la hoja de compartir por toque directo.
+ */
+export async function generateRecipePdfData(
+  recipe: Recipe,
+  currentServings?: number
+): Promise<RecipePdfData> {
+  const targetServings = currentServings || recipe.baseServings;
+  const safeTitle = (recipe.title || 'Receta')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9_-]/g, '_')
+    .slice(0, 32);
+  const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
+
+  let imageBase64 = '';
   try {
-    if (Platform.OS === 'web') {
-      await exportPdfOnWeb(html, recipe.title, imageBase64, onGenerated);
-      return;
-    }
+    const imgPromise = getRecipeImageBase64(recipe);
+    const timeoutPromise = new Promise<string>((resolve) =>
+      setTimeout(() => resolve(recipe.imageUrl || ''), 1200)
+    );
+    imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
+  } catch (e) {
+    console.warn('[PDFExporter] Error resolviendo imagen base64 para PDF:', e);
+    imageBase64 = recipe.imageUrl || '';
+  }
 
-    // En iOS y Android:
-    // 1. Generamos el archivo PDF sin forzar dimensiones fijas en pixels (se rige por CSS @page A4)
+  const html = buildRecipeHtml(recipe, targetServings, imageBase64);
+
+  if (Platform.OS !== 'web') {
     const result = await Print.printToFileAsync({
       html,
       base64: false,
     });
-
     if (!result?.uri) {
       throw new Error('No se obtuvo la ruta del archivo PDF generado.');
     }
 
-    // Desactivar spinner de generación de inmediato una vez que el PDF está compilado
-    onGenerated?.();
-
-    // 2. En iOS y Android copiamos a un archivo limpio con extensión .pdf en caché
-    // Esto garantiza un nombre claro al compartir por WhatsApp / Telegram / Archivos
     let targetShareUri = result.uri;
     try {
-      const safeTitle = (recipe.title || 'Receta')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9_-]/g, '_')
-        .slice(0, 32);
-      const pdfFileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
-      const cleanPath = `${FileSystem.cacheDirectory}${pdfFileName}`;
-
+      const cleanPath = `${FileSystem.cacheDirectory}${fileName}`;
       await FileSystem.deleteAsync(cleanPath, { idempotent: true });
       await FileSystem.copyAsync({
         from: result.uri,
         to: cleanPath,
       });
       targetShareUri = cleanPath;
-    } catch (copyErr) {
-      console.warn('[PDFExporter] Error renombrando PDF en caché, usando uri temporal:', copyErr);
+    } catch {
       targetShareUri = result.uri;
     }
 
-    // 3. Abrir el Selector de Compartir Nativo (WhatsApp, Archivos, AirDrop) o AirPrint
-    const canShare = await Sharing.isAvailableAsync();
-    if (canShare) {
-      const isPad = Platform.OS === 'ios' && (Platform as any).isPad;
-      const shareOptions: Sharing.SharingOptions = {
-        UTI: 'com.adobe.pdf',
-        mimeType: 'application/pdf',
-        dialogTitle: `Compartir Ficha: ${recipe.title}`,
-      };
-      // En iPad se requiere anchor con dimensiones positivas; en iPhone debe ser modal inferior sin anchor
-      if (isPad) {
-        const { width, height } = Dimensions.get('window');
-        shareOptions.anchor = {
-          x: Math.round(width / 2),
-          y: Math.round(height / 2),
-          width: 1,
-          height: 1,
-        };
-      }
-      await Sharing.shareAsync(targetShareUri, shareOptions);
-    } else {
-      // Fallback nativo: AirPrint / Vista previa de impresión de iOS
-      await Print.printAsync({ html });
+    return {
+      previewImageUrl: '',
+      localPdfUri: targetShareUri,
+      fileName,
+      html,
+    };
+  }
+
+  // En Web:
+  let cleanHtml = html;
+  const styleMatch = html.match(/<style[\s\S]*?<\/style>/i);
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (styleMatch && bodyMatch) {
+    cleanHtml = `${styleMatch[0]}${bodyMatch[1]}`;
+  }
+
+  const container = document.createElement('div');
+  container.id = 'cookbook-pdf-web-export';
+  container.style.position = 'fixed';
+  container.style.left = '0';
+  container.style.top = '0';
+  container.style.width = '794px';
+  container.style.height = '1123px';
+  container.style.minHeight = '1123px';
+  container.style.maxHeight = '1123px';
+  container.style.opacity = '0.99';
+  container.style.zIndex = '-1';
+  container.style.overflow = 'hidden';
+  container.style.pointerEvents = 'none';
+  container.style.backgroundColor = '#FAF7F0';
+  container.innerHTML = cleanHtml;
+  document.body.appendChild(container);
+
+  try {
+    const rawH2C = cachedHtml2canvas || (await import('html2canvas'));
+    const html2canvasFn = typeof rawH2C === 'function' ? rawH2C : (rawH2C?.default || rawH2C);
+
+    const rawJsPDF = cachedJsPDF || (await import('jspdf'));
+    const JsPdfClass = typeof rawJsPDF === 'function' ? rawJsPDF : (rawJsPDF?.jsPDF || rawJsPDF?.default || rawJsPDF);
+
+    if (typeof html2canvasFn !== 'function') {
+      throw new Error('html2canvas no se pudo inicializar como función');
     }
+
+    const imgs = Array.from(container.querySelectorAll('img'));
+    if (imgs.length > 0) {
+      await Promise.all(
+        imgs.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((res) => {
+            img.onload = () => res();
+            img.onerror = () => res();
+            setTimeout(res, 120);
+          });
+        })
+      );
+    }
+
+    const canvas = await html2canvasFn(container, {
+      scale: 1.25,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      backgroundColor: '#FAF7F0',
+      width: 794,
+      height: 1123,
+      windowWidth: 794,
+      windowHeight: 1123,
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.88);
+    const pdf = new JsPdfClass({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true,
+    });
+
+    const imgHeight = (canvas.height * 210) / canvas.width;
+    pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeight, 297));
+
+    const pdfBlob = pdf.output('blob');
+    const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(pdfBlob);
+
+    return {
+      previewImageUrl: imgData,
+      pdfBlob,
+      pdfFile,
+      fileName,
+      blobUrl,
+      html,
+    };
+  } finally {
+    container.remove();
+  }
+}
+
+/**
+ * Disparador nativo directo para compartir el archivo PDF generado.
+ * Al ser llamado dentro de un onPress/onClick de usuario en el modal,
+ * preserva el permiso de interacción de iOS WebKit al 100%.
+ */
+export async function sharePdfData(data: RecipePdfData): Promise<boolean> {
+  if (Platform.OS !== 'web') {
+    if (data.localPdfUri) {
+      const canShare = await Sharing.isAvailableAsync();
+      if (canShare) {
+        await Sharing.shareAsync(data.localPdfUri, {
+          UTI: 'com.adobe.pdf',
+          mimeType: 'application/pdf',
+          dialogTitle: data.fileName,
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
+    (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
+
+  if (nav?.share) {
+    try {
+      if (data.pdfFile && nav?.canShare && nav.canShare({ files: [data.pdfFile] })) {
+        const payload: any = isIOS
+          ? { files: [data.pdfFile] }
+          : { files: [data.pdfFile], title: data.fileName };
+        await nav.share(payload);
+        return true;
+      }
+
+      if (typeof window !== 'undefined') {
+        await nav.share({
+          title: data.fileName,
+          url: window.location.href,
+        });
+        return true;
+      }
+    } catch (err: any) {
+      if (err?.name === 'AbortError') {
+        return true;
+      }
+      console.warn('[PDFExporter] Error en sharePdfData:', err);
+    }
+  }
+
+  downloadPdfData(data);
+  return false;
+}
+
+/**
+ * Descarga directamente el archivo PDF mediante un elemento anchor.
+ */
+export function downloadPdfData(data: RecipePdfData): void {
+  if (typeof document === 'undefined') return;
+
+  if (data.blobUrl) {
+    const link = document.createElement('a');
+    link.href = data.blobUrl;
+    link.download = data.fileName;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 500);
+  }
+}
+
+/**
+ * Invoca el pipeline de impresión para la ficha técnica.
+ */
+export function printPdfData(data: RecipePdfData): void {
+  if (data.html) {
+    triggerPrintFallback(data.html);
+  }
+}
+
+/**
+ * Exporta la Ficha Gastronómica de forma tradicional o fallback para plataformas nativas.
+ */
+export async function exportRecipeToPdfAndShare(
+  recipe: Recipe,
+  currentServings?: number,
+  onGenerated?: () => void
+): Promise<void> {
+  try {
+    const data = await generateRecipePdfData(recipe, currentServings);
+    onGenerated?.();
+    await sharePdfData(data);
   } catch (err: any) {
     onGenerated?.();
     console.error('[PDFExporter] Error al exportar PDF:', err);
@@ -1092,7 +1066,7 @@ export async function exportRecipeToPdfAndShare(
 
     Alert.alert(
       'Ficha Gastronómica',
-      'No se pudo abrir el selector de compartir. Inténtalo de nuevo.'
+      'No se pudo generar la ficha gastronómica. Inténtalo de nuevo.'
     );
   }
 }

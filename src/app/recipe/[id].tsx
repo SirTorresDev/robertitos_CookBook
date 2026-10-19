@@ -37,7 +37,12 @@ import {
 import { AppleTheme } from '@/constants/appleTheme';
 import { ApplePressable } from '@/components/ApplePressable';
 import { AppleHaptics } from '@/core/haptics';
-import { exportRecipeToPdfAndShare } from '@/core/pdfExporter';
+import {
+  exportRecipeToPdfAndShare,
+  generateRecipePdfData,
+  RecipePdfData,
+} from '@/core/pdfExporter';
+import { RecipePdfModal } from '@/components/RecipePdfModal';
 import { pickRecipeImage } from '@/core/recipeScanner';
 import { getRecipeImageSource } from '@/constants/recipeImages';
 import { playTimerSound, primeAudioSession } from '@/core/sound';
@@ -221,6 +226,8 @@ export default function RecipeDetailScreen() {
   const [cookingModeOpen, setCookingModeOpen] = useState(false);
   const [activeStepIdx, setActiveStepIdx] = useState(0);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [pdfModalVisible, setPdfModalVisible] = useState(false);
+  const [pdfData, setPdfData] = useState<RecipePdfData | null>(null);
   const cookingScrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
   // Modal de Edición Completa
@@ -435,14 +442,18 @@ export default function RecipeDetailScreen() {
     AppleHaptics.medium();
     setExportingPdf(true);
     try {
-      await exportRecipeToPdfAndShare(recipe, servings, () => {
-        setExportingPdf(false);
-      });
+      if (Platform.OS === 'web') {
+        const data = await generateRecipePdfData(recipe, servings);
+        setPdfData(data);
+        setPdfModalVisible(true);
+      } else {
+        await exportRecipeToPdfAndShare(recipe, servings);
+      }
     } catch (err: any) {
       console.error('[RecipeScreen] Error en exportación PDF:', err);
       Alert.alert(
         'Ficha Gastronómica',
-        'No se pudo abrir el selector de exportación. Inténtalo de nuevo.'
+        'No se pudo generar la ficha gastronómica. Inténtalo de nuevo.'
       );
     } finally {
       setExportingPdf(false);
@@ -1349,6 +1360,15 @@ export default function RecipeDetailScreen() {
           </View>
         </Modal>
       ) : null}
+
+      {/* Modal Interactivo de Exportación de Ficha Gastronómica */}
+      <RecipePdfModal
+        visible={pdfModalVisible}
+        onClose={() => setPdfModalVisible(false)}
+        data={pdfData}
+        recipeTitle={recipe.title}
+        servings={servings}
+      />
     </View>
   );
 }
