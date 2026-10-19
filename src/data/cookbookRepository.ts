@@ -53,6 +53,12 @@ export const CookBookRepository = {
         const mergedInitial = INITIAL_RECIPES.map((initR) => {
           const stored = storedMap.get(initR.id);
           if (stored) {
+            if (stored.updatedAt) {
+              return {
+                ...initR,
+                ...stored,
+              };
+            }
             return {
               ...initR,
               isFavorite: stored.isFavorite ?? initR.isFavorite,
@@ -69,6 +75,12 @@ export const CookBookRepository = {
         const mergedInitial = INITIAL_RECIPES.map((initR) => {
           const old = oldMap.get(initR.id);
           if (old) {
+            if (old.updatedAt) {
+              return {
+                ...initR,
+                ...old,
+              };
+            }
             return {
               ...initR,
               isFavorite: old.isFavorite ?? initR.isFavorite,
@@ -134,6 +146,12 @@ export const CookBookRepository = {
           const mergedInitial = INITIAL_RECIPES.map((initR) => {
             const remote = remoteMap.get(initR.id);
             if (remote) {
+              if (remote.updatedAt) {
+                return {
+                  ...initR,
+                  ...remote,
+                };
+              }
               return {
                 ...initR,
                 isFavorite: remote.isFavorite ?? initR.isFavorite,

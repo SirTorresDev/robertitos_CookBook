@@ -42,6 +42,7 @@ export interface Recipe {
   steps: RecipeStep[];
   isFavorite: boolean;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export type TipCategory =

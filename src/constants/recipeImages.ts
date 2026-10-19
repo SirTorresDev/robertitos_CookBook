@@ -105,11 +105,14 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
           return targetUri;
         }
         try {
-          const resp = await fetch(targetUri);
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 1800);
+          const resp = await fetch(targetUri, { signal: controller.signal });
+          clearTimeout(timer);
           const blob = await resp.blob();
           return await new Promise<string>((resolve) => {
             const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
+            reader.onloadend = () => resolve((reader.result as string) || targetUri);
             reader.onerror = () => resolve(targetUri);
             reader.readAsDataURL(blob);
           });
@@ -125,7 +128,13 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
     if (localModule) {
       try {
         const asset = Asset.fromModule(localModule);
-        await asset.downloadAsync();
+        if (!asset.downloaded && !asset.localUri) {
+          const downloadPromise = asset.downloadAsync();
+          const timeoutPromise = new Promise<void>((_, reject) =>
+            setTimeout(() => reject(new Error('Asset download timeout')), 1400)
+          );
+          await Promise.race([downloadPromise, timeoutPromise]);
+        }
         const uri = asset.localUri || asset.uri;
         if (uri && uri.startsWith('file://')) {
           const base64 = await FileSystem.readAsStringAsync(uri, {
@@ -134,7 +143,7 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
           return `data:image/webp;base64,${base64}`;
         }
       } catch (assetErr) {
-        console.warn('[RecipeImages] Fallo al leer asset local para PDF:', assetErr);
+        console.warn('[RecipeImages] Fallo o timeout al leer asset local para PDF:', assetErr);
       }
     }
 
@@ -164,8 +173,12 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
           const ext = isWebp ? 'webp' : 'jpg';
           const filename = `temp_recipe_${recipe.id || Date.now()}.${ext}`;
           const localPath = `${FileSystem.cacheDirectory}${filename}`;
-          const downloadRes = await FileSystem.downloadAsync(imgUrl, localPath);
-          if (downloadRes.uri && downloadRes.uri.startsWith('file://')) {
+          const dlPromise = FileSystem.downloadAsync(imgUrl, localPath);
+          const dlTimeout = new Promise<any>((_, reject) =>
+            setTimeout(() => reject(new Error('Image download timeout')), 1400)
+          );
+          const downloadRes = await Promise.race([dlPromise, dlTimeout]);
+          if (downloadRes?.uri && downloadRes.uri.startsWith('file://')) {
             const base64 = await FileSystem.readAsStringAsync(downloadRes.uri, {
               encoding: 'base64',
             });
@@ -173,7 +186,7 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
             return `data:${mime};base64,${base64}`;
           }
         } catch (netErr) {
-          console.warn('[RecipeImages] Fallo al descargar imagen remota para PDF:', netErr);
+          console.warn('[RecipeImages] Fallo o timeout al descargar imagen remota para PDF:', netErr);
         }
       }
     }

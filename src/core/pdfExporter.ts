@@ -1,6 +1,5 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system/legacy';
 import { Alert, Platform } from 'react-native';
 import { Recipe } from '@/types/cookbook';
 import { getRecipeImageBase64 } from '@/constants/recipeImages';
@@ -179,7 +178,7 @@ function printHtmlOnWeb(html: string): Promise<void> {
  * - Todo integrado dentro de un único marco editorial ("sheet-card") sin bloques inconexos.
  * - Paleta viva y cálida de alto contraste: Carbón Espresso (#181512), Dorado Culinario (#C67D1E),
  *   Terracota (#C84B24) y Crema Marfil (#FAF7F0).
- * - Sistema tipográfico unificado de 2 familias (Fraunces para títulos + Plus Jakarta Sans para texto técnico).
+ * - Sistema tipográfico nativo de alta fidelidad (-apple-system-ui-serif para títulos editoriales + SF Pro para texto técnico).
  * - Fotografía del plato grande y protagonista (205px–255px de alto) con el título editorial integrado.
  */
 export async function exportRecipeToPdfAndShare(
@@ -192,9 +191,13 @@ export async function exportRecipeToPdfAndShare(
 
   let imageBase64 = '';
   try {
-    imageBase64 = await getRecipeImageBase64(recipe);
+    const imgPromise = getRecipeImageBase64(recipe);
+    const timeoutPromise = new Promise<string>((resolve) =>
+      setTimeout(() => resolve(recipe.imageUrl || ''), 2200)
+    );
+    imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
   } catch (e) {
-    console.warn('Error resolviendo imagen base64 para PDF:', e);
+    console.warn('[PDFExporter] Error o timeout resolviendo imagen base64 para PDF:', e);
     imageBase64 = recipe.imageUrl || '';
   }
 
@@ -255,10 +258,8 @@ export async function exportRecipeToPdfAndShare(
     <html lang="es">
     <head>
       <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
       <title>${recipe.title} - Robertito's CookBook</title>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
       <style>
         @page {
           size: 210mm 297mm;
@@ -276,7 +277,7 @@ export async function exportRecipeToPdfAndShare(
           height: 100%;
           max-height: 286mm;
           overflow: hidden;
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           color: #181512;
           background-color: #FAF7F0;
           font-size: ${density.bodySize};
@@ -356,7 +357,12 @@ export async function exportRecipeToPdfAndShare(
         }
         .hero-overlay {
           position: absolute;
-          inset: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          height: 100%;
           background: linear-gradient(
             180deg,
             rgba(18, 14, 10, 0.04) 0%,
@@ -369,7 +375,7 @@ export async function exportRecipeToPdfAndShare(
           padding: 18px 22px 16px 22px;
         }
         .dish-title {
-          font-family: 'Fraunces', Georgia, serif;
+          font-family: -apple-system-ui-serif, 'New York', Georgia, 'Times New Roman', serif;
           font-size: ${density.titleSize};
           font-weight: 800;
           color: #FFFFFF;
@@ -524,7 +530,7 @@ export async function exportRecipeToPdfAndShare(
           flex-shrink: 0;
         }
         .section-title {
-          font-family: 'Fraunces', Georgia, serif;
+          font-family: -apple-system-ui-serif, 'New York', Georgia, 'Times New Roman', serif;
           font-size: ${density.sectionTitleSize};
           font-weight: 700;
           color: #181512;
@@ -792,54 +798,41 @@ export async function exportRecipeToPdfAndShare(
       return;
     }
 
+    // En iOS y Android:
+    // Generamos el archivo PDF en caché mediante Print.printToFileAsync con timeout de seguridad
     let generatedUri = '';
     try {
-      const result = await Print.printToFileAsync({
+      const printToFilePromise = Print.printToFileAsync({
         html,
         base64: false,
       });
+      const timeoutPromise = new Promise<{ uri: string }>((_, reject) =>
+        setTimeout(() => reject(new Error('Timeout de 5s en Print.printToFileAsync')), 5000)
+      );
+      const result = await Promise.race([printToFilePromise, timeoutPromise]);
       generatedUri = result.uri;
     } catch (printFileErr: any) {
-      console.warn('[PDFExporter] Error en printToFileAsync, intentando impresión directa AirPrint:', printFileErr);
+      console.warn('[PDFExporter] Error o timeout en printToFileAsync, usando Print.printAsync directo (AirPrint):', printFileErr);
       await Print.printAsync({ html });
       return;
     }
 
     if (!generatedUri) {
+      console.warn('[PDFExporter] No se obtuvo URI de printToFileAsync, usando Print.printAsync directo (AirPrint)');
       await Print.printAsync({ html });
       return;
-    }
-
-    // En iOS, copiar a documentDirectory garantiza persistencia y permisos para el Share Sheet
-    let targetShareUri = generatedUri;
-    try {
-      const safeTitle = (recipe.title || 'Receta')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-zA-Z0-9_-]/g, '_')
-        .slice(0, 30);
-      const pdfFileName = `Receta_${safeTitle || 'Ficha'}_${Date.now()}.pdf`;
-      const docPath = `${FileSystem.documentDirectory}${pdfFileName}`;
-
-      await FileSystem.copyAsync({
-        from: generatedUri,
-        to: docPath,
-      });
-      targetShareUri = docPath;
-    } catch (copyErr) {
-      console.warn('[PDFExporter] No se pudo copiar a documents, usando URI temporal:', copyErr);
     }
 
     const canShare = await Sharing.isAvailableAsync();
     if (canShare) {
       try {
-        await Sharing.shareAsync(targetShareUri, {
-          UTI: 'com.adobe.pdf',
+        await Sharing.shareAsync(generatedUri, {
+          UTI: '.pdf',
           mimeType: 'application/pdf',
           dialogTitle: `Ficha Técnica: ${recipe.title}`,
         });
       } catch (shareErr: any) {
-        console.warn('[PDFExporter] Error en shareAsync, intentando printAsync como fallback:', shareErr);
+        console.warn('[PDFExporter] Error en Sharing.shareAsync, abriendo diálogo nativo AirPrint como fallback:', shareErr);
         await Print.printAsync({ html });
       }
     } else {
@@ -847,9 +840,14 @@ export async function exportRecipeToPdfAndShare(
     }
   } catch (err: any) {
     console.error('[PDFExporter] Error general al exportar PDF:', err);
-    Alert.alert(
-      'No se pudo exportar el PDF',
-      err?.message || 'Inténtalo de nuevo en unos segundos.'
-    );
+    try {
+      await Print.printAsync({ html });
+    } catch (finalErr) {
+      console.error('[PDFExporter] Fallo crítico final en printAsync:', finalErr);
+      Alert.alert(
+        'Ficha Gastronómica',
+        'No se pudo abrir el selector de exportación. Inténtalo de nuevo.'
+      );
+    }
   }
 }

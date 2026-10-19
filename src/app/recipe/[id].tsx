@@ -13,12 +13,18 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import Animated, {
+  Easing,
   FadeIn,
   FadeInDown,
   LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
 } from 'react-native-reanimated';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import {
@@ -34,6 +40,7 @@ import { AppleHaptics } from '@/core/haptics';
 import { exportRecipeToPdfAndShare } from '@/core/pdfExporter';
 import { pickRecipeImage } from '@/core/recipeScanner';
 import { getRecipeImageSource } from '@/constants/recipeImages';
+import { playTimerSound } from '@/core/sound';
 
 const EDIT_CATEGORIES: Exclude<RecipeCategory, 'Todos'>[] = [
   'Pescados y Mariscos',
@@ -60,6 +67,144 @@ function formatTimerClock(totalSeconds: number): string {
     return `${hrs}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
   }
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+/**
+ * Icono de olla hirviendo con animación dinámica y continua de borboteo y vapor.
+ */
+function AnimatedCookingPot() {
+  const rotation = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withSequence(
+        withTiming(-9, { duration: 160, easing: Easing.inOut(Easing.quad) }),
+        withTiming(9, { duration: 160, easing: Easing.inOut(Easing.quad) }),
+        withTiming(-5, { duration: 130, easing: Easing.inOut(Easing.quad) }),
+        withTiming(5, { duration: 130, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0, { duration: 160, easing: Easing.inOut(Easing.quad) }),
+        withTiming(0, { duration: 550 })
+      ),
+      -1,
+      false
+    );
+
+    translateY.value = withRepeat(
+      withSequence(
+        withTiming(-3.5, { duration: 160, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: 160, easing: Easing.in(Easing.quad) }),
+        withTiming(-2, { duration: 130, easing: Easing.out(Easing.quad) }),
+        withTiming(0, { duration: 130, easing: Easing.in(Easing.quad) }),
+        withTiming(0, { duration: 710 })
+      ),
+      -1,
+      false
+    );
+  }, [rotation, translateY]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: translateY.value },
+      { rotate: `${rotation.value}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <MaterialCommunityIcons name="pot-steam" size={22} color="#FFFFFF" />
+    </Animated.View>
+  );
+}
+
+/**
+ * Modal visual de alta cocina "¡Tiempo!" cuando una cuenta atrás llega a 0.
+ */
+function TimeUpModalCard({
+  step,
+  onDismiss,
+  onAddMinute,
+  onNextStep,
+  hasNextStep,
+}: {
+  step: RecipeStep;
+  onDismiss: () => void;
+  onAddMinute: () => void;
+  onNextStep?: () => void;
+  hasNextStep?: boolean;
+}) {
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(280)}
+      style={styles.timeUpCard}>
+      {/* Halo e icono de alarma culinaria */}
+      <View style={styles.timeUpIconRing}>
+        <MaterialCommunityIcons
+          name="timer-alert-outline"
+          size={42}
+          color={AppleTheme.colors.accentWarm}
+        />
+      </View>
+
+      <Text style={styles.timeUpKicker}>CUENTA ATRÁS FINALIZADA</Text>
+      <Text style={styles.timeUpTitle}>¡Tiempo!</Text>
+
+      <View style={styles.timeUpStepTag}>
+        <Text style={styles.timeUpStepTagText} numberOfLines={1}>
+          Paso {step.stepNumber} · {step.title}
+        </Text>
+      </View>
+
+      <Text style={styles.timeUpInstruction} numberOfLines={3}>
+        {step.instruction}
+      </Text>
+
+      {step.temperature ? (
+        <View style={styles.timeUpTempBadge}>
+          <Ionicons name="thermometer-outline" size={13} color="#C84B24" />
+          <Text style={styles.timeUpTempText}>{step.temperature}</Text>
+        </View>
+      ) : null}
+
+      {step.tip ? (
+        <View style={styles.timeUpTipBox}>
+          <Ionicons name="sparkles" size={13} color={AppleTheme.colors.gold} />
+          <Text style={styles.timeUpTipText} numberOfLines={2}>
+            {step.tip}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* Acciones para el Chef */}
+      <View style={styles.timeUpActionsCol}>
+        {hasNextStep && onNextStep ? (
+          <ApplePressable
+            scaleTo={0.96}
+            onPress={onNextStep}
+            style={[styles.timeUpBtnPrimary, { backgroundColor: AppleTheme.colors.accentWarm }]}>
+            <Text style={styles.timeUpBtnPrimaryText}>Siguiente Paso</Text>
+            <Ionicons name="arrow-forward" size={17} color="#FFFFFF" />
+          </ApplePressable>
+        ) : null}
+
+        <ApplePressable
+          scaleTo={0.96}
+          onPress={onDismiss}
+          style={styles.timeUpBtnPrimary}>
+          <Text style={styles.timeUpBtnPrimaryText}>Entendido</Text>
+          <Ionicons name="checkmark-circle" size={17} color="#FFFFFF" />
+        </ApplePressable>
+
+        <ApplePressable
+          scaleTo={0.96}
+          onPress={onAddMinute}
+          style={styles.timeUpBtnSecondary}>
+          <Ionicons name="add" size={16} color={AppleTheme.colors.textPrimary} />
+          <Text style={styles.timeUpBtnSecondaryText}>+1 min extra de cocción</Text>
+        </ApplePressable>
+      </View>
+    </Animated.View>
+  );
 }
 
 export default function RecipeDetailScreen() {
@@ -96,6 +241,7 @@ export default function RecipeDetailScreen() {
   // Estado de timers por paso (stepNumber -> remainingSeconds)
   const [timersLeft, setTimersLeft] = useState<Record<number, number>>({});
   const [runningTimers, setRunningTimers] = useState<Record<number, boolean>>({});
+  const [timeUpStep, setTimeUpStep] = useState<RecipeStep | null>(null);
 
   useEffect(() => {
     if (recipe) {
@@ -108,6 +254,7 @@ export default function RecipeDetailScreen() {
       });
       setTimersLeft(initialTimers);
       setRunningTimers({});
+      setTimeUpStep(null);
     }
   }, [recipe]);
 
@@ -133,6 +280,7 @@ export default function RecipeDetailScreen() {
       setTimersLeft((prev) => {
         const next = { ...prev };
         let finishedAny = false;
+        let finishedStepNum: number | null = null;
         Object.keys(runningTimers).forEach((k) => {
           const stepNum = Number(k);
           if (runningTimers[stepNum]) {
@@ -140,21 +288,46 @@ export default function RecipeDetailScreen() {
             if (current <= 1) {
               next[stepNum] = 0;
               finishedAny = true;
+              finishedStepNum = stepNum;
               setRunningTimers((r) => ({ ...r, [stepNum]: false }));
             } else {
               next[stepNum] = current - 1;
             }
           }
         });
-        if (finishedAny) {
-          AppleHaptics.timerComplete();
+        if (finishedAny && finishedStepNum !== null && recipe) {
+          const stepObj = recipe.steps.find((s) => s.stepNumber === finishedStepNum);
+          if (stepObj) {
+            setTimeUpStep(stepObj);
+          }
+          playTimerSound();
         }
         return next;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [anyTimerRunning, runningTimers]);
+  }, [anyTimerRunning, runningTimers, recipe]);
+
+  const handleDismissTimeUp = () => {
+    AppleHaptics.selection();
+    setTimeUpStep(null);
+  };
+
+  const handleAddMinuteTimeUp = (stepNum: number) => {
+    AppleHaptics.medium();
+    setTimersLeft((prev) => ({ ...prev, [stepNum]: (prev[stepNum] || 0) + 60 }));
+    setRunningTimers((prev) => ({ ...prev, [stepNum]: true }));
+    setTimeUpStep(null);
+  };
+
+  const handleNextStepFromTimeUp = () => {
+    AppleHaptics.selection();
+    setTimeUpStep(null);
+    if (recipe && activeStepIdx < recipe.steps.length - 1) {
+      setActiveStepIdx((idx) => idx + 1);
+    }
+  };
 
   if (!recipe) {
     return (
@@ -207,6 +380,7 @@ export default function RecipeDetailScreen() {
         ...s,
         stepNumber: idx + 1,
       })),
+      updatedAt: new Date().toISOString(),
     };
     await updateRecipe(updated);
     setEditModalOpen(false);
@@ -255,6 +429,12 @@ export default function RecipeDetailScreen() {
     setExportingPdf(true);
     try {
       await exportRecipeToPdfAndShare(recipe, servings);
+    } catch (err: any) {
+      console.error('[RecipeScreen] Error en exportación PDF:', err);
+      Alert.alert(
+        'Ficha Gastronómica',
+        'No se pudo abrir el selector de exportación. Inténtalo de nuevo.'
+      );
     } finally {
       setExportingPdf(false);
     }
@@ -639,10 +819,8 @@ export default function RecipeDetailScreen() {
             setCookingModeOpen(true);
           }}
           style={styles.cookingModeBtn}>
-          <Ionicons name="flame" size={19} color="#FFFFFF" />
-          <Text style={styles.cookingModeBtnText}>
-            Modo Cocina Manos Libres (Pantalla Activa)
-          </Text>
+          <Text style={styles.cookingModeBtnText}>¡A Cocinar!</Text>
+          <AnimatedCookingPot />
         </ApplePressable>
       </View>
 
@@ -1118,9 +1296,40 @@ export default function RecipeDetailScreen() {
                 />
               </ApplePressable>
             </View>
+
+            {/* Overlay ¡Tiempo! en Modo Cocina */}
+            {timeUpStep ? (
+              <View style={styles.timeUpOverlayCookingMode}>
+                <TimeUpModalCard
+                  step={timeUpStep}
+                  onDismiss={handleDismissTimeUp}
+                  onAddMinute={() => handleAddMinuteTimeUp(timeUpStep.stepNumber)}
+                  onNextStep={handleNextStepFromTimeUp}
+                  hasNextStep={activeStepIdx < recipe.steps.length - 1}
+                />
+              </View>
+            ) : null}
           </View>
         </SafeAreaView>
       </Modal>
+
+      {/* Modal ¡Tiempo! en Vista Estándar de Receta */}
+      {timeUpStep && !cookingModeOpen ? (
+        <Modal
+          visible={Boolean(timeUpStep)}
+          transparent
+          animationType="fade"
+          onRequestClose={handleDismissTimeUp}>
+          <View style={styles.timeUpCardBackdrop}>
+            <TimeUpModalCard
+              step={timeUpStep}
+              onDismiss={handleDismissTimeUp}
+              onAddMinute={() => handleAddMinuteTimeUp(timeUpStep.stepNumber)}
+              hasNextStep={false}
+            />
+          </View>
+        </Modal>
+      ) : null}
     </View>
   );
 }
@@ -1906,5 +2115,157 @@ const styles = StyleSheet.create({
   backFallbackText: {
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  /* Modal y Alerta ¡Tiempo! */
+  timeUpCardBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(18, 14, 10, 0.72)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 22,
+  },
+  timeUpOverlayCookingMode: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(18, 14, 10, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 22,
+    zIndex: 99999,
+  },
+  timeUpCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#EFE8DF',
+    ...AppleTheme.shadow.floating,
+  },
+  timeUpIconRing: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#FBEDE5',
+    borderWidth: 2,
+    borderColor: '#F5C8B5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  timeUpKicker: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#C08A3E',
+    letterSpacing: 1.2,
+    textTransform: 'uppercase',
+  },
+  timeUpTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#1E1915',
+    marginTop: 2,
+    letterSpacing: -0.5,
+  },
+  timeUpStepTag: {
+    backgroundColor: '#F7F3EE',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: AppleTheme.radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E2D6C1',
+    marginTop: 8,
+    maxWidth: '92%',
+  },
+  timeUpStepTagText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#C4532B',
+  },
+  timeUpInstruction: {
+    fontSize: 13.5,
+    color: '#6F645B',
+    lineHeight: 19,
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 6,
+    fontStyle: 'italic',
+  },
+  timeUpTempBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FDF0EA',
+    borderWidth: 1,
+    borderColor: '#F3C6B4',
+    paddingHorizontal: 9,
+    paddingVertical: 3,
+    borderRadius: AppleTheme.radius.pill,
+    marginBottom: 6,
+  },
+  timeUpTempText: {
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#C84B24',
+  },
+  timeUpTipBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FAF5EC',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginTop: 4,
+    marginBottom: 10,
+    width: '100%',
+  },
+  timeUpTipText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#7D571C',
+    fontWeight: '600',
+  },
+  timeUpActionsCol: {
+    width: '100%',
+    gap: 9,
+    marginTop: 12,
+  },
+  timeUpBtnPrimary: {
+    width: '100%',
+    height: 48,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: '#1E1915',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  timeUpBtnPrimaryText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  timeUpBtnSecondary: {
+    width: '100%',
+    height: 42,
+    borderRadius: AppleTheme.radius.pill,
+    backgroundColor: '#F7F3EE',
+    borderWidth: 1,
+    borderColor: '#E2D6C1',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  timeUpBtnSecondaryText: {
+    fontSize: 13.5,
+    fontWeight: '600',
+    color: '#1E1915',
   },
 });
