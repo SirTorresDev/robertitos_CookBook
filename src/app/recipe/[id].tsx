@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -40,7 +40,7 @@ import { AppleHaptics } from '@/core/haptics';
 import { exportRecipeToPdfAndShare } from '@/core/pdfExporter';
 import { pickRecipeImage } from '@/core/recipeScanner';
 import { getRecipeImageSource } from '@/constants/recipeImages';
-import { playTimerSound } from '@/core/sound';
+import { playTimerSound, primeAudioSession } from '@/core/sound';
 
 const EDIT_CATEGORIES: Exclude<RecipeCategory, 'Todos'>[] = [
   'Pescados y Mariscos',
@@ -221,6 +221,7 @@ export default function RecipeDetailScreen() {
   const [cookingModeOpen, setCookingModeOpen] = useState(false);
   const [activeStepIdx, setActiveStepIdx] = useState(0);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const cookingScrollRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
   // Modal de Edición Completa
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -273,6 +274,12 @@ export default function RecipeDetailScreen() {
       deactivateKeepAwake('cookbook-cooking-mode').catch(() => {});
     };
   }, [cookingModeOpen, anyTimerRunning]);
+
+  useEffect(() => {
+    if (cookingModeOpen) {
+      cookingScrollRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  }, [activeStepIdx, cookingModeOpen]);
 
   useEffect(() => {
     if (!anyTimerRunning) return;
@@ -447,6 +454,7 @@ export default function RecipeDetailScreen() {
   const currentStepRunning = Boolean(runningTimers[currentStep?.stepNumber]);
 
   const toggleTimer = (stepNumber: number, defaultSeconds: number) => {
+    primeAudioSession();
     AppleHaptics.medium();
     setTimersLeft((prev) => ({
       ...prev,
@@ -462,6 +470,7 @@ export default function RecipeDetailScreen() {
   };
 
   const adjustTimer = (stepNumber: number, deltaSeconds: number) => {
+    primeAudioSession();
     AppleHaptics.selection();
     setTimersLeft((prev) => ({
       ...prev,
@@ -814,6 +823,7 @@ export default function RecipeDetailScreen() {
         <ApplePressable
           scaleTo={0.97}
           onPress={() => {
+            primeAudioSession();
             AppleHaptics.medium();
             setActiveStepIdx(0);
             setCookingModeOpen(true);
@@ -1165,87 +1175,94 @@ export default function RecipeDetailScreen() {
               ))}
             </View>
 
-            {/* Contenido del Paso Actual */}
-            <Animated.View
-              key={currentStep.stepNumber}
-              entering={FadeIn.duration(260)}
-              style={styles.modalStepBody}>
-              <Text style={styles.modalStepCounter}>
-                PASO {activeStepIdx + 1} DE {recipe.steps.length}
-              </Text>
-              <Text style={styles.modalStepTitle}>{currentStep.title}</Text>
+            {/* Contenido del Paso Actual con Scroll fluido para evitar cualquier superposición */}
+            <ScrollView
+              ref={cookingScrollRef}
+              style={styles.modalScrollView}
+              contentContainerStyle={styles.modalScrollContent}
+              showsVerticalScrollIndicator={false}
+              bounces={true}>
+              <Animated.View
+                key={currentStep.stepNumber}
+                entering={FadeIn.duration(260)}
+                style={styles.modalStepBody}>
+                <Text style={styles.modalStepCounter}>
+                  PASO {activeStepIdx + 1} DE {recipe.steps.length}
+                </Text>
+                <Text style={styles.modalStepTitle}>{currentStep.title}</Text>
 
-              {currentStep.temperature && (
-                <View style={styles.modalTempPill}>
-                  <Ionicons
-                    name="thermometer"
-                    size={16}
-                    color={AppleTheme.colors.accentWarm}
-                  />
-                  <Text style={styles.modalTempText}>
-                    Temperatura objetivo: {currentStep.temperature}
-                  </Text>
-                </View>
-              )}
-
-              <Text style={styles.modalStepInstruction}>
-                {currentStep.instruction}
-              </Text>
-
-              {currentStep.tip && (
-                <View style={styles.modalTipCard}>
-                  <Ionicons
-                    name="sparkles"
-                    size={16}
-                    color={AppleTheme.colors.accentWarm}
-                  />
-                  <Text style={styles.modalTipText}>{currentStep.tip}</Text>
-                </View>
-              )}
-
-              {/* Gran Cronómetro Interactivo del Paso */}
-              {currentStepTimerTotal > 0 && (
-                <View style={styles.bigTimerCard}>
-                  <Text style={styles.bigTimerLabel}>CRONÓMETRO DEL PASO</Text>
-                  <Text style={styles.bigTimerDigits}>
-                    {formatTimerClock(currentStepTimerLeft)}
-                  </Text>
-
-                  <View style={styles.bigTimerControls}>
-                    <ApplePressable
-                      onPress={() => adjustTimer(currentStep.stepNumber, -30)}
-                      style={styles.adjustBtn}>
-                      <Text style={styles.adjustBtnText}>-30s</Text>
-                    </ApplePressable>
-
-                    <ApplePressable
-                      scaleTo={0.94}
-                      onPress={() =>
-                        toggleTimer(currentStep.stepNumber, currentStepTimerTotal)
-                      }
-                      style={[
-                        styles.bigPlayBtn,
-                        currentStepRunning && styles.bigPauseBtn,
-                      ]}>
-                      <Ionicons
-                        name={currentStepRunning ? 'pause' : 'play'}
-                        size={22}
-                        color="#FFFFFF"
-                      />
-                      <Text style={styles.bigPlayText}>
-                        {currentStepRunning ? 'Pausar' : 'Iniciar'}
-                      </Text>
-                    </ApplePressable>
-
-                    <ApplePressable
-                      onPress={() => adjustTimer(currentStep.stepNumber, 30)}
-                      style={styles.adjustBtn}>
-                      <Text style={styles.adjustBtnText}>+30s</Text>
-                    </ApplePressable>
+                {currentStep.temperature && (
+                  <View style={styles.modalTempPill}>
+                    <Ionicons
+                      name="thermometer"
+                      size={16}
+                      color={AppleTheme.colors.accentWarm}
+                    />
+                    <Text style={styles.modalTempText}>
+                      Temperatura objetivo: {currentStep.temperature}
+                    </Text>
                   </View>
-                </View>
-              )}
-            </Animated.View>
+                )}
+
+                <Text style={styles.modalStepInstruction}>
+                  {currentStep.instruction}
+                </Text>
+
+                {currentStep.tip && (
+                  <View style={styles.modalTipCard}>
+                    <Ionicons
+                      name="sparkles"
+                      size={16}
+                      color={AppleTheme.colors.accentWarm}
+                    />
+                    <Text style={styles.modalTipText}>{currentStep.tip}</Text>
+                  </View>
+                )}
+
+                {/* Gran Cronómetro Interactivo del Paso */}
+                {currentStepTimerTotal > 0 && (
+                  <View style={styles.bigTimerCard}>
+                    <Text style={styles.bigTimerLabel}>CRONÓMETRO DEL PASO</Text>
+                    <Text style={styles.bigTimerDigits}>
+                      {formatTimerClock(currentStepTimerLeft)}
+                    </Text>
+
+                    <View style={styles.bigTimerControls}>
+                      <ApplePressable
+                        onPress={() => adjustTimer(currentStep.stepNumber, -30)}
+                        style={styles.adjustBtn}>
+                        <Text style={styles.adjustBtnText}>-30s</Text>
+                      </ApplePressable>
+
+                      <ApplePressable
+                        scaleTo={0.94}
+                        onPress={() =>
+                          toggleTimer(currentStep.stepNumber, currentStepTimerTotal)
+                        }
+                        style={[
+                          styles.bigPlayBtn,
+                          currentStepRunning && styles.bigPauseBtn,
+                        ]}>
+                        <Ionicons
+                          name={currentStepRunning ? 'pause' : 'play'}
+                          size={22}
+                          color="#FFFFFF"
+                        />
+                        <Text style={styles.bigPlayText}>
+                          {currentStepRunning ? 'Pausar' : 'Iniciar'}
+                        </Text>
+                      </ApplePressable>
+
+                      <ApplePressable
+                        onPress={() => adjustTimer(currentStep.stepNumber, 30)}
+                        style={styles.adjustBtn}>
+                        <Text style={styles.adjustBtnText}>+30s</Text>
+                      </ApplePressable>
+                    </View>
+                  </View>
+                )}
+              </Animated.View>
+            </ScrollView>
 
             {/* Navegación Anterior / Siguiente Paso */}
             <View style={styles.modalFooterNav}>
@@ -1903,15 +1920,16 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    paddingHorizontal: 22,
-    paddingTop: 18,
-    paddingBottom: 26,
-    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 12 : 16,
+    paddingBottom: Platform.OS === 'ios' ? 12 : 16,
+    backgroundColor: AppleTheme.colors.background,
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingBottom: 4,
   },
   keepAwakeBadge: {
     flexDirection: 'row',
@@ -1944,7 +1962,8 @@ const styles = StyleSheet.create({
   progressStepsRow: {
     flexDirection: 'row',
     gap: 6,
-    marginTop: 18,
+    marginTop: 10,
+    marginBottom: 14,
   },
   progressSegment: {
     flex: 1,
@@ -1955,24 +1974,31 @@ const styles = StyleSheet.create({
   progressSegmentActive: {
     backgroundColor: AppleTheme.colors.textPrimary,
   },
-  modalStepBody: {
+  modalScrollView: {
     flex: 1,
-    justifyContent: 'center',
-    paddingVertical: 20,
+  },
+  modalScrollContent: {
+    paddingTop: 6,
+    paddingBottom: 24,
+    flexGrow: 1,
+  },
+  modalStepBody: {
+    width: '100%',
   },
   modalStepCounter: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: AppleTheme.colors.accentWarm,
-    letterSpacing: 1,
+    letterSpacing: 1.2,
     marginBottom: 8,
   },
   modalStepTitle: {
-    fontSize: 27,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '800',
     color: AppleTheme.colors.textPrimary,
-    letterSpacing: -0.7,
-    marginBottom: 14,
+    letterSpacing: -0.6,
+    lineHeight: 32,
+    marginBottom: 12,
   },
   modalTempPill: {
     flexDirection: 'row',
@@ -1983,7 +2009,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: AppleTheme.radius.pill,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   modalTempText: {
     fontSize: 13,
@@ -1991,16 +2017,16 @@ const styles = StyleSheet.create({
     color: AppleTheme.colors.accentWarm,
   },
   modalStepInstruction: {
-    fontSize: 19,
+    fontSize: 18,
     color: AppleTheme.colors.textPrimary,
-    lineHeight: 28,
+    lineHeight: 27,
     letterSpacing: -0.2,
   },
   modalTipCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 18,
+    gap: 10,
+    marginTop: 16,
     padding: 14,
     borderRadius: AppleTheme.radius.md,
     backgroundColor: AppleTheme.colors.surface,
@@ -2014,10 +2040,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   bigTimerCard: {
-    marginTop: 24,
+    marginTop: 22,
+    marginBottom: 10,
     backgroundColor: AppleTheme.colors.surface,
-    borderRadius: AppleTheme.radius.lg,
-    padding: 20,
+    borderRadius: 24,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
     alignItems: 'center',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: AppleTheme.colors.border,
@@ -2030,20 +2058,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   bigTimerDigits: {
-    fontSize: 42,
-    fontWeight: '700',
+    fontSize: 44,
+    fontWeight: '800',
     color: AppleTheme.colors.textPrimary,
-    marginVertical: 10,
+    marginVertical: 8,
     fontVariant: ['tabular-nums'],
   },
   bigTimerControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 12,
     marginTop: 6,
   },
   adjustBtn: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: AppleTheme.colors.pillBg,
@@ -2061,6 +2089,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: AppleTheme.radius.pill,
+    minWidth: 120,
+    justifyContent: 'center',
   },
   bigPauseBtn: {
     backgroundColor: AppleTheme.colors.accentWarm,
@@ -2073,6 +2103,10 @@ const styles = StyleSheet.create({
   modalFooterNav: {
     flexDirection: 'row',
     gap: 12,
+    paddingTop: 12,
+    backgroundColor: AppleTheme.colors.background,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: AppleTheme.colors.border,
   },
   navStepBtn: {
     flex: 1,
