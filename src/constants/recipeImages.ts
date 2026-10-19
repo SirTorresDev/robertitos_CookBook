@@ -118,7 +118,7 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
         }
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 1800);
+          const timer = setTimeout(() => controller.abort(), 4500);
           const resp = await fetch(targetUri, { signal: controller.signal });
           clearTimeout(timer);
           const blob = await resp.blob();

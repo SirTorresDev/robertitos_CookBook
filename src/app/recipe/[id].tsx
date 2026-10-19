@@ -435,7 +435,9 @@ export default function RecipeDetailScreen() {
     AppleHaptics.medium();
     setExportingPdf(true);
     try {
-      await exportRecipeToPdfAndShare(recipe, servings);
+      await exportRecipeToPdfAndShare(recipe, servings, () => {
+        setExportingPdf(false);
+      });
     } catch (err: any) {
       console.error('[RecipeScreen] Error en exportación PDF:', err);
       Alert.alert(

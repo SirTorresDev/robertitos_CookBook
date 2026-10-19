@@ -36,19 +36,16 @@ export function primeAudioSession(): void {
           src.start(0);
         }
 
-        // Pre-cargar elemento HTML5 Audio con el timbre WAV Base64
+        // Pre-cargar elemento HTML5 Audio silenciosamente con el timbre WAV Base64 (sin reproducir nada)
         if (typeof Audio !== 'undefined') {
           if (!html5Audio) {
             html5Audio = new Audio(BELL_SOUND_BASE64);
             html5Audio.volume = 1.0;
             html5Audio.preload = 'auto';
-            // Disparo mudo inmediato para autorizar reproducción asíncrona posterior
-            const p = html5Audio.play();
-            if (p !== undefined) {
-              p.then(() => {
-                html5Audio.pause();
-                html5Audio.currentTime = 0;
-              }).catch(() => {});
+            try {
+              html5Audio.load();
+            } catch {
+              // Ignore load warning
             }
           }
         }
@@ -93,7 +90,7 @@ if (Platform.OS === 'web' && typeof window !== 'undefined') {
 
 /**
  * Emite aviso acústico de temporizador culinario y vibración háptica continua.
- * Diseñado específicamente para superar las restricciones de iOS (modo silencio y autoplay).
+ * Diseñado para sonar SIEMPRE en cada temporizador finalizado, de forma consecutiva o simultánea.
  */
 export function playTimerSound(): void {
   // 1. Vibración háptica inmersiva
@@ -103,19 +100,14 @@ export function playTimerSound(): void {
   // 2. En Web (iOS Safari y navegadores): Reproducción dual (HTML5 Audio + Web Audio Synth)
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     try {
-      if (!html5Audio && typeof Audio !== 'undefined') {
-        html5Audio = new Audio(BELL_SOUND_BASE64);
-        html5Audio.volume = 1.0;
-      }
-      if (html5Audio) {
-        html5Audio.currentTime = 0;
-        html5Audio.volume = 1.0;
-        const playPromise = html5Audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err: any) => {
-            console.warn('[Sound] HTML5 play prevented:', err);
-          });
-        }
+      // Disparo independiente: instanciar un Audio limpio asegura que si finaliza otro timer después también suene
+      const sound = new Audio(BELL_SOUND_BASE64);
+      sound.volume = 1.0;
+      const playPromise = sound.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err: any) => {
+          console.warn('[Sound] HTML5 play prevented:', err);
+        });
       }
     } catch (e) {
       console.warn('[Sound] HTML5 audio error:', e);
@@ -152,7 +144,7 @@ export function playTimerSound(): void {
     }
   }
 
-  // 3. En Native (iOS / Android con expo-audio):
+  // 3. En Nativo (iOS / Android con expo-audio):
   if (Platform.OS !== 'web') {
     try {
       /* eslint-disable-next-line @typescript-eslint/no-require-imports */
@@ -165,15 +157,16 @@ export function playTimerSound(): void {
         interruptionMode: 'duckOthers',
       });
 
-      if (!nativePlayer) {
-        nativePlayer = createAudioPlayer(soundAsset);
-      } else {
+      if (nativePlayer) {
         try {
           nativePlayer.seekTo(0);
+          nativePlayer.play();
+          return;
         } catch {
-          nativePlayer = createAudioPlayer(soundAsset);
+          // Recrear reproductor si la instancia nativa expiró
         }
       }
+      nativePlayer = createAudioPlayer(soundAsset);
       nativePlayer.play();
     } catch (nativeErr) {
       console.warn('[Sound] Native audio error:', nativeErr);

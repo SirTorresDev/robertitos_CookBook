@@ -30,25 +30,39 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
   }
 }
 
-SplashScreen.preventAutoHideAsync().catch(() => {});
+// En plataformas móviles mantenemos el splash nativo visible hasta que la app monte
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync().catch(() => {});
+}
 
 export default function RootLayout() {
   const initialize = useCookBookStore((s) => s.initialize);
 
   useEffect(() => {
-    Promise.all([
-      initialize(),
-      Font.loadAsync({
-        ...Ionicons.font,
-        Fraunces_600SemiBold,
-        Fraunces_700Bold,
-        Fraunces_500Medium_Italic,
-      }).catch((e) => {
-        console.warn('Font loading fallback:', e);
-      }),
-    ]).finally(() => {
-      SplashScreen.hideAsync().catch(() => {});
-    });
+    // 1. Inicializar la base de datos local y sincronización
+    void initialize();
+
+    // 2. Carga de fuentes no bloqueante:
+    // La interfaz aparece de inmediato (0ms de pantalla en blanco).
+    // En Web los iconos y fuentes tienen fallbacks nativos y no requieren timeout.
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          ...(Platform.OS !== 'web' ? Ionicons.font : {}),
+          Fraunces_600SemiBold,
+          Fraunces_700Bold,
+          Fraunces_500Medium_Italic,
+        });
+      } catch (e) {
+        console.warn('[RootLayout] Carga de fuentes en segundo plano:', e);
+      } finally {
+        if (Platform.OS !== 'web') {
+          SplashScreen.hideAsync().catch(() => {});
+        }
+      }
+    };
+
+    void loadFonts();
   }, [initialize]);
 
   return (
