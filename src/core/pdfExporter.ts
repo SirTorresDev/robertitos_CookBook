@@ -81,153 +81,29 @@ function getDensityProfile(recipe: Recipe) {
   };
 }
 
-/**
- * Muestra una Hoja de Acción táctil (Action Sheet) con estética de iOS para compartir
- * o descargar el PDF en navegadores móviles (Safari en iPhone / Chrome Android).
- * Al pulsar el botón "Compartir", se ejecuta dentro de un evento de clic directo del usuario,
- * lo que renueva el token de activación gestual requerido por Safari para abrir
- * la Hoja de Compartir Nativa (WhatsApp, Telegram, AirDrop, Guardar en Archivos).
- */
-function showMobileShareSheetModal(options: {
-  fileName: string;
-  recipeTitle: string;
-  pdfFile: File;
-  blobUrl: string;
-  canNativeShare: boolean;
-}): Promise<void> {
-  return new Promise((resolve) => {
-    const existing = document.getElementById('cookbook-share-overlay');
-    if (existing) existing.remove();
+let cachedHtml2canvas: any = null;
+let cachedJsPDF: any = null;
 
-    const overlay = document.createElement('div');
-    overlay.id = 'cookbook-share-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.inset = '0';
-    overlay.style.zIndex = '9999999';
-    overlay.style.backgroundColor = 'rgba(18, 15, 12, 0.65)';
-    overlay.style.backdropFilter = 'blur(12px)';
-    (overlay.style as any).webkitBackdropFilter = 'blur(12px)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'flex-end';
-    overlay.style.justifyContent = 'center';
-    overlay.style.opacity = '0';
-    overlay.style.transition = 'opacity 0.25s ease';
-
-    const sheet = document.createElement('div');
-    sheet.style.width = '100%';
-    sheet.style.maxWidth = '500px';
-    sheet.style.backgroundColor = '#FAF7F0';
-    sheet.style.borderTopLeftRadius = '26px';
-    sheet.style.borderTopRightRadius = '26px';
-    sheet.style.padding = '14px 20px 30px 20px';
-    sheet.style.boxShadow = '0 -10px 35px rgba(0, 0, 0, 0.28)';
-    sheet.style.fontFamily = '-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif';
-    sheet.style.boxSizing = 'border-box';
-    sheet.style.transform = 'translateY(100%)';
-    sheet.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
-
-    sheet.innerHTML = `
-      <div style="width: 38px; height: 5px; background: #D5C9B3; border-radius: 3px; margin: 0 auto 14px auto;"></div>
-      <div style="text-align: center; margin-bottom: 18px;">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: #FFF3DD; border-radius: 12px; margin-bottom: 8px; border: 1px solid #EED39B;">
-          <span style="font-size: 22px;">📄</span>
-        </div>
-        <h3 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #181512; font-family: -apple-system-ui-serif, Georgia, serif;">Ficha Gastronómica Lista</h3>
-        <p style="margin: 0; font-size: 12.5px; color: #7A6E62; font-weight: 500;">${options.fileName} · 1 página A4</p>
-      </div>
-
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px;">
-        <button id="cookbook-btn-share" style="width: 100%; background: linear-gradient(135deg, #D4912A 0%, #B86B11 100%); color: #FFFFFF; border: none; border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(184, 107, 17, 0.32);">
-          <span>📤</span> Compartir (WhatsApp, Telegram...)
-        </button>
-
-        <button id="cookbook-btn-download" style="width: 100%; background: #FFFFFF; color: #181512; border: 1.5px solid #E2D6C1; border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          <span>📥</span> Guardar o Descargar Archivo
-        </button>
-
-        <button id="cookbook-btn-preview" style="width: 100%; background: transparent; color: #8A5816; border: none; padding: 8px; font-size: 13.5px; font-weight: 600; cursor: pointer;">
-          👁️ Ver Ficha en Pantalla
-        </button>
-      </div>
-
-      <button id="cookbook-btn-close" style="width: 100%; background: rgba(24, 21, 18, 0.05); color: #5A4E42; border: none; border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 600; cursor: pointer;">
-        Cerrar
-      </button>
-    `;
-
-    overlay.appendChild(sheet);
-    document.body.appendChild(overlay);
-
-    requestAnimationFrame(() => {
-      overlay.style.opacity = '1';
-      sheet.style.transform = 'translateY(0)';
-    });
-
-    const cleanup = () => {
-      overlay.style.opacity = '0';
-      sheet.style.transform = 'translateY(100%)';
-      setTimeout(() => {
-        overlay.remove();
-        setTimeout(() => URL.revokeObjectURL(options.blobUrl), 15000);
-        resolve();
-      }, 260);
-    };
-
-    const btnShare = sheet.querySelector('#cookbook-btn-share') as HTMLButtonElement;
-    btnShare.onclick = async () => {
-      const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
-      if (nav?.share && nav?.canShare && nav.canShare({ files: [options.pdfFile] })) {
-        try {
-          await nav.share({
-            files: [options.pdfFile],
-            title: `Ficha Técnica: ${options.recipeTitle}`,
-          });
-          cleanup();
-        } catch (e: any) {
-          const msg = String(e?.message || '').toLowerCase();
-          if (msg.includes('abort') || msg.includes('cancel')) {
-            return;
-          }
-          alert('No se pudo abrir el menú de compartir: ' + e.message);
-        }
-      } else {
-        alert(
-          'En navegadores web por conexión HTTP local, las políticas de seguridad de Apple no permiten a una web abrir directamente WhatsApp o Telegram.\n\n👉 Solución en 2 pasos:\n1. Pulsa "Ver Ficha en Pantalla".\n2. En la barra inferior de Safari, pulsa el botón Compartir (icono ⎋) para enviarlo a WhatsApp, Telegram o Archivos.\n\nO si prefieres compartir con 1 toque automático, abre la app desde Expo Go.'
-        );
-      }
-    };
-
-    const btnDownload = sheet.querySelector('#cookbook-btn-download') as HTMLButtonElement;
-    btnDownload.onclick = () => {
-      const link = document.createElement('a');
-      link.href = options.blobUrl;
-      link.download = options.fileName;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      cleanup();
-    };
-
-    const btnPreview = sheet.querySelector('#cookbook-btn-preview') as HTMLButtonElement;
-    btnPreview.onclick = () => {
-      window.open(options.blobUrl, '_blank');
-      cleanup();
-    };
-
-    const btnClose = sheet.querySelector('#cookbook-btn-close') as HTMLButtonElement;
-    btnClose.onclick = cleanup;
-    overlay.onclick = (e) => {
-      if (e.target === overlay) cleanup();
-    };
-  });
+if (Platform.OS === 'web') {
+  // Pre-cargar en segundo plano en web para que la exportación sea casi instantánea
+  import('html2canvas')
+    .then((m) => {
+      cachedHtml2canvas = m.default || m;
+    })
+    .catch(() => {});
+  import('jspdf')
+    .then((m) => {
+      cachedJsPDF = m.jsPDF || m;
+    })
+    .catch(() => {});
 }
 
 /**
  * Genera un archivo PDF real en la Web utilizando jsPDF y html2canvas.
- * En navegadores móviles (Safari en iPhone / Chrome en Android), abre la hoja interactiva
- * de compartir para enviar el PDF por WhatsApp, Telegram, Guardar en Archivos, etc.
- * En navegadores de escritorio, descarga automáticamente el archivo PDF generado.
+ * En dispositivos móviles (iOS / Android), abre directamente la Hoja de Compartir Nativa
+ * del sistema operativo (UIActivityViewController en iOS: WhatsApp, Telegram, AirDrop, etc.).
+ * En ordenadores de escritorio (PC / Mac), abre el diálogo nativo "Guardar como..." para que
+ * el usuario elija la carpeta donde guardar el documento.
  */
 async function exportPdfOnWeb(
   html: string,
@@ -256,71 +132,30 @@ async function exportPdfOnWeb(
   document.body.appendChild(container);
 
   try {
-    const waitWithTimeout = (promise: Promise<any>, ms = 1200) =>
-      Promise.race([promise, new Promise((resolve) => setTimeout(resolve, ms))]);
-
-    // 1. Asegurar precarga de imágenes con timeout estricto para evitar bloqueos en Safari
-    if (imageBase64) {
-      await waitWithTimeout(
-        new Promise<void>((resolve) => {
-          const preImg = new Image();
-          preImg.onload = () => resolve();
-          preImg.onerror = () => resolve();
-          preImg.src = imageBase64;
-          if (preImg.complete) resolve();
-        }),
-        1200
-      );
-    }
-
-    const imgs = Array.from(container.getElementsByTagName('img'));
-    if (imgs.length > 0) {
-      await waitWithTimeout(
-        Promise.all(
-          imgs.map(
-            (img) =>
-              new Promise<void>((resolve) => {
-                if (img.complete) resolve();
-                else {
-                  img.onload = () => resolve();
-                  img.onerror = () => resolve();
-                }
-              })
-          )
-        ),
-        1200
-      );
-    }
-
-    const html2canvasModule = (await import('html2canvas')).default;
-    const { jsPDF } = await import('jspdf');
+    const html2canvasModule = cachedHtml2canvas || (await import('html2canvas')).default;
+    const JsPdfClass = cachedJsPDF || (await import('jspdf')).jsPDF;
 
     const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
     const isTouchMobile =
       /iPhone|iPad|iPod|Android|Mobile/i.test(nav?.userAgent || '') ||
       (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
 
-    const canvasPromise = html2canvasModule(container, {
-      scale: isTouchMobile ? 1.5 : 2, // 1.5 en móviles para evitar saturación de memoria de Safari
+    // En móviles escala 1 para renderizado ultrarrápido (~60ms) que preserva el token de gesto táctil de iOS
+    const canvas = await html2canvasModule(container, {
+      scale: isTouchMobile ? 1 : 2,
       useCORS: true,
       logging: false,
       backgroundColor: '#FAF7F0',
     });
 
-    const canvasTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('html2canvas timeout')), 4500)
-    );
-
-    const canvas = await Promise.race([canvasPromise, canvasTimeout]);
-
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jsPDF({
+    const pdf = new JsPdfClass({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
     });
 
-    // Proporción natural A4: el lienzo mantiene su altura proporcional sin estirarse verticalmente
+    // Proporción natural A4: el lienzo mantiene su altura proporcional sin estirarse
     const imgHeight = (canvas.height * 210) / canvas.width;
     pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeight, 297));
 
@@ -331,9 +166,8 @@ async function exportPdfOnWeb(
     // Notificar inmediatamente que el PDF ya está listo para desactivar el spinner de la pantalla
     onGenerated?.();
 
-    // En navegadores de escritorio (PC / Mac):
-    // Abrir directamente el diálogo nativo "Guardar como..." para que el usuario elija
-    // exactamente la carpeta y ubicación donde guardar su archivo PDF sin ventanas de compartir intermedias.
+    // 1. En ordenadores de escritorio (PC / Mac):
+    // Abrir directamente el diálogo nativo "Guardar como..." para elegir carpeta
     if (!isTouchMobile) {
       const win = typeof window !== 'undefined' ? (window as any) : null;
       if (win && typeof win.showSaveFilePicker === 'function') {
@@ -361,7 +195,7 @@ async function exportPdfOnWeb(
         }
       }
 
-      // Fallback estándar: descarga directa en el navegador
+      // Fallback estándar de descarga en PC
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = fileName;
@@ -372,8 +206,9 @@ async function exportPdfOnWeb(
       return;
     }
 
-    // En dispositivos móviles (Safari en iOS / Chrome Android):
-    // Si el navegador permite compartir directamente sin requerir nuevo gesto:
+    // 2. En dispositivos móviles (iOS / Android):
+    // Abrir directamente la Hoja de Compartir Nativa del sistema operativo (UIActivityViewController en iOS:
+    // AirDrop, WhatsApp, Instagram, Telegram, Guardar en Archivos, etc.)
     if (nav?.share && nav?.canShare && nav.canShare({ files: [pdfFile] })) {
       try {
         await nav.share({
@@ -386,24 +221,19 @@ async function exportPdfOnWeb(
         const msg = String(shareErr?.message || '').toLowerCase();
         if (msg.includes('abort') || msg.includes('cancel')) {
           setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-          return;
+          return; // Usuario canceló la hoja de compartir nativa
         }
-        console.warn('[PDFExporter] nav.share automático rechazado por Safari, mostrando selector interactivo:', shareErr);
+        console.warn('[PDFExporter] nav.share falló:', shareErr);
       }
     }
 
-    // Mostrar el selector de compartir móvil táctil para que el usuario elija su app de destino
-    await showMobileShareSheetModal({
-      fileName,
-      recipeTitle,
-      pdfFile,
-      blobUrl,
-      canNativeShare: Boolean(nav?.share && nav?.canShare && nav.canShare({ files: [pdfFile] })),
-    });
+    // Si nav.share no estuviera disponible (por ejemplo, en Safari sobre HTTP local sin SSL):
+    // Abrir directamente el PDF en una pestaña de Safari para que el usuario pueda usar el botón Compartir nativo
+    window.open(blobUrl, '_blank');
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
   } catch (err) {
     console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
     onGenerated?.();
-    // Fallback: descarga directa como archivo HTML si html2canvas no pudiera inicializarse
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -438,7 +268,7 @@ export async function exportRecipeToPdfAndShare(
   try {
     const imgPromise = getRecipeImageBase64(recipe);
     const timeoutPromise = new Promise<string>((resolve) =>
-      setTimeout(() => resolve(recipe.imageUrl || ''), 2000)
+      setTimeout(() => resolve(recipe.imageUrl || ''), 800)
     );
     imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
   } catch (e) {
@@ -1075,7 +905,7 @@ export async function exportRecipeToPdfAndShare(
     if (canShare) {
       const isPad = Platform.OS === 'ios' && (Platform as any).isPad;
       const shareOptions: Sharing.SharingOptions = {
-        UTI: 'com.adobe.pdf',
+        UTI: '.pdf',
         mimeType: 'application/pdf',
         dialogTitle: `Compartir Ficha: ${recipe.title}`,
       };
