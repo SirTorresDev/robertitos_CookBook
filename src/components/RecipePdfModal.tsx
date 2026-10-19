@@ -38,8 +38,14 @@ export function RecipePdfModal({
 }: RecipePdfModalProps) {
   const [sharing, setSharing] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   if (!visible || !data) return null;
+
+  const isIOS =
+    typeof navigator !== 'undefined' &&
+    (/iPhone|iPad|iPod/i.test(navigator.userAgent || '') ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
   const handleShare = async () => {
     if (sharing) return;
@@ -59,9 +65,15 @@ export function RecipePdfModal({
     setTimeout(() => setDownloaded(false), 3000);
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    if (printing) return;
     AppleHaptics.light();
-    printPdfData(data);
+    setPrinting(true);
+    try {
+      await printPdfData(data);
+    } finally {
+      setPrinting(false);
+    }
   };
 
   const handleClose = () => {
@@ -143,7 +155,9 @@ export function RecipePdfModal({
             <View style={styles.iosTipBox}>
               <Ionicons name="bulb-outline" size={15} color="#8A6528" />
               <Text style={styles.iosTipText}>
-                En iPhone pulsa «Compartir PDF» para enviarlo por WhatsApp o guardarlo en Archivos.
+                {isIOS
+                  ? 'En iPhone pulsa «Imprimir» para conectar con tu impresora AirPrint, o «Compartir PDF» para enviarlo por WhatsApp.'
+                  : 'Pulsa «Imprimir» para enviar directamente a tu impresora o «Compartir PDF» para enviarlo.'}
               </Text>
             </View>
           </ScrollView>
@@ -186,19 +200,24 @@ export function RecipePdfModal({
                 </Text>
               </ApplePressable>
 
-              {Platform.OS === 'web' ? (
-                <ApplePressable
-                  scaleTo={0.96}
-                  onPress={handlePrint}
-                  style={styles.btnSecondaryIcon}>
+              <ApplePressable
+                scaleTo={0.96}
+                disabled={printing}
+                onPress={handlePrint}
+                style={[styles.btnSecondaryIcon, printing && { opacity: 0.7 }]}>
+                {printing ? (
+                  <ActivityIndicator size="small" color={AppleTheme.colors.textPrimary} />
+                ) : (
                   <Ionicons
                     name="print-outline"
                     size={17}
                     color={AppleTheme.colors.textPrimary}
                   />
-                  <Text style={styles.btnSecondaryText}>Imprimir</Text>
-                </ApplePressable>
-              ) : null}
+                )}
+                <Text style={styles.btnSecondaryText}>
+                  {isIOS ? 'Imprimir (AirPrint)' : 'Imprimir'}
+                </Text>
+              </ApplePressable>
             </View>
           </View>
         </View>

@@ -1385,12 +1385,67 @@ export function downloadPdfData(data: RecipePdfData): void {
 }
 
 /**
- * Invoca el pipeline de impresión para la ficha técnica.
+ * Invoca el pipeline de impresión para la ficha técnica:
+ * - En iOS (Web/PWA en pantalla de inicio): invoca directamente la hoja del sistema
+ *   con el archivo PDF real, donde iOS activa la opción nativa "Imprimir" vía AirPrint.
+ * - En ordenadores de escritorio (PC / Mac): abre el diálogo de impresión del navegador.
+ * - En plataformas nativas (Expo): invoca Print.printAsync para AirPrint directo.
  */
-export function printPdfData(data: RecipePdfData): void {
+export async function printPdfData(data: RecipePdfData): Promise<boolean> {
+  if (Platform.OS !== 'web') {
+    if (data.localPdfUri) {
+      try {
+        await Print.printAsync({ uri: data.localPdfUri });
+        return true;
+      } catch (e) {
+        console.warn('[PDFExporter] Error en Print.printAsync nativo:', e);
+      }
+    }
+    return false;
+  }
+
+  const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
+    (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
+  const isStandalone =
+    (typeof window !== 'undefined' && (window.navigator as any)?.standalone) ||
+    (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches);
+
+  // En iOS (y PWA en pantalla de inicio), window.print() está bloqueado silenciosamente por WebKit.
+  // La vía nativa oficial para enviar a una impresora AirPrint es abrir el archivo PDF
+  // con navigator.share, donde iOS muestra directamente la acción "Imprimir" (AirPrint).
+  if (isIOS || isStandalone) {
+    if (data.pdfFile && nav?.share && nav?.canShare?.({ files: [data.pdfFile] })) {
+      try {
+        await nav.share({
+          files: [data.pdfFile],
+          title: data.fileName,
+        });
+        return true;
+      } catch (err: any) {
+        if (err?.name === 'AbortError') return true;
+        console.warn('[PDFExporter] Error en AirPrint navigator.share:', err);
+      }
+    }
+
+    // Fallback: abrir el visor de PDF donde iOS integra el botón de AirPrint
+    if (data.blobUrl && typeof window !== 'undefined') {
+      const w = window.open(data.blobUrl, '_blank');
+      if (!w) {
+        downloadPdfData(data);
+      }
+      return true;
+    }
+  }
+
+  // En ordenadores de escritorio (PC / Mac)
   if (data.html) {
     triggerPrintFallback(data.html);
+    return true;
   }
+
+  return false;
 }
 
 /**
