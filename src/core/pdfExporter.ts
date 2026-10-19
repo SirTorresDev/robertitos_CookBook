@@ -118,35 +118,58 @@ async function exportPdfOnWeb(
     .slice(0, 32);
   const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
 
+  // Contenedor fuera de la pantalla con dimensiones exactas A4 (794x1123px a 96DPI)
+  // CRÍTICO: opacity: 1 (si es 0, html2canvas renderiza un lienzo en blanco)
   const container = document.createElement('div');
   container.id = 'cookbook-pdf-web-export';
   container.style.position = 'fixed';
-  container.style.left = '0';
+  container.style.left = '-9999px';
   container.style.top = '0';
-  container.style.width = '794px'; // 210mm a 96 DPI
+  container.style.width = '794px';
+  container.style.height = '1123px';
+  container.style.minHeight = '1123px';
+  container.style.maxHeight = '1123px';
+  container.style.opacity = '1';
   container.style.zIndex = '-9999';
-  container.style.opacity = '0';
+  container.style.overflow = 'hidden';
   container.style.pointerEvents = 'none';
   container.style.backgroundColor = '#FAF7F0';
   container.innerHTML = html;
   document.body.appendChild(container);
 
   try {
-    const html2canvasModule = cachedHtml2canvas || (await import('html2canvas')).default;
-    const JsPdfClass = cachedJsPDF || (await import('jspdf')).jsPDF;
+    const rawH2C = cachedHtml2canvas || (await import('html2canvas'));
+    const html2canvasFn = typeof rawH2C === 'function' ? rawH2C : (rawH2C?.default || rawH2C);
+
+    const rawJsPDF = cachedJsPDF || (await import('jspdf'));
+    const JsPdfClass = typeof rawJsPDF === 'function' ? rawJsPDF : (rawJsPDF?.jsPDF || rawJsPDF?.default || rawJsPDF);
+
+    if (typeof html2canvasFn !== 'function') {
+      throw new Error('html2canvas no se pudo inicializar como función');
+    }
 
     const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
     const isTouchMobile =
       /iPhone|iPad|iPod|Android|Mobile/i.test(nav?.userAgent || '') ||
       (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
 
-    // En móviles escala 1 para renderizado ultrarrápido (~60ms) que preserva el token de gesto táctil de iOS
-    const canvas = await html2canvasModule(container, {
+    const canvasPromise = html2canvasFn(container, {
       scale: isTouchMobile ? 1 : 2,
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: '#FAF7F0',
+      width: 794,
+      height: 1123,
+      windowWidth: 794,
+      windowHeight: 1123,
     });
+
+    const canvasTimeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('html2canvas timeout')), 5000)
+    );
+
+    const canvas = await Promise.race([canvasPromise, canvasTimeout]);
 
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const pdf = new JsPdfClass({
@@ -155,7 +178,6 @@ async function exportPdfOnWeb(
       format: 'a4',
     });
 
-    // Proporción natural A4: el lienzo mantiene su altura proporcional sin estirarse
     const imgHeight = (canvas.height * 210) / canvas.width;
     pdf.addImage(imgData, 'JPEG', 0, 0, 210, Math.min(imgHeight, 297));
 
@@ -234,14 +256,17 @@ async function exportPdfOnWeb(
   } catch (err) {
     console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
     onGenerated?.();
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = `${fileName}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (typeof window !== 'undefined') {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(html);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+        }, 300);
+      }
+    }
   } finally {
     container.remove();
   }
@@ -372,9 +397,11 @@ export async function exportRecipeToPdfAndShare(
 
         /* Marco Unificado de la Ficha Gastronómica */
         .sheet-card {
-          width: 100%;
-          height: 100%;
-          max-height: 285mm;
+          width: 794px;
+          height: 1123px;
+          min-height: 1123px;
+          max-height: 1123px;
+          box-sizing: border-box;
           background: #FFFFFF;
           border-radius: 18px;
           border: 1.5px solid #E2D6C1;
@@ -433,6 +460,7 @@ export async function exportRecipeToPdfAndShare(
           bottom: 0;
           width: 100%;
           height: 100%;
+          z-index: 2;
           background: linear-gradient(
             180deg,
             rgba(18, 14, 10, 0.04) 0%,
@@ -777,7 +805,12 @@ export async function exportRecipeToPdfAndShare(
         </div>
 
         <!-- 2. Imagen Grande del Plato con Título Integrado (Preserva aspecto natural 1:1 / 4:3 sin estirar) -->
-        <div class="hero-section" style="${imageBase64 ? `background-image: url('${imageBase64}');` : ''}">
+        <div class="hero-section">
+          ${
+            imageBase64
+              ? `<img class="hero-img" src="${imageBase64}" alt="${recipe.title}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center center; display: block; z-index: 1;" />`
+              : ''
+          }
           <div class="hero-overlay">
             <h1 class="dish-title">${recipe.title}</h1>
             ${recipe.subtitle ? `<p class="dish-subtitle">${recipe.subtitle}</p>` : ''}
