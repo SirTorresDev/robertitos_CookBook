@@ -118,19 +118,20 @@ async function exportPdfOnWeb(
     .slice(0, 32);
   const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
 
-  // Contenedor fuera de la pantalla con dimensiones exactas A4 (794x1123px a 96DPI)
-  // CRÍTICO: opacity: 1 (si es 0, html2canvas renderiza un lienzo en blanco)
+  // Contenedor en coordenadas (0,0) con z-index muy negativo (detrás de #root)
+  // para que WebKit (Safari iOS) y Chrome rendericen siempre el árbol DOM
+  // sin recortar por estar fuera de pantalla (left: -9999px a veces desactiva el render en WebKit).
   const container = document.createElement('div');
   container.id = 'cookbook-pdf-web-export';
   container.style.position = 'fixed';
-  container.style.left = '-9999px';
+  container.style.left = '0';
   container.style.top = '0';
   container.style.width = '794px';
   container.style.height = '1123px';
   container.style.minHeight = '1123px';
   container.style.maxHeight = '1123px';
   container.style.opacity = '1';
-  container.style.zIndex = '-9999';
+  container.style.zIndex = '-99999';
   container.style.overflow = 'hidden';
   container.style.pointerEvents = 'none';
   container.style.backgroundColor = '#FAF7F0';
@@ -148,25 +149,53 @@ async function exportPdfOnWeb(
       throw new Error('html2canvas no se pudo inicializar como función');
     }
 
+    // Esperar a que las fuentes web y las imágenes del contenedor estén listas
+    if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
+      try {
+        await Promise.race([
+          (document as any).fonts.ready,
+          new Promise((r) => setTimeout(r, 400)),
+        ]);
+      } catch {}
+    }
+
+    const imgs = Array.from(container.querySelectorAll('img'));
+    if (imgs.length > 0) {
+      await Promise.all(
+        imgs.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise<void>((res) => {
+            img.onload = () => res();
+            img.onerror = () => res();
+            setTimeout(res, 800);
+          });
+        })
+      );
+    }
+
     const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
     const isTouchMobile =
       /iPhone|iPad|iPod|Android|Mobile/i.test(nav?.userAgent || '') ||
       (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
 
     const canvasPromise = html2canvasFn(container, {
-      scale: isTouchMobile ? 1 : 2,
+      scale: isTouchMobile ? 1.5 : 2,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       logging: false,
       backgroundColor: '#FAF7F0',
       width: 794,
       height: 1123,
       windowWidth: 794,
       windowHeight: 1123,
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
     });
 
     const canvasTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('html2canvas timeout')), 5000)
+      setTimeout(() => reject(new Error('html2canvas timeout')), 7000)
     );
 
     const canvas = await Promise.race([canvasPromise, canvasTimeout]);
@@ -250,8 +279,14 @@ async function exportPdfOnWeb(
     }
 
     // Si nav.share no estuviera disponible (por ejemplo, en Safari sobre HTTP local sin SSL):
-    // Abrir directamente el PDF en una pestaña de Safari para que el usuario pueda usar el botón Compartir nativo
-    window.open(blobUrl, '_blank');
+    // Descargar o previsualizar el PDF sin bloqueo de ventanas emergentes
+    const mobileLink = document.createElement('a');
+    mobileLink.href = blobUrl;
+    mobileLink.download = fileName;
+    mobileLink.target = '_blank';
+    document.body.appendChild(mobileLink);
+    mobileLink.click();
+    document.body.removeChild(mobileLink);
     setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
   } catch (err) {
     console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
