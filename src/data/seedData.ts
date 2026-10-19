@@ -5,6 +5,7 @@ import {
   FoodiePlace,
 } from '@/types/cookbook';
 import { COURSE_RECIPES } from './courseRecipes';
+import { NEW_RECIPES } from './newCookbookRecipes';
 
 export const INITIAL_RECIPES: Recipe[] = [
   {
@@ -756,6 +757,7 @@ export const INITIAL_RECIPES: Recipe[] = [
     ],
   },
   ...COURSE_RECIPES,
+  ...NEW_RECIPES,
 ];
 
 export const INITIAL_TIPS: CookingTip[] = [

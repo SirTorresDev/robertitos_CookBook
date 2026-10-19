@@ -112,7 +112,20 @@ export function RecipePdfModal({
             style={styles.previewScroll}
             contentContainerStyle={styles.previewScrollContent}
             showsVerticalScrollIndicator={true}>
-            {data.previewImageUrl ? (
+            {Platform.OS === 'web' && data.html ? (
+              <View style={styles.sheetShadowWrap}>
+                <iframe
+                  srcDoc={data.html}
+                  title="Ficha Técnica"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    backgroundColor: '#FAF7F0',
+                  }}
+                />
+              </View>
+            ) : data.previewImageUrl ? (
               <View style={styles.sheetShadowWrap}>
                 <Image
                   source={{ uri: data.previewImageUrl }}
@@ -122,16 +135,15 @@ export function RecipePdfModal({
               </View>
             ) : (
               <View style={styles.noPreviewBox}>
-                <Ionicons name="document-outline" size={48} color="#C08A3E" />
-                <Text style={styles.noPreviewText}>Ficha PDF generada</Text>
+                <Ionicons name="document-text-outline" size={48} color="#C08A3E" />
+                <Text style={styles.noPreviewText}>Ficha Técnica A4 Generada</Text>
               </View>
             )}
 
             <View style={styles.iosTipBox}>
               <Ionicons name="bulb-outline" size={15} color="#8A6528" />
               <Text style={styles.iosTipText}>
-                En iPhone puedes mantener pulsada la ficha previa para guardarla
-                también en tu galería de Fotos.
+                En iPhone pulsa «Compartir PDF» para enviarlo por WhatsApp o guardarlo en Archivos.
               </Text>
             </View>
           </ScrollView>

@@ -57,6 +57,17 @@ export const RECIPE_LOCAL_IMAGES: Record<string, any> = {
   'pollo-en-pepitoria-aves': require('@/assets/images/recipes/pollo-en-pepitoria-aves.webp'),
   'canelones-pavo-bechamel-tomate-aves': require('@/assets/images/recipes/canelones-pavo-bechamel-tomate-aves.webp'),
   'codorniz-en-escabeche-aves': require('@/assets/images/recipes/codorniz-en-escabeche-aves.webp'),
+  'dahl-romanesco-burrata': require('@/assets/images/recipes/dahl-romanesco-burrata.webp'),
+  'hummus-crema-garbanzos': require('@/assets/images/recipes/hummus-crema-garbanzos.webp'),
+  'pesto-tradicional-albahaca': require('@/assets/images/recipes/pesto-tradicional-albahaca.webp'),
+  'arroz-caldoso-carrillera-setas': require('@/assets/images/recipes/arroz-caldoso-carrillera-setas.webp'),
+  'arroz-negro-chipirones-alioli': require('@/assets/images/recipes/arroz-negro-chipirones-alioli.webp'),
+  'ali-oli-artesanal-mortero': require('@/assets/images/recipes/ali-oli-artesanal-mortero.webp'),
+  'risotto-peras-gorgonzola-jamon': require('@/assets/images/recipes/risotto-peras-gorgonzola-jamon.webp'),
+  'mejillones-a-la-marinera': require('@/assets/images/recipes/mejillones-a-la-marinera.webp'),
+  'ceviche-clasico-corvina': require('@/assets/images/recipes/ceviche-clasico-corvina.webp'),
+  'merluza-salsa-verde-almejas': require('@/assets/images/recipes/merluza-salsa-verde-almejas.webp'),
+  'papillote-salmon-verduras': require('@/assets/images/recipes/papillote-salmon-verduras.webp'),
 };
 
 /** Imagen por defecto en caso de no existir o ser una receta creada manualmente sin foto */
