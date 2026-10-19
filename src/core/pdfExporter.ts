@@ -105,6 +105,90 @@ if (Platform.OS === 'web') {
  * En ordenadores de escritorio (PC / Mac), abre el diálogo nativo "Guardar como..." para que
  * el usuario elija la carpeta donde guardar el documento.
  */
+function triggerPrintFallback(html: string): void {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+  const styleMatch = html.match(/<style[\s\S]*?<\/style>/i);
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const sheetBody = bodyMatch ? bodyMatch[1] : html;
+  const baseStyles = styleMatch ? styleMatch[0].replace(/<\/?style>/gi, '') : '';
+
+  const printStyles = `
+    @media screen {
+      #cookbook-print-area {
+        display: none !important;
+      }
+    }
+    @media print {
+      @page {
+        size: 210mm 297mm;
+        margin: 4mm 5mm;
+      }
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #FAF7F0 !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+      #root, #__next, body > *:not(#cookbook-print-area) {
+        display: none !important;
+      }
+      #cookbook-print-area {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+      }
+      .sheet-card {
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+    }
+    ${baseStyles}
+  `;
+
+  let printArea = document.getElementById('cookbook-print-area');
+  if (!printArea) {
+    printArea = document.createElement('div');
+    printArea.id = 'cookbook-print-area';
+    document.body.appendChild(printArea);
+  }
+  printArea.innerHTML = sheetBody;
+
+  let styleEl = document.getElementById('cookbook-print-css') as HTMLStyleElement | null;
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'cookbook-print-css';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.innerHTML = printStyles;
+
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      printArea?.remove();
+      styleEl?.remove();
+    }, 4000);
+  }, 40);
+}
+
+/**
+ * Genera un archivo PDF real en la Web utilizando jsPDF y html2canvas.
+ * En dispositivos móviles (iOS / Android), abre directamente la Hoja de Compartir Nativa
+ * del sistema operativo (WhatsApp, Guardar en Archivos, AirDrop, etc.).
+ * En ordenadores de escritorio (PC / Mac), abre el diálogo nativo "Guardar como..." para que
+ * el usuario elija la carpeta donde guardar el documento.
+ */
 async function exportPdfOnWeb(
   html: string,
   recipeTitle: string,
@@ -118,7 +202,13 @@ async function exportPdfOnWeb(
     .slice(0, 32);
   const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
 
-  // Extraer el contenido de la ficha y estilos para inyectar en el contenedor sin romper el body de la app
+  const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
+  const isIOS =
+    /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
+    (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
+  const isTouchMobile =
+    isIOS || /Android|Mobile/i.test(nav?.userAgent || '');
+
   let cleanHtml = html;
   const styleMatch = html.match(/<style[\s\S]*?<\/style>/i);
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
@@ -126,8 +216,6 @@ async function exportPdfOnWeb(
     cleanHtml = `${styleMatch[0]}${bodyMatch[1]}`;
   }
 
-  // Contenedor en coordenadas (0,0) con z-index: -1 para estar oculto tras la app
-  // pero activo en el árbol de composición de capas de WebKit (evita que Safari iOS lo descarte)
   const container = document.createElement('div');
   container.id = 'cookbook-pdf-web-export';
   container.style.position = 'fixed';
@@ -156,17 +244,15 @@ async function exportPdfOnWeb(
       throw new Error('html2canvas no se pudo inicializar como función');
     }
 
-    // Esperar fuentes web brevemente (máximo 120ms para no demorar la respuesta de usuario)
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
       try {
         await Promise.race([
           (document as any).fonts.ready,
-          new Promise((r) => setTimeout(r, 120)),
+          new Promise((r) => setTimeout(r, 100)),
         ]);
       } catch {}
     }
 
-    // Esperar imágenes del contenedor (máximo 200ms)
     const imgs = Array.from(container.querySelectorAll('img'));
     if (imgs.length > 0) {
       await Promise.all(
@@ -175,16 +261,11 @@ async function exportPdfOnWeb(
           return new Promise<void>((res) => {
             img.onload = () => res();
             img.onerror = () => res();
-            setTimeout(res, 200);
+            setTimeout(res, 150);
           });
         })
       );
     }
-
-    const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
-    const isTouchMobile =
-      /iPhone|iPad|iPod|Android|Mobile/i.test(nav?.userAgent || '') ||
-      (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
 
     const canvasPromise = html2canvasFn(container, {
       scale: isTouchMobile ? 1.25 : 2,
@@ -203,7 +284,7 @@ async function exportPdfOnWeb(
     });
 
     const canvasTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('html2canvas timeout')), 4000)
+      setTimeout(() => reject(new Error('html2canvas timeout')), 3500)
     );
 
     const canvas = await Promise.race([canvasPromise, canvasTimeout]);
@@ -223,7 +304,6 @@ async function exportPdfOnWeb(
     const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
     const blobUrl = URL.createObjectURL(pdfBlob);
 
-    // Notificar inmediatamente que el PDF ya está listo para desactivar el spinner de la pantalla
     onGenerated?.();
 
     // 1. En ordenadores de escritorio (PC / Mac):
@@ -248,13 +328,12 @@ async function exportPdfOnWeb(
         } catch (pickerErr: any) {
           if (pickerErr?.name === 'AbortError') {
             setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-            return; // El usuario canceló voluntariamente el diálogo de guardar
+            return;
           }
           console.warn('[PDFExporter] Error en showSaveFilePicker, recurriendo a descarga tradicional:', pickerErr);
         }
       }
 
-      // Fallback estándar de descarga en PC
       const link = document.createElement('a');
       link.href = blobUrl;
       link.download = fileName;
@@ -266,56 +345,49 @@ async function exportPdfOnWeb(
     }
 
     // 2. En dispositivos móviles (iOS / Android):
-    const isIOS =
-      /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
-      (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
-
-    // Intentar primero compartir nativo mediante la Hoja de Compartir del SO si está soportada
+    // Intentar compartir nativamente el archivo PDF
     if (nav?.share && nav?.canShare && nav.canShare({ files: [pdfFile] })) {
       try {
-        await nav.share({
-          files: [pdfFile],
-          title: `Ficha Técnica: ${recipeTitle}`,
-        });
+        // En iOS WebKit es crítico compartir ÚNICAMENTE { files: [pdfFile] } sin title/text
+        // para máxima compatibilidad con el sistema operativo
+        const sharePayload: any = isIOS
+          ? { files: [pdfFile] }
+          : { files: [pdfFile], title: `Ficha: ${recipeTitle}` };
+
+        await nav.share(sharePayload);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 20000);
         return;
       } catch (shareErr: any) {
-        console.warn('[PDFExporter] nav.share no completado o expiró gesto en iOS:', shareErr);
-        // Continuar inmediatamente al fallback para no dejar al usuario sin su PDF
+        if (shareErr?.name === 'AbortError') {
+          // El usuario canceló la hoja de compartir voluntariamente
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+          return;
+        }
+        console.warn('[PDFExporter] nav.share falló en móvil, usando fallback:', shareErr);
       }
     }
 
-    // Fallback garantizado para iOS Safari / Chrome iOS / PWA:
-    if (isIOS) {
-      // En iOS Safari / Chrome iOS, navegar a la URL del Blob abre el visor nativo de PDFs de Apple
-      // de forma instantánea a pantalla completa, con el botón Compartir nativo (WhatsApp, Guardar en Archivos, AirDrop, etc.)
-      // y sin ser bloqueado jamás por el bloqueador de ventanas emergentes de Safari.
-      window.location.assign(blobUrl);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    // Fallback 1: En Android, descarga directa de archivo mediante enlace
+    if (!isIOS) {
+      const mobileLink = document.createElement('a');
+      mobileLink.href = blobUrl;
+      mobileLink.download = fileName;
+      document.body.appendChild(mobileLink);
+      mobileLink.click();
+      document.body.removeChild(mobileLink);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
       return;
     }
 
-    // En Android / navegadores móviles tradicionales:
-    const mobileLink = document.createElement('a');
-    mobileLink.href = blobUrl;
-    mobileLink.download = fileName;
-    document.body.appendChild(mobileLink);
-    mobileLink.click();
-    document.body.removeChild(mobileLink);
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+    // Fallback 2: En iOS (cuando nav.share no está disponible o el gesto expiró)
+    // Se activa la vista previa de impresión de Apple con la ficha A4 formateada.
+    // NUNCA usamos window.location.assign(blobUrl) para evitar pestañas rotas en SFSafariViewController.
+    triggerPrintFallback(html);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
   } catch (err) {
     console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
     onGenerated?.();
-    if (typeof window !== 'undefined') {
-      try {
-        const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        const htmlUrl = URL.createObjectURL(htmlBlob);
-        window.location.assign(htmlUrl);
-        setTimeout(() => URL.revokeObjectURL(htmlUrl), 60000);
-      } catch (fallbackErr) {
-        console.error('[PDFExporter] Error en fallback de visualización:', fallbackErr);
-      }
-    }
+    triggerPrintFallback(html);
   } finally {
     container.remove();
   }
