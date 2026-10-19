@@ -27,11 +27,10 @@ export const DEFAULT_PRODUCT_IMAGES: Record<Exclude<ProductCategory, 'Todos'>, s
  */
 export async function compressImageToDataUri(
   rawUri: string,
-  maxDimension = 800,
-  quality = 0.76
+  maxDimension = 720,
+  quality = 0.72
 ): Promise<string> {
   if (Platform.OS !== 'web' || typeof document === 'undefined') {
-    // En iOS nativo, ImagePicker ya devuelve un base64 optimizado
     if (rawUri.startsWith('data:')) return rawUri;
     return rawUri;
   }
@@ -39,8 +38,15 @@ export async function compressImageToDataUri(
   return new Promise((resolve) => {
     try {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
+      if (!rawUri.startsWith('data:') && !rawUri.startsWith('blob:')) {
+        img.crossOrigin = 'anonymous';
+      }
+      const timeout = setTimeout(() => {
+        resolve(rawUri);
+      }, 3500);
+
       img.onload = () => {
+        clearTimeout(timeout);
         try {
           let { width, height } = img;
           if (width > maxDimension || height > maxDimension) {
@@ -69,7 +75,10 @@ export async function compressImageToDataUri(
           resolve(rawUri);
         }
       };
-      img.onerror = () => resolve(rawUri);
+      img.onerror = () => {
+        clearTimeout(timeout);
+        resolve(rawUri);
+      };
       img.src = rawUri;
     } catch {
       resolve(rawUri);

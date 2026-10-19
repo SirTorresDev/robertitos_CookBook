@@ -32,6 +32,54 @@ const STORAGE_KEYS = {
   PRODUCTS: '@robertito_cookbook_products_v1',
 };
 
+export function normalizeRecipeTitleKey(title: string): string {
+  return (title || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+/**
+ * Deduplica una lista de recetas asegurando que no existan dos platos
+ * con el mismo ID o el mismo título normalizado.
+ * Si detecta duplicados, conserva la versión más reciente o con fecha updatedAt.
+ */
+export function deduplicateRecipesList(list: Recipe[]): Recipe[] {
+  const byTitle = new Map<string, Recipe>();
+  const byId = new Map<string, Recipe>();
+
+  for (const r of list) {
+    if (!r || !r.title) continue;
+    const titleKey = normalizeRecipeTitleKey(r.title);
+
+    const existingByTitle = byTitle.get(titleKey);
+    const existingById = byId.get(r.id);
+    const existing = existingByTitle || existingById;
+
+    if (existing) {
+      const existingTime = existing.updatedAt || existing.createdAt || '';
+      const rTime = r.updatedAt || r.createdAt || '';
+      if (
+        Boolean(r.updatedAt && !existing.updatedAt) ||
+        rTime > existingTime ||
+        (r.ingredients?.length || 0) > (existing.ingredients?.length || 0)
+      ) {
+        byTitle.delete(normalizeRecipeTitleKey(existing.title));
+        byId.delete(existing.id);
+
+        byTitle.set(titleKey, r);
+        byId.set(r.id, r);
+      }
+    } else {
+      byTitle.set(titleKey, r);
+      byId.set(r.id, r);
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
 export const CookBookRepository = {
   async loadLocalSnapshot(): Promise<{
     recipes: Recipe[];
@@ -73,7 +121,7 @@ export const CookBookRepository = {
         });
         const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
         const userCustomRecipes = storedList.filter((r) => !initialIds.has(r.id));
-        recipes = [...mergedInitial, ...userCustomRecipes];
+        recipes = deduplicateRecipesList([...mergedInitial, ...userCustomRecipes]);
       } else if (rRawV1) {
         const oldList: Recipe[] = JSON.parse(rRawV1);
         const oldMap = new Map(oldList.map((r) => [r.id, r]));
@@ -95,7 +143,7 @@ export const CookBookRepository = {
         });
         const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
         const userCustomRecipes = oldList.filter((r) => !initialIds.has(r.id));
-        recipes = [...mergedInitial, ...userCustomRecipes];
+        recipes = deduplicateRecipesList([...mergedInitial, ...userCustomRecipes]);
       }
 
       const tips: CookingTip[] = tRaw ? JSON.parse(tRaw) : INITIAL_TIPS;
@@ -171,7 +219,7 @@ export const CookBookRepository = {
 
           const initialIds = new Set(INITIAL_RECIPES.map((r) => r.id));
           const userCustomRecipes = remoteList.filter((r) => !initialIds.has(r.id));
-          const finalRecipes = [...mergedInitial, ...userCustomRecipes];
+          const finalRecipes = deduplicateRecipesList([...mergedInitial, ...userCustomRecipes]);
 
           callbacks.onRecipes(finalRecipes);
           CookBookRepository.saveLocalCollection(STORAGE_KEYS.RECIPES, finalRecipes);
@@ -239,7 +287,15 @@ export const CookBookRepository = {
       data.utensils.forEach((u) => batch.set(doc(db, 'utensils', u.id), u));
       data.places.forEach((p) => batch.set(doc(db, 'places', p.id), p));
       if (data.products) {
-        data.products.forEach((pr) => batch.set(doc(db, 'products', pr.id), pr));
+        data.products.forEach((pr) => {
+          const cleanProduct: Record<string, any> = {};
+          for (const [k, v] of Object.entries(pr)) {
+            if (v !== undefined) {
+              cleanProduct[k] = v;
+            }
+          }
+          batch.set(doc(db, 'products', pr.id), cleanProduct);
+        });
       }
       await batch.commit();
       return {
@@ -314,7 +370,17 @@ export const CookBookRepository = {
     await CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, allProducts);
     const db = getFirebaseDb();
     if (db) {
-      await setDoc(doc(db, 'products', product.id), product).catch(() => {});
+      try {
+        const cleanProduct: Record<string, any> = {};
+        for (const [k, v] of Object.entries(product)) {
+          if (v !== undefined) {
+            cleanProduct[k] = v;
+          }
+        }
+        await setDoc(doc(db, 'products', product.id), cleanProduct);
+      } catch (e) {
+        console.warn('[CookBookRepository] Error setDoc product:', e);
+      }
     }
   },
 

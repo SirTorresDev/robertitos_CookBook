@@ -100,6 +100,7 @@ export default function PlacesAndProductsScreen() {
   const [prodImageUrl, setProdImageUrl] = useState('');
   const [isCapturingImage, setIsCapturingImage] = useState(false);
   const [isSavingProduct, setIsSavingProduct] = useState(false);
+  const [prodNameError, setProdNameError] = useState(false);
 
   // ==================== HANDLERS SITIOS ====================
   const handleAddPlace = async () => {
@@ -205,6 +206,7 @@ export default function PlacesAndProductsScreen() {
         setProdWhereToBuy('');
         setProdNotes('');
         setProdImageUrl(imageUri);
+        setProdNameError(false);
         setShowProductModal(true);
       }
     } catch (err: any) {
@@ -224,6 +226,7 @@ export default function PlacesAndProductsScreen() {
     setProdWhereToBuy('');
     setProdNotes('');
     setProdImageUrl('');
+    setProdNameError(false);
     setShowProductModal(true);
   };
 
@@ -237,6 +240,7 @@ export default function PlacesAndProductsScreen() {
     setProdWhereToBuy(prod.whereToBuy);
     setProdNotes(prod.notes || '');
     setProdImageUrl(prod.imageUrl);
+    setProdNameError(false);
     setShowProductModal(true);
   };
 
@@ -259,18 +263,20 @@ export default function PlacesAndProductsScreen() {
   const handleSaveProduct = async () => {
     const trimmedName = prodName.trim();
     if (!trimmedName) {
-      Alert.alert('Nombre requerido', 'Por favor introduce el nombre del producto.');
-      return;
-    }
-    const trimmedWhere = prodWhereToBuy.trim();
-    if (!trimmedWhere) {
-      Alert.alert('Dónde conseguirlo', 'Indica en qué tienda, mercado o web se compra.');
+      setProdNameError(true);
+      AppleHaptics.medium();
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.alert('Introduce el nombre del producto para guardarlo.');
+      } else {
+        Alert.alert('Nombre requerido', 'Por favor introduce el nombre del producto.');
+      }
       return;
     }
 
     setIsSavingProduct(true);
     AppleHaptics.success();
     try {
+      const trimmedWhere = prodWhereToBuy.trim() || 'Despensa personal';
       const finalImage =
         prodImageUrl.trim() ||
         DEFAULT_PRODUCT_IMAGES[prodCategory] ||
@@ -306,7 +312,16 @@ export default function PlacesAndProductsScreen() {
         };
         await addProduct(newProd);
       }
+      setProdNameError(false);
       setShowProductModal(false);
+    } catch (err: any) {
+      console.error('[Places] Error al guardar producto:', err);
+      const msg = err?.message || 'No se pudo guardar el producto. Inténtalo de nuevo.';
+      if (Platform.OS === 'web' && typeof window !== 'undefined') {
+        window.alert(`Error al guardar producto: ${msg}`);
+      } else {
+        Alert.alert('Error al guardar', msg);
+      }
     } finally {
       setIsSavingProduct(false);
     }
@@ -1024,6 +1039,7 @@ export default function PlacesAndProductsScreen() {
               </View>
 
               <ScrollView
+                style={styles.modalScrollView}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.modalScrollBody}
                 keyboardShouldPersistTaps="handled">
@@ -1075,11 +1091,17 @@ export default function PlacesAndProductsScreen() {
                 <Text style={styles.fieldLabel}>Nombre del Producto *</Text>
                 <TextInput
                   value={prodName}
-                  onChangeText={setProdName}
+                  onChangeText={(txt) => {
+                    setProdName(txt);
+                    if (txt.trim()) setProdNameError(false);
+                  }}
                   placeholder="ej. Salsa de Soja Tokusen Shoyu, Aceite Picual..."
                   placeholderTextColor={AppleTheme.colors.textTertiary}
-                  style={styles.modalInput}
+                  style={[styles.modalInput, prodNameError && styles.modalInputError]}
                 />
+                {prodNameError ? (
+                  <Text style={styles.inputErrorText}>* Introduce el nombre de este producto para guardarlo</Text>
+                ) : null}
 
                 <View style={styles.modalTwoColRow}>
                   <View style={{ flex: 1 }}>
@@ -1137,11 +1159,11 @@ export default function PlacesAndProductsScreen() {
                   })}
                 </ScrollView>
 
-                <Text style={styles.fieldLabel}>Dónde conseguirlo (Tienda / Mercado / Web) *</Text>
+                <Text style={styles.fieldLabel}>Dónde conseguirlo (Tienda / Mercado / Web)</Text>
                 <TextInput
                   value={prodWhereToBuy}
                   onChangeText={setProdWhereToBuy}
-                  placeholder="ej. Tokyo Ya, Club del Gourmet El Corte Inglés, Carrefour Bio..."
+                  placeholder="ej. Tokyo Ya, Club del Gourmet El Corte Inglés, Carrefour Bio, Despensa..."
                   placeholderTextColor={AppleTheme.colors.textTertiary}
                   style={styles.modalInput}
                 />
@@ -1171,7 +1193,11 @@ export default function PlacesAndProductsScreen() {
                     <Ionicons name="checkmark-circle" size={18} color="#FFFFFF" />
                   )}
                   <Text style={styles.modalSaveBtnText}>
-                    {editingProductId ? 'Guardar Cambios' : 'Guardar Producto'}
+                    {isSavingProduct
+                      ? 'Guardando...'
+                      : editingProductId
+                      ? 'Guardar Cambios'
+                      : 'Guardar Producto'}
                   </Text>
                 </ApplePressable>
 
@@ -1788,14 +1814,24 @@ const styles = StyleSheet.create({
   modalBackdropTap: {
     flex: 1,
     justifyContent: 'flex-end',
+    width: '100%',
+    maxWidth: 620,
+    alignSelf: 'center',
   },
   modalCard: {
     backgroundColor: AppleTheme.colors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '92%',
-    paddingBottom: 24,
+    height: Platform.OS === 'web' ? '88vh' : undefined,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
     ...AppleTheme.shadow.floating,
+  },
+  modalScrollView: {
+    flex: 1,
+    flexShrink: 1,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1932,7 +1968,12 @@ const styles = StyleSheet.create({
   },
   modalFooter: {
     paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
+    backgroundColor: AppleTheme.colors.surface,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: AppleTheme.colors.border,
+    gap: 8,
   },
   modalSaveBtn: {
     height: 46,
@@ -1957,12 +1998,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    marginTop: 8,
+    marginTop: 4,
   },
   modalDeleteBtnText: {
     color: AppleTheme.colors.danger,
     fontSize: 13.5,
     fontWeight: '700',
+  },
+  modalInputError: {
+    borderColor: AppleTheme.colors.danger,
+    borderWidth: 1.5,
+  },
+  inputErrorText: {
+    color: AppleTheme.colors.danger,
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: -4,
+    marginBottom: 8,
+    marginLeft: 2,
   },
 
   // ==================== VACÍO ====================

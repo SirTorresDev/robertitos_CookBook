@@ -15,6 +15,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useCookBookStore } from '@/store/useCookBookStore';
 import {
   Ingredient,
+  Recipe,
   RecipeCategory,
   RecipeDifficulty,
   RecipeStep,
@@ -63,7 +64,9 @@ const UTENSIL_CATEGORIES: Exclude<UtensilCategory, 'Todos'>[] = [
 const UTENSIL_PRIORITIES: UtensilPriority[] = ['Necesito', 'Capricho Chef', 'Básico'];
 
 export default function StudioScreen() {
+  const recipes = useCookBookStore((s) => s.recipes);
   const addRecipe = useCookBookStore((s) => s.addRecipe);
+  const updateRecipe = useCookBookStore((s) => s.updateRecipe);
   const addTip = useCookBookStore((s) => s.addTip);
   const addPlace = useCookBookStore((s) => s.addPlace);
   const addUtensil = useCookBookStore((s) => s.addUtensil);
@@ -340,9 +343,36 @@ export default function StudioScreen() {
           instruction: s.instruction.trim() || s.title.trim(),
         }));
 
-      await addRecipe({
-        id: `rec-${Date.now()}`,
-        title: rTitle.trim(),
+      const trimmedTitle = rTitle.trim();
+      const canonicalSlug = trimmedTitle
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 50);
+
+      const normTitleKey = trimmedTitle
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '');
+
+      const existing = recipes.find(
+        (r) =>
+          r.id === `rec-${canonicalSlug}` ||
+          r.title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]/g, '') === normTitleKey
+      );
+
+      const targetId = existing?.id || `rec-${canonicalSlug || Date.now()}`;
+
+      const recipePayload: Recipe = {
+        id: targetId,
+        title: trimmedTitle,
         subtitle: rSubtitle.trim() || 'Receta de autor añadida a Robertito´s CookBook',
         category: rCategory,
         difficulty: rDifficulty,
@@ -350,11 +380,13 @@ export default function StudioScreen() {
         baseServings: Math.max(1, Number(rBaseServings) || 2),
         imageUrl:
           rImageUrl.trim() ||
+          existing?.imageUrl ||
           'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=85',
         chefNote: rChefNote.trim() || 'Controlar temperatura y punto de cocción.',
         pairing: rPairing.trim() || undefined,
-        isFavorite: true,
-        createdAt: new Date().toISOString(),
+        isFavorite: existing?.isFavorite ?? true,
+        createdAt: existing?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
         ingredients:
           validIngredients.length > 0
             ? validIngredients
@@ -370,7 +402,13 @@ export default function StudioScreen() {
                   timerSeconds: 300,
                 },
               ],
-      });
+      };
+
+      if (existing) {
+        await updateRecipe(recipePayload);
+      } else {
+        await addRecipe(recipePayload);
+      }
 
       setRTitle('');
       setRSubtitle('');
