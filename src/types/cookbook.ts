@@ -112,3 +112,27 @@ export interface FoodiePlace {
   imageUrl: string;
   createdAt: string;
 }
+
+export type ProductCategory =
+  | 'Todos'
+  | 'Aceites y Vinagres'
+  | 'Especias y Condimentos'
+  | 'Salsas y Pastas'
+  | 'Conservas y Mar'
+  | 'Lácteos y Quesos'
+  | 'Ingredientes Moleculares'
+  | 'Vinos y Licores'
+  | 'Otros';
+
+export interface GourmetProduct {
+  id: string;
+  name: string;
+  brand?: string;
+  category: Exclude<ProductCategory, 'Todos'>;
+  price?: string;
+  whereToBuy: string;
+  notes?: string;
+  imageUrl: string;
+  createdAt: string;
+  updatedAt?: string;
+}

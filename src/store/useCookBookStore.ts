@@ -4,12 +4,14 @@ import {
   CookingTip,
   KitchenUtensil,
   FoodiePlace,
+  GourmetProduct,
 } from '@/types/cookbook';
 import {
   INITIAL_RECIPES,
   INITIAL_TIPS,
   INITIAL_UTENSILS,
   INITIAL_PLACES,
+  INITIAL_PRODUCTS,
 } from '@/data/seedData';
 import { CookBookRepository } from '@/data/cookbookRepository';
 
@@ -18,6 +20,7 @@ interface CookBookState {
   tips: CookingTip[];
   utensils: KitchenUtensil[];
   places: FoodiePlace[];
+  products: GourmetProduct[];
   syncStatus: 'local' | 'connected' | 'syncing' | 'error';
   hydrated: boolean;
 
@@ -32,6 +35,9 @@ interface CookBookState {
   deleteUtensil: (utensilId: string) => Promise<void>;
   addPlace: (place: FoodiePlace) => Promise<void>;
   deletePlace: (placeId: string) => Promise<void>;
+  addProduct: (product: GourmetProduct) => Promise<void>;
+  updateProduct: (product: GourmetProduct) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
   syncWithFirebase: () => Promise<{ ok: boolean; message: string }>;
   resetToFactory: () => Promise<void>;
 }
@@ -41,6 +47,7 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
   tips: INITIAL_TIPS,
   utensils: INITIAL_UTENSILS,
   places: INITIAL_PLACES,
+  products: INITIAL_PRODUCTS,
   syncStatus: 'local',
   hydrated: false,
 
@@ -52,6 +59,7 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
       tips: snapshot.tips,
       utensils: snapshot.utensils,
       places: snapshot.places,
+      products: snapshot.products,
       hydrated: true,
     });
 
@@ -60,6 +68,7 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
       onTips: (tips) => set({ tips }),
       onUtensils: (utensils) => set({ utensils }),
       onPlaces: (places) => set({ places }),
+      onProducts: (products) => set({ products }),
       onSyncStatusChange: (syncStatus) => set({ syncStatus }),
     });
   },
@@ -134,13 +143,32 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
     await CookBookRepository.removePlace(placeId, updated);
   },
 
+  addProduct: async (product) => {
+    const updated = [product, ...get().products];
+    set({ products: updated });
+    await CookBookRepository.upsertProduct(product, updated);
+  },
+
+  updateProduct: async (product) => {
+    const updated = get().products.map((p) => (p.id === product.id ? product : p));
+    set({ products: updated });
+    await CookBookRepository.upsertProduct(product, updated);
+  },
+
+  deleteProduct: async (productId) => {
+    const updated = get().products.filter((p) => p.id !== productId);
+    set({ products: updated });
+    await CookBookRepository.removeProduct(productId, updated);
+  },
+
   syncWithFirebase: async () => {
-    const { recipes, tips, utensils, places } = get();
+    const { recipes, tips, utensils, places, products } = get();
     return CookBookRepository.pushAllToFirestore({
       recipes,
       tips,
       utensils,
       places,
+      products,
     });
   },
 
@@ -151,6 +179,7 @@ export const useCookBookStore = create<CookBookState>((set, get) => ({
       tips: data.tips,
       utensils: data.utensils,
       places: data.places,
+      products: data.products,
     });
   },
 }));

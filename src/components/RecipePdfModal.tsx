@@ -18,7 +18,6 @@ import {
   RecipePdfData,
   sharePdfData,
   downloadPdfData,
-  printPdfData,
 } from '@/core/pdfExporter';
 
 interface RecipePdfModalProps {
@@ -38,14 +37,8 @@ export function RecipePdfModal({
 }: RecipePdfModalProps) {
   const [sharing, setSharing] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
-  const [printing, setPrinting] = useState(false);
 
   if (!visible || !data) return null;
-
-  const isIOS =
-    typeof navigator !== 'undefined' &&
-    (/iPhone|iPad|iPod/i.test(navigator.userAgent || '') ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
 
   const handleShare = async () => {
     if (sharing) return;
@@ -63,17 +56,6 @@ export function RecipePdfModal({
     downloadPdfData(data);
     setDownloaded(true);
     setTimeout(() => setDownloaded(false), 3000);
-  };
-
-  const handlePrint = async () => {
-    if (printing) return;
-    AppleHaptics.light();
-    setPrinting(true);
-    try {
-      await printPdfData(data);
-    } finally {
-      setPrinting(false);
-    }
   };
 
   const handleClose = () => {
@@ -155,16 +137,14 @@ export function RecipePdfModal({
             <View style={styles.iosTipBox}>
               <Ionicons name="bulb-outline" size={15} color="#8A6528" />
               <Text style={styles.iosTipText}>
-                {isIOS
-                  ? 'En iPhone pulsa «Imprimir» para conectar con tu impresora AirPrint, o «Compartir PDF» para enviarlo por WhatsApp.'
-                  : 'Pulsa «Imprimir» para enviar directamente a tu impresora o «Compartir PDF» para enviarlo.'}
+                Pulsa «Compartir PDF» para enviarlo por WhatsApp, AirDrop, guardarlo en Archivos o imprimirlo vía AirPrint.
               </Text>
             </View>
           </ScrollView>
 
           {/* Barra de Acciones Inferior */}
           <View style={styles.actionsBar}>
-            {/* Botón Principal: Compartir Nativo (WhatsApp, Archivos, AirDrop) */}
+            {/* Botón Principal: Compartir Nativo (WhatsApp, Archivos, AirDrop, Imprimir) */}
             <ApplePressable
               scaleTo={0.96}
               disabled={sharing}
@@ -180,45 +160,24 @@ export function RecipePdfModal({
               </Text>
             </ApplePressable>
 
-            {/* Fila de Acciones Secundarias */}
-            <View style={styles.secondaryRow}>
-              <ApplePressable
-                scaleTo={0.96}
-                onPress={handleDownload}
-                style={styles.btnSecondary}>
-                <Ionicons
-                  name={downloaded ? 'checkmark-circle' : 'download-outline'}
-                  size={17}
-                  color={downloaded ? '#3F8F5B' : AppleTheme.colors.textPrimary}
-                />
-                <Text
-                  style={[
-                    styles.btnSecondaryText,
-                    downloaded && { color: '#3F8F5B' },
-                  ]}>
-                  {downloaded ? 'Guardado' : 'Descargar Archivo'}
-                </Text>
-              </ApplePressable>
-
-              <ApplePressable
-                scaleTo={0.96}
-                disabled={printing}
-                onPress={handlePrint}
-                style={[styles.btnSecondaryIcon, printing && { opacity: 0.7 }]}>
-                {printing ? (
-                  <ActivityIndicator size="small" color={AppleTheme.colors.textPrimary} />
-                ) : (
-                  <Ionicons
-                    name="print-outline"
-                    size={17}
-                    color={AppleTheme.colors.textPrimary}
-                  />
-                )}
-                <Text style={styles.btnSecondaryText}>
-                  {isIOS ? 'Imprimir (AirPrint)' : 'Imprimir'}
-                </Text>
-              </ApplePressable>
-            </View>
+            {/* Botón Secundario: Descargar Archivo */}
+            <ApplePressable
+              scaleTo={0.96}
+              onPress={handleDownload}
+              style={styles.btnSecondary}>
+              <Ionicons
+                name={downloaded ? 'checkmark-circle' : 'download-outline'}
+                size={17}
+                color={downloaded ? '#3F8F5B' : AppleTheme.colors.textPrimary}
+              />
+              <Text
+                style={[
+                  styles.btnSecondaryText,
+                  downloaded && { color: '#3F8F5B' },
+                ]}>
+                {downloaded ? 'Guardado con éxito' : 'Descargar Archivo'}
+              </Text>
+            </ApplePressable>
           </View>
         </View>
       </View>
@@ -387,14 +346,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: -0.2,
   },
-  secondaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
   btnSecondary: {
-    flex: 1,
-    height: 42,
+    width: '100%',
+    height: 44,
     borderRadius: AppleTheme.radius.pill,
     backgroundColor: '#F3ECE0',
     borderWidth: 1,
@@ -404,20 +358,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
   },
-  btnSecondaryIcon: {
-    paddingHorizontal: 16,
-    height: 42,
-    borderRadius: AppleTheme.radius.pill,
-    backgroundColor: '#F3ECE0',
-    borderWidth: 1,
-    borderColor: '#DFCBB0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-  },
   btnSecondaryText: {
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '600',
     color: '#1E1915',
   },

@@ -146,6 +146,8 @@ function triggerPrintFallback(html: string): void {
         box-shadow: none !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
       }
     }
     ${baseStyles}
@@ -167,13 +169,29 @@ function triggerPrintFallback(html: string): void {
   }
   styleEl.innerHTML = printStyles;
 
-  setTimeout(() => {
+  // En iOS WebKit (Safari / Chrome iOS), window.print() DEBE ejecutarse de forma 100% síncrona
+  // dentro de la pila de eventos del toque para que el sistema abra DIRECTAMENTE el diálogo de AirPrint ("Opciones" e Impresora).
+  try {
     window.print();
-    setTimeout(() => {
-      printArea?.remove();
-      styleEl?.remove();
-    }, 4000);
-  }, 40);
+  } catch (err) {
+    console.warn('[PDFExporter] Error en window.print():', err);
+  }
+
+  // Limpieza limpia tras la impresión
+  if (typeof window !== 'undefined' && 'addEventListener' in window) {
+    window.addEventListener(
+      'afterprint',
+      () => {
+        printArea?.remove();
+        styleEl?.remove();
+      },
+      { once: true }
+    );
+  }
+  setTimeout(() => {
+    printArea?.remove();
+    styleEl?.remove();
+  }, 4000);
 }
 
 
@@ -1385,67 +1403,50 @@ export function downloadPdfData(data: RecipePdfData): void {
 }
 
 /**
- * Invoca el pipeline de impresión para la ficha técnica:
- * - En iOS (Web/PWA en pantalla de inicio): invoca directamente la hoja del sistema
- *   con el archivo PDF real, donde iOS activa la opción nativa "Imprimir" vía AirPrint.
- * - En ordenadores de escritorio (PC / Mac): abre el diálogo de impresión del navegador.
- * - En plataformas nativas (Expo): invoca Print.printAsync para AirPrint directo.
+ * Invoca directamente el diálogo de impresión (AirPrint en iOS / diálogo del sistema en escritorio).
+ * Es 100% síncrono para que iOS WebKit lo reconozca como gesto de usuario directo y abra
+ * inmediatamente la pantalla de opciones de AirPrint sin pasar por la hoja de compartir.
  */
-export async function printPdfData(data: RecipePdfData): Promise<boolean> {
+export function printPdfData(data: RecipePdfData): void {
   if (Platform.OS !== 'web') {
     if (data.localPdfUri) {
-      try {
-        await Print.printAsync({ uri: data.localPdfUri });
-        return true;
-      } catch (e) {
-        console.warn('[PDFExporter] Error en Print.printAsync nativo:', e);
-      }
+      Print.printAsync({ uri: data.localPdfUri }).catch((e) =>
+        console.warn('[PDFExporter] Error en Print.printAsync nativo:', e)
+      );
     }
-    return false;
+    return;
   }
 
   const nav = typeof navigator !== 'undefined' ? (navigator as any) : null;
-  const isIOS =
-    /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
-    (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
   const isStandalone =
-    (typeof window !== 'undefined' && (window.navigator as any)?.standalone) ||
-    (typeof window !== 'undefined' && window.matchMedia?.('(display-mode: standalone)').matches);
+    (typeof window !== 'undefined' && Boolean((window.navigator as any)?.standalone)) ||
+    (typeof window !== 'undefined' && Boolean(window.matchMedia?.('(display-mode: standalone)').matches));
 
-  // En iOS (y PWA en pantalla de inicio), window.print() está bloqueado silenciosamente por WebKit.
-  // La vía nativa oficial para enviar a una impresora AirPrint es abrir el archivo PDF
-  // con navigator.share, donde iOS muestra directamente la acción "Imprimir" (AirPrint).
-  if (isIOS || isStandalone) {
-    if (data.pdfFile && nav?.share && nav?.canShare?.({ files: [data.pdfFile] })) {
-      try {
-        await nav.share({
-          files: [data.pdfFile],
-          title: data.fileName,
-        });
-        return true;
-      } catch (err: any) {
-        if (err?.name === 'AbortError') return true;
-        console.warn('[PDFExporter] Error en AirPrint navigator.share:', err);
+  // En iOS Standalone (añadida a la pantalla de inicio como PWA / WebClip):
+  // Apple bloquea deliberadamente window.print() dentro de WebKit standalone (no hace nada por restricción del sistema).
+  // La única vía que Apple admite para invocar AirPrint en standalone es compartir el archivo PDF,
+  // donde iOS muestra directamente la opción "Imprimir" con el icono de impresora de AirPrint.
+  if (isStandalone && data.pdfFile && nav?.share && nav?.canShare?.({ files: [data.pdfFile] })) {
+    nav.share({
+      files: [data.pdfFile],
+      title: data.fileName,
+    }).catch((err: any) => {
+      if (err?.name !== 'AbortError') {
+        console.warn('[PDFExporter] Error en AirPrint standalone share:', err);
       }
-    }
-
-    // Fallback: abrir el visor de PDF donde iOS integra el botón de AirPrint
-    if (data.blobUrl && typeof window !== 'undefined') {
-      const w = window.open(data.blobUrl, '_blank');
-      if (!w) {
-        downloadPdfData(data);
-      }
-      return true;
-    }
+    });
+    return;
   }
 
-  // En ordenadores de escritorio (PC / Mac)
+  // En navegador normal (Safari / Chrome / escritorio):
+  // window.print() se dispara de forma 100% síncrona dentro del toque del usuario y abre
+  // directamente la pantalla de "Opciones" / AirPrint.
   if (data.html) {
     triggerPrintFallback(data.html);
-    return true;
+  } else if (data.blobUrl && typeof window !== 'undefined') {
+    const printWindow = window.open(data.blobUrl, '_blank');
+    printWindow?.print();
   }
-
-  return false;
 }
 
 /**

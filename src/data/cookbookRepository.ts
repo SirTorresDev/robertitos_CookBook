@@ -14,12 +14,14 @@ import {
   CookingTip,
   KitchenUtensil,
   FoodiePlace,
+  GourmetProduct,
 } from '@/types/cookbook';
 import {
   INITIAL_RECIPES,
   INITIAL_TIPS,
   INITIAL_UTENSILS,
   INITIAL_PLACES,
+  INITIAL_PRODUCTS,
 } from './seedData';
 
 const STORAGE_KEYS = {
@@ -27,6 +29,7 @@ const STORAGE_KEYS = {
   TIPS: '@robertito_cookbook_tips_v1',
   UTENSILS: '@robertito_cookbook_utensils_v1',
   PLACES: '@robertito_cookbook_places_v1',
+  PRODUCTS: '@robertito_cookbook_products_v1',
 };
 
 export const CookBookRepository = {
@@ -35,14 +38,16 @@ export const CookBookRepository = {
     tips: CookingTip[];
     utensils: KitchenUtensil[];
     places: FoodiePlace[];
+    products: GourmetProduct[];
   }> {
     try {
-      const [rRawV2, rRawV1, tRaw, uRaw, pRaw] = await Promise.all([
+      const [rRawV2, rRawV1, tRaw, uRaw, pRaw, prodRaw] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.RECIPES),
         AsyncStorage.getItem('@robertito_cookbook_recipes_v1'),
         AsyncStorage.getItem(STORAGE_KEYS.TIPS),
         AsyncStorage.getItem(STORAGE_KEYS.UTENSILS),
         AsyncStorage.getItem(STORAGE_KEYS.PLACES),
+        AsyncStorage.getItem(STORAGE_KEYS.PRODUCTS),
       ]);
 
       let recipes: Recipe[] = INITIAL_RECIPES;
@@ -96,19 +101,22 @@ export const CookBookRepository = {
       const tips: CookingTip[] = tRaw ? JSON.parse(tRaw) : INITIAL_TIPS;
       const utensils: KitchenUtensil[] = uRaw ? JSON.parse(uRaw) : INITIAL_UTENSILS;
       const places: FoodiePlace[] = pRaw ? JSON.parse(pRaw) : INITIAL_PLACES;
+      const products: GourmetProduct[] = prodRaw ? JSON.parse(prodRaw) : INITIAL_PRODUCTS;
 
       await AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
       if (!tRaw) await AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
       if (!uRaw) await AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(utensils));
       if (!pRaw) await AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(places));
+      if (!prodRaw) await AsyncStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
 
-      return { recipes, tips, utensils, places };
+      return { recipes, tips, utensils, places, products };
     } catch {
       return {
         recipes: INITIAL_RECIPES,
         tips: INITIAL_TIPS,
         utensils: INITIAL_UTENSILS,
         places: INITIAL_PLACES,
+        products: INITIAL_PRODUCTS,
       };
     }
   },
@@ -126,6 +134,7 @@ export const CookBookRepository = {
     onTips: (tips: CookingTip[]) => void;
     onUtensils: (utensils: KitchenUtensil[]) => void;
     onPlaces: (places: FoodiePlace[]) => void;
+    onProducts: (products: GourmetProduct[]) => void;
     onSyncStatusChange: (status: 'local' | 'connected' | 'syncing' | 'error') => void;
   }): Unsubscribe | null {
     const db = getFirebaseDb();
@@ -192,11 +201,18 @@ export const CookBookRepository = {
       CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, items);
     });
 
+    const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
+      const items = snap.docs.map((d) => d.data() as GourmetProduct);
+      callbacks.onProducts(items);
+      CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, items);
+    });
+
     return () => {
       unsubRecipes();
       unsubTips();
       unsubUtensils();
       unsubPlaces();
+      unsubProducts();
     };
   },
 
@@ -205,6 +221,7 @@ export const CookBookRepository = {
     tips: CookingTip[];
     utensils: KitchenUtensil[];
     places: FoodiePlace[];
+    products?: GourmetProduct[];
   }): Promise<{ ok: boolean; message: string }> {
     const db = getFirebaseDb();
     if (!db) {
@@ -221,6 +238,9 @@ export const CookBookRepository = {
       data.tips.forEach((t) => batch.set(doc(db, 'tips', t.id), t));
       data.utensils.forEach((u) => batch.set(doc(db, 'utensils', u.id), u));
       data.places.forEach((p) => batch.set(doc(db, 'places', p.id), p));
+      if (data.products) {
+        data.products.forEach((pr) => batch.set(doc(db, 'products', pr.id), pr));
+      }
       await batch.commit();
       return {
         ok: true,
@@ -290,23 +310,42 @@ export const CookBookRepository = {
     }
   },
 
+  async upsertProduct(product: GourmetProduct, allProducts: GourmetProduct[]): Promise<void> {
+    await CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, allProducts);
+    const db = getFirebaseDb();
+    if (db) {
+      await setDoc(doc(db, 'products', product.id), product).catch(() => {});
+    }
+  },
+
+  async removeProduct(id: string, allProducts: GourmetProduct[]): Promise<void> {
+    await CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, allProducts);
+    const db = getFirebaseDb();
+    if (db) {
+      await deleteDoc(doc(db, 'products', id)).catch(() => {});
+    }
+  },
+
   async resetToManualDefaults(): Promise<{
     recipes: Recipe[];
     tips: CookingTip[];
     utensils: KitchenUtensil[];
     places: FoodiePlace[];
+    products: GourmetProduct[];
   }> {
     await Promise.all([
       AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(INITIAL_RECIPES)),
       AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(INITIAL_TIPS)),
       AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(INITIAL_UTENSILS)),
       AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(INITIAL_PLACES)),
+      AsyncStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS)),
     ]);
     return {
       recipes: INITIAL_RECIPES,
       tips: INITIAL_TIPS,
       utensils: INITIAL_UTENSILS,
       places: INITIAL_PLACES,
+      products: INITIAL_PRODUCTS,
     };
   },
 };
