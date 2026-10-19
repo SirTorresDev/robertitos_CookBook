@@ -118,9 +118,16 @@ async function exportPdfOnWeb(
     .slice(0, 32);
   const fileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
 
-  // Contenedor en coordenadas (0,0) con z-index muy negativo (detrás de #root)
-  // para que WebKit (Safari iOS) y Chrome rendericen siempre el árbol DOM
-  // sin recortar por estar fuera de pantalla (left: -9999px a veces desactiva el render en WebKit).
+  // Extraer el contenido de la ficha y estilos para inyectar en el contenedor sin romper el body de la app
+  let cleanHtml = html;
+  const styleMatch = html.match(/<style[\s\S]*?<\/style>/i);
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (styleMatch && bodyMatch) {
+    cleanHtml = `${styleMatch[0]}${bodyMatch[1]}`;
+  }
+
+  // Contenedor en coordenadas (0,0) con z-index: -1 para estar oculto tras la app
+  // pero activo en el árbol de composición de capas de WebKit (evita que Safari iOS lo descarte)
   const container = document.createElement('div');
   container.id = 'cookbook-pdf-web-export';
   container.style.position = 'fixed';
@@ -130,12 +137,12 @@ async function exportPdfOnWeb(
   container.style.height = '1123px';
   container.style.minHeight = '1123px';
   container.style.maxHeight = '1123px';
-  container.style.opacity = '1';
-  container.style.zIndex = '-99999';
+  container.style.opacity = '0.99';
+  container.style.zIndex = '-1';
   container.style.overflow = 'hidden';
   container.style.pointerEvents = 'none';
   container.style.backgroundColor = '#FAF7F0';
-  container.innerHTML = html;
+  container.innerHTML = cleanHtml;
   document.body.appendChild(container);
 
   try {
@@ -149,16 +156,17 @@ async function exportPdfOnWeb(
       throw new Error('html2canvas no se pudo inicializar como función');
     }
 
-    // Esperar a que las fuentes web y las imágenes del contenedor estén listas
+    // Esperar fuentes web brevemente (máximo 120ms para no demorar la respuesta de usuario)
     if (typeof document !== 'undefined' && (document as any).fonts?.ready) {
       try {
         await Promise.race([
           (document as any).fonts.ready,
-          new Promise((r) => setTimeout(r, 400)),
+          new Promise((r) => setTimeout(r, 120)),
         ]);
       } catch {}
     }
 
+    // Esperar imágenes del contenedor (máximo 200ms)
     const imgs = Array.from(container.querySelectorAll('img'));
     if (imgs.length > 0) {
       await Promise.all(
@@ -167,7 +175,7 @@ async function exportPdfOnWeb(
           return new Promise<void>((res) => {
             img.onload = () => res();
             img.onerror = () => res();
-            setTimeout(res, 800);
+            setTimeout(res, 200);
           });
         })
       );
@@ -179,7 +187,7 @@ async function exportPdfOnWeb(
       (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
 
     const canvasPromise = html2canvasFn(container, {
-      scale: isTouchMobile ? 1.5 : 2,
+      scale: isTouchMobile ? 1.25 : 2,
       useCORS: true,
       allowTaint: false,
       logging: false,
@@ -195,16 +203,17 @@ async function exportPdfOnWeb(
     });
 
     const canvasTimeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('html2canvas timeout')), 7000)
+      setTimeout(() => reject(new Error('html2canvas timeout')), 4000)
     );
 
     const canvas = await Promise.race([canvasPromise, canvasTimeout]);
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const imgData = canvas.toDataURL('image/jpeg', 0.88);
     const pdf = new JsPdfClass({
       orientation: 'portrait',
       unit: 'mm',
       format: 'a4',
+      compress: true,
     });
 
     const imgHeight = (canvas.height * 210) / canvas.width;
@@ -218,7 +227,6 @@ async function exportPdfOnWeb(
     onGenerated?.();
 
     // 1. En ordenadores de escritorio (PC / Mac):
-    // Abrir directamente el diálogo nativo "Guardar como..." para elegir carpeta
     if (!isTouchMobile) {
       const win = typeof window !== 'undefined' ? (window as any) : null;
       if (win && typeof win.showSaveFilePicker === 'function') {
@@ -235,7 +243,7 @@ async function exportPdfOnWeb(
           const writable = await handle.createWritable();
           await writable.write(pdfBlob);
           await writable.close();
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
           return;
         } catch (pickerErr: any) {
           if (pickerErr?.name === 'AbortError') {
@@ -253,37 +261,44 @@ async function exportPdfOnWeb(
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 15000);
       return;
     }
 
     // 2. En dispositivos móviles (iOS / Android):
-    // Abrir directamente la Hoja de Compartir Nativa del sistema operativo (UIActivityViewController en iOS:
-    // AirDrop, WhatsApp, Instagram, Telegram, Guardar en Archivos, etc.)
+    const isIOS =
+      /iPhone|iPad|iPod/i.test(nav?.userAgent || '') ||
+      (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
+
+    // Intentar primero compartir nativo mediante la Hoja de Compartir del SO si está soportada
     if (nav?.share && nav?.canShare && nav.canShare({ files: [pdfFile] })) {
       try {
         await nav.share({
           files: [pdfFile],
           title: `Ficha Técnica: ${recipeTitle}`,
         });
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 20000);
         return;
       } catch (shareErr: any) {
-        const msg = String(shareErr?.message || '').toLowerCase();
-        if (msg.includes('abort') || msg.includes('cancel')) {
-          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-          return; // Usuario canceló la hoja de compartir nativa
-        }
-        console.warn('[PDFExporter] nav.share falló:', shareErr);
+        console.warn('[PDFExporter] nav.share no completado o expiró gesto en iOS:', shareErr);
+        // Continuar inmediatamente al fallback para no dejar al usuario sin su PDF
       }
     }
 
-    // Si nav.share no estuviera disponible (por ejemplo, en Safari sobre HTTP local sin SSL):
-    // Descargar o previsualizar el PDF sin bloqueo de ventanas emergentes
+    // Fallback garantizado para iOS Safari / Chrome iOS / PWA:
+    if (isIOS) {
+      // En iOS Safari / Chrome iOS, navegar a la URL del Blob abre el visor nativo de PDFs de Apple
+      // de forma instantánea a pantalla completa, con el botón Compartir nativo (WhatsApp, Guardar en Archivos, AirDrop, etc.)
+      // y sin ser bloqueado jamás por el bloqueador de ventanas emergentes de Safari.
+      window.location.assign(blobUrl);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      return;
+    }
+
+    // En Android / navegadores móviles tradicionales:
     const mobileLink = document.createElement('a');
     mobileLink.href = blobUrl;
     mobileLink.download = fileName;
-    mobileLink.target = '_blank';
     document.body.appendChild(mobileLink);
     mobileLink.click();
     document.body.removeChild(mobileLink);
@@ -292,14 +307,13 @@ async function exportPdfOnWeb(
     console.warn('[PDFExporter] Error en exportPdfOnWeb con jsPDF:', err);
     onGenerated?.();
     if (typeof window !== 'undefined') {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(html);
-        printWindow.document.close();
-        printWindow.focus();
-        setTimeout(() => {
-          printWindow.print();
-        }, 300);
+      try {
+        const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const htmlUrl = URL.createObjectURL(htmlBlob);
+        window.location.assign(htmlUrl);
+        setTimeout(() => URL.revokeObjectURL(htmlUrl), 60000);
+      } catch (fallbackErr) {
+        console.error('[PDFExporter] Error en fallback de visualización:', fallbackErr);
       }
     }
   } finally {
@@ -328,7 +342,7 @@ export async function exportRecipeToPdfAndShare(
   try {
     const imgPromise = getRecipeImageBase64(recipe);
     const timeoutPromise = new Promise<string>((resolve) =>
-      setTimeout(() => resolve(recipe.imageUrl || ''), 800)
+      setTimeout(() => resolve(recipe.imageUrl || ''), 1200)
     );
     imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
   } catch (e) {
@@ -968,12 +982,12 @@ export async function exportRecipeToPdfAndShare(
       targetShareUri = result.uri;
     }
 
-    // 3. Abrir exclusivamente el Selector de Compartir Nativo (WhatsApp, Telegram, etc.)
+    // 3. Abrir el Selector de Compartir Nativo (WhatsApp, Archivos, AirDrop) o AirPrint
     const canShare = await Sharing.isAvailableAsync();
     if (canShare) {
       const isPad = Platform.OS === 'ios' && (Platform as any).isPad;
       const shareOptions: Sharing.SharingOptions = {
-        UTI: '.pdf',
+        UTI: 'com.adobe.pdf',
         mimeType: 'application/pdf',
         dialogTitle: `Compartir Ficha: ${recipe.title}`,
       };
@@ -989,10 +1003,8 @@ export async function exportRecipeToPdfAndShare(
       }
       await Sharing.shareAsync(targetShareUri, shareOptions);
     } else {
-      Alert.alert(
-        'Compartir PDF',
-        'La función de compartir no está disponible en este dispositivo.'
-      );
+      // Fallback nativo: AirPrint / Vista previa de impresión de iOS
+      await Print.printAsync({ html });
     }
   } catch (err: any) {
     onGenerated?.();

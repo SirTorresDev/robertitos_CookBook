@@ -97,8 +97,23 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
       if (localModule) {
         if (typeof localModule === 'string') {
           targetUri = localModule;
-        } else if (localModule.uri) {
-          targetUri = localModule.uri;
+        } else if (typeof localModule === 'object' && localModule !== null) {
+          if (typeof localModule.default === 'string') {
+            targetUri = localModule.default;
+          } else if (typeof localModule.uri === 'string') {
+            targetUri = localModule.uri;
+          } else if (typeof localModule.src === 'string') {
+            targetUri = localModule.src;
+          } else if (typeof localModule.default?.src === 'string') {
+            targetUri = localModule.default.src;
+          } else {
+            try {
+              const asset = Asset.fromModule(localModule);
+              targetUri = asset.uri || asset.localUri || '';
+            } catch {
+              targetUri = '';
+            }
+          }
         } else {
           try {
             const asset = Asset.fromModule(localModule);
@@ -118,16 +133,19 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
         }
         try {
           const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 4500);
+          const timer = setTimeout(() => controller.abort(), 1200);
           const resp = await fetch(targetUri, { signal: controller.signal });
           clearTimeout(timer);
-          const blob = await resp.blob();
-          return await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve((reader.result as string) || targetUri);
-            reader.onerror = () => resolve(targetUri);
-            reader.readAsDataURL(blob);
-          });
+          if (resp.ok) {
+            const blob = await resp.blob();
+            return await new Promise<string>((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve((reader.result as string) || targetUri);
+              reader.onerror = () => resolve(targetUri);
+              reader.readAsDataURL(blob);
+            });
+          }
+          return targetUri;
         } catch {
           return targetUri;
         }
