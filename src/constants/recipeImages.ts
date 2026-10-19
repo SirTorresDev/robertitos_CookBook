@@ -45,6 +45,18 @@ export const RECIPE_LOCAL_IMAGES: Record<string, any> = {
   'sopa-chufas-coco-torrijas-caramelizadas': require('@/assets/images/recipes/sopa-chufas-coco-torrijas-caramelizadas.webp'),
   'calabaza-burrata-chalotas-glaseadas-kcnav': require('@/assets/images/recipes/calabaza-burrata-chalotas-glaseadas-kcnav.webp'),
   'parmentier-patatas-emmental-kcnav': require('@/assets/images/recipes/parmentier-patatas-emmental-kcnav.webp'),
+  'judias-keniatas-ajo-guindilla-kcnav': require('@/assets/images/recipes/judias-keniatas-ajo-guindilla-kcnav.webp'),
+  'lubina-a-la-sal-kcnav': require('@/assets/images/recipes/lubina-a-la-sal-kcnav.webp'),
+  'roast-beef-salsa-gravy-kcnav': require('@/assets/images/recipes/roast-beef-salsa-gravy-kcnav.webp'),
+  'copa-cheesecake-frutos-rojos-kcnav': require('@/assets/images/recipes/copa-cheesecake-frutos-rojos-kcnav.webp'),
+  'curry-rojo-thai-langostinos-pina-esp': require('@/assets/images/recipes/curry-rojo-thai-langostinos-pina-esp.webp'),
+  'arroz-pimienta-timut-jengibre-esp': require('@/assets/images/recipes/arroz-pimienta-timut-jengibre-esp.webp'),
+  'brochetas-pollo-jerk-mango-verde-esp': require('@/assets/images/recipes/brochetas-pollo-jerk-mango-verde-esp.webp'),
+  'pan-alcaravea-remolacha-queso-cabra-esp': require('@/assets/images/recipes/pan-alcaravea-remolacha-queso-cabra-esp.webp'),
+  'huevos-benedictine-holandesa-crujiente-panceta-aves': require('@/assets/images/recipes/huevos-benedictine-holandesa-crujiente-panceta-aves.webp'),
+  'pollo-en-pepitoria-aves': require('@/assets/images/recipes/pollo-en-pepitoria-aves.webp'),
+  'canelones-pavo-bechamel-tomate-aves': require('@/assets/images/recipes/canelones-pavo-bechamel-tomate-aves.webp'),
+  'codorniz-en-escabeche-aves': require('@/assets/images/recipes/codorniz-en-escabeche-aves.webp'),
 };
 
 /** Imagen por defecto en caso de no existir o ser una receta creada manualmente sin foto */
@@ -131,16 +143,28 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
         if (!asset.downloaded && !asset.localUri) {
           const downloadPromise = asset.downloadAsync();
           const timeoutPromise = new Promise<void>((_, reject) =>
-            setTimeout(() => reject(new Error('Asset download timeout')), 1400)
+            setTimeout(() => reject(new Error('Asset download timeout')), 3500)
           );
           await Promise.race([downloadPromise, timeoutPromise]);
         }
         const uri = asset.localUri || asset.uri;
-        if (uri && uri.startsWith('file://')) {
-          const base64 = await FileSystem.readAsStringAsync(uri, {
-            encoding: 'base64',
-          });
-          return `data:image/webp;base64,${base64}`;
+        if (uri) {
+          const fileUri = uri.startsWith('file://') ? uri : uri.startsWith('/') ? `file://${uri}` : null;
+          if (fileUri) {
+            const base64 = await FileSystem.readAsStringAsync(fileUri, {
+              encoding: 'base64',
+            });
+            return `data:image/webp;base64,${base64}`;
+          } else if (uri.startsWith('http://') || uri.startsWith('https://')) {
+            const tempLocal = `${FileSystem.cacheDirectory}asset_${recipe.id || Date.now()}.webp`;
+            const dl = await FileSystem.downloadAsync(uri, tempLocal);
+            if (dl?.uri) {
+              const base64 = await FileSystem.readAsStringAsync(dl.uri, {
+                encoding: 'base64',
+              });
+              return `data:image/webp;base64,${base64}`;
+            }
+          }
         }
       } catch (assetErr) {
         console.warn('[RecipeImages] Fallo o timeout al leer asset local para PDF:', assetErr);
@@ -154,9 +178,10 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
         return imgUrl;
       }
 
-      if (imgUrl.startsWith('file://')) {
+      if (imgUrl.startsWith('file://') || imgUrl.startsWith('/')) {
         try {
-          const base64 = await FileSystem.readAsStringAsync(imgUrl, {
+          const fileUri = imgUrl.startsWith('file://') ? imgUrl : `file://${imgUrl}`;
+          const base64 = await FileSystem.readAsStringAsync(fileUri, {
             encoding: 'base64',
           });
           const isWebp = imgUrl.toLowerCase().endsWith('.webp');
@@ -175,10 +200,10 @@ export async function getRecipeImageBase64(recipe?: { id?: string; imageUrl?: st
           const localPath = `${FileSystem.cacheDirectory}${filename}`;
           const dlPromise = FileSystem.downloadAsync(imgUrl, localPath);
           const dlTimeout = new Promise<any>((_, reject) =>
-            setTimeout(() => reject(new Error('Image download timeout')), 1400)
+            setTimeout(() => reject(new Error('Image download timeout')), 3500)
           );
           const downloadRes = await Promise.race([dlPromise, dlTimeout]);
-          if (downloadRes?.uri && downloadRes.uri.startsWith('file://')) {
+          if (downloadRes?.uri) {
             const base64 = await FileSystem.readAsStringAsync(downloadRes.uri, {
               encoding: 'base64',
             });

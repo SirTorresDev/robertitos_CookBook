@@ -1,5 +1,6 @@
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Alert, Platform } from 'react-native';
 import { Recipe } from '@/types/cookbook';
 import { getRecipeImageBase64 } from '@/constants/recipeImages';
@@ -193,7 +194,7 @@ export async function exportRecipeToPdfAndShare(
   try {
     const imgPromise = getRecipeImageBase64(recipe);
     const timeoutPromise = new Promise<string>((resolve) =>
-      setTimeout(() => resolve(recipe.imageUrl || ''), 2200)
+      setTimeout(() => resolve(recipe.imageUrl || ''), 6000)
     );
     imageBase64 = await Promise.race([imgPromise, timeoutPromise]);
   } catch (e) {
@@ -799,55 +800,65 @@ export async function exportRecipeToPdfAndShare(
     }
 
     // En iOS y Android:
-    // Generamos el archivo PDF en caché mediante Print.printToFileAsync con timeout de seguridad
-    let generatedUri = '';
+    // 1. Generamos el archivo PDF con las dimensiones A4 exactas (595x842 pt a 72 DPI)
+    const result = await Print.printToFileAsync({
+      html,
+      base64: false,
+      width: 595,
+      height: 842,
+    });
+
+    if (!result?.uri) {
+      throw new Error('No se obtuvo la ruta del archivo PDF generado.');
+    }
+
+    // 2. En iOS y Android copiamos a un archivo limpio con extensión .pdf en caché
+    // Esto garantiza un nombre claro al guardar en Archivos / AirDrop / WhatsApp
+    let targetShareUri = result.uri;
     try {
-      const printToFilePromise = Print.printToFileAsync({
-        html,
-        base64: false,
+      const safeTitle = (recipe.title || 'Receta')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .slice(0, 32);
+      const pdfFileName = `Ficha_${safeTitle || 'Receta'}.pdf`;
+      const cleanPath = `${FileSystem.cacheDirectory}${pdfFileName}`;
+
+      await FileSystem.copyAsync({
+        from: result.uri,
+        to: cleanPath,
       });
-      const timeoutPromise = new Promise<{ uri: string }>((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout de 5s en Print.printToFileAsync')), 5000)
-      );
-      const result = await Promise.race([printToFilePromise, timeoutPromise]);
-      generatedUri = result.uri;
-    } catch (printFileErr: any) {
-      console.warn('[PDFExporter] Error o timeout en printToFileAsync, usando Print.printAsync directo (AirPrint):', printFileErr);
-      await Print.printAsync({ html });
-      return;
+      targetShareUri = cleanPath;
+    } catch (copyErr) {
+      console.warn('[PDFExporter] Error copiando a caché con nombre limpio, usando URI temporal:', copyErr);
+      targetShareUri = result.uri;
     }
 
-    if (!generatedUri) {
-      console.warn('[PDFExporter] No se obtuvo URI de printToFileAsync, usando Print.printAsync directo (AirPrint)');
-      await Print.printAsync({ html });
-      return;
-    }
-
+    // 3. Compartir con el Share Sheet nativo del sistema
     const canShare = await Sharing.isAvailableAsync();
     if (canShare) {
-      try {
-        await Sharing.shareAsync(generatedUri, {
-          UTI: '.pdf',
-          mimeType: 'application/pdf',
-          dialogTitle: `Ficha Técnica: ${recipe.title}`,
-        });
-      } catch (shareErr: any) {
-        console.warn('[PDFExporter] Error en Sharing.shareAsync, abriendo diálogo nativo AirPrint como fallback:', shareErr);
-        await Print.printAsync({ html });
-      }
+      await Sharing.shareAsync(targetShareUri, {
+        UTI: 'com.adobe.pdf',
+        mimeType: 'application/pdf',
+        dialogTitle: `Ficha Técnica: ${recipe.title}`,
+      });
     } else {
       await Print.printAsync({ html });
     }
   } catch (err: any) {
     console.error('[PDFExporter] Error general al exportar PDF:', err);
-    try {
-      await Print.printAsync({ html });
-    } catch (finalErr) {
-      console.error('[PDFExporter] Fallo crítico final en printAsync:', finalErr);
-      Alert.alert(
-        'Ficha Gastronómica',
-        'No se pudo abrir el selector de exportación. Inténtalo de nuevo.'
-      );
+    const msg = String(err?.message || '');
+    // Si el usuario canceló el selector nativo de compartir, no mostrar alerta de error
+    if (
+      msg.toLowerCase().includes('cancel') ||
+      msg.toLowerCase().includes('dismiss')
+    ) {
+      return;
     }
+
+    Alert.alert(
+      'Ficha Gastronómica',
+      'No se pudo exportar el PDF. Inténtalo de nuevo.'
+    );
   }
 }

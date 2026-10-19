@@ -1910,4 +1910,686 @@ export const COURSE_RECIPES: Recipe[] = [
       },
     ],
   },
+
+  // ========================================================
+  // CURSO DE ESPECIAS — A PUNTO
+  // ========================================================
+  {
+    id: 'curry-rojo-thai-langostinos-pina-esp',
+    code: 'ESP-1.1',
+    title: 'Curry Rojo Thai de Langostinos y Piña',
+    subtitle: 'Con pasta de curry rojo casera, leche de coco, piña en su jugo, pimientos y hojas de lima kaffir',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Media',
+    prepTimeMinutes: 35,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Saltear primero los langostinos brevemente y retirarlos evita que se pasen de cocción. Para una pasta de curry más picante y aromática, machacar los ingredientes en mortero de piedra o triturar muy fino, y freír la pasta en el aceite del wok para liberar los aceites esenciales antes de verter la leche de coco.',
+    pairing: 'Cerveza artesana IPA, vino blanco Riesling aromático o cerveza thai Singha bien fría.',
+    isFavorite: true,
+    createdAt: '2026-10-19T02:00:00Z',
+    ingredients: [
+      // Para el curry
+      { id: 'crt-1', name: 'Langostinos pelados (dejando la colita)', amount: 500, unit: 'g' },
+      { id: 'crt-2', name: 'Piña en su jugo (trozos o rodajas)', amount: 1, unit: 'lata' },
+      { id: 'crt-3', name: 'Pasta de curry rojo casera', amount: 3, unit: 'cda' },
+      { id: 'crt-4', name: 'Pimiento rojo de asar en tiras', amount: 0.5, unit: 'ud' },
+      { id: 'crt-5', name: 'Pimiento verde de asar en tiras', amount: 0.5, unit: 'ud' },
+      { id: 'crt-6', name: 'Leche de coco (400 ml)', amount: 1, unit: 'lata' },
+      { id: 'crt-7', name: 'Salsa de pescado (Nam Pla)', amount: 1, unit: 'cda' },
+      { id: 'crt-8', name: 'Hojas de lima kaffir', amount: 3, unit: 'ud' },
+      { id: 'crt-9', name: 'Aceite de girasol', amount: 20, unit: 'ml' },
+      { id: 'crt-10', name: 'Zumo de lima recién exprimido', amount: 1, unit: 'ud' },
+      { id: 'crt-11', name: 'Cilantro fresco picado', amount: 15, unit: 'g' },
+      { id: 'crt-12', name: 'Arroz jazmín cocido para acompañar', amount: 300, unit: 'g' },
+
+      // Para la pasta de curry rojo
+      { id: 'crt-13', name: 'Chiles secos en remojo', amount: 4, unit: 'ud', notes: 'Para la pasta (más chiles para más picante)' },
+      { id: 'crt-14', name: 'Pimienta en grano', amount: 3, unit: 'ct', notes: 'Para la pasta' },
+      { id: 'crt-15', name: 'Comino en grano o molido', amount: 0.5, unit: 'ct', notes: 'Para la pasta' },
+      { id: 'crt-16', name: 'Cilantro en grano o molido', amount: 0.5, unit: 'ct', notes: 'Para la pasta' },
+      { id: 'crt-17', name: 'Dientes de ajo', amount: 6, unit: 'ud', notes: 'Para la pasta' },
+      { id: 'crt-18', name: 'Raíces de cilantro limpias', amount: 1, unit: 'cda', notes: 'Para la pasta' },
+      { id: 'crt-19', name: 'Lemongrass (hierba limón) picado', amount: 1, unit: 'cda', notes: 'Para la pasta' },
+      { id: 'crt-20', name: 'Escalonias o chalotas', amount: 5, unit: 'ud', notes: 'Para la pasta' },
+      { id: 'crt-21', name: 'Galanga fresca picada', amount: 1, unit: 'ct', notes: 'Para la pasta' },
+      { id: 'crt-22', name: 'Salsa de pescado (para la pasta)', amount: 2, unit: 'cda', notes: 'Para la pasta' },
+      { id: 'crt-23', name: 'Sal fina', amount: 3, unit: 'g', notes: 'Para la pasta' },
+      { id: 'crt-24', name: 'Aceite de girasol (para la pasta)', amount: 3, unit: 'cda', notes: 'Para emulsionar la pasta' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Elaboración de la pasta de curry rojo',
+        instruction:
+          'En un vaso batidor o mortero ponemos los 4 chiles secos hidratados, los 6 ajos, las 5 escalonias, la galanga, el lemongrass, las raíces de cilantro, los granos de pimienta, el comino, el cilantro, la sal y las 2 cucharadas de salsa de pescado. Batimos todo bien y añadimos 2 o 3 cucharadas de aceite de girasol hasta obtener una pasta aromática homogénea. Para una pasta más picante, añadir más chiles secos y más ajos.',
+        timerSeconds: 300,
+        tip: 'Triturar muy fino para que los aromáticos se emulsionen con el aceite.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Salteado express de langostinos en wok',
+        instruction:
+          'En un wok con un poco de aceite de girasol bien caliente salteamos un poco los langostinos pelados (dejándoles la cola) durante 1–2 minutos lo justo para que tomen color rosado y sellen. Retiramos y reservamos.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 3,
+        title: 'Apertura aromática del curry y pimientos',
+        instruction:
+          'En el mismo wok calentamos las 2 a 3 cucharadas de pasta de curry rojo casera y añadimos el pimiento rojo y verde cortados en tiras. Salteamos a fuego fuerte unos minutos para que la pasta se fría y despierte todos sus aromas.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 4,
+        title: 'Cocción con leche de coco y lima kaffir',
+        instruction:
+          'Añadimos al wok la lata de leche de coco (400 ml), 1 cucharada de salsa de pescado y las 2 o 3 hojas de lima kaffir rasgadas. Dejamos que comience a hervir a fuego medio para ligar la salsa.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Incorporación de langostinos, piña y zumo de lima',
+        instruction:
+          'Unos minutos después incorporamos los langostinos reservados y los trozos de piña en su jugo. Cocinamos todo junto unos minutos más para que la piña y el marisco se integren armoniosamente. Terminamos con unas gotas de zumo de lima recién exprimido.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 6,
+        title: 'Emplatado sobre cama de arroz',
+        instruction:
+          'Servimos en un cuenco amplio sobre una cama de arroz blanco con los langostinos dispuestos en la superficie con la colita hacia arriba, bañados con la salsa de curry rojo y piña, y espolvoreamos cilantro fresco picado por encima.',
+      },
+    ],
+  },
+  {
+    id: 'arroz-pimienta-timut-jengibre-esp',
+    code: 'ESP-1.2',
+    title: 'Arroz con Pimienta de Timut y Jengibre',
+    subtitle: 'Basmati vaporizado con jengibre fresco en tiras, cebolla morada, pimienta de Timut, remolacha y eneldo',
+    category: 'Arroces y Cremas',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 25,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El lavado previo del basmati retira el exceso de almidón exterior para que los granos queden sueltos. Mover el arroz de los bordes hacia el centro a mitad de cocción sin revolver asegura un vaporizado homogéneo. El arroz estará listo cuando el grano se alargue visiblemente y se curve.',
+    pairing: 'Pescados a la plancha, currys aromáticos o vino blanco afrutado tipo Gewürztraminer.',
+    isFavorite: false,
+    createdAt: '2026-10-19T02:05:00Z',
+    ingredients: [
+      { id: 'apt-1', name: 'Arroz basmati', amount: 250, unit: 'g' },
+      { id: 'apt-2', name: 'Cebolla morada picada fina', amount: 1, unit: 'ud' },
+      { id: 'apt-3', name: 'Jengibre fresco en tiras finas (trozo de 3 cm)', amount: 15, unit: 'g' },
+      { id: 'apt-4', name: 'Pimienta de Timut en grano', amount: 1, unit: 'ct' },
+      { id: 'apt-5', name: 'Remolacha molida (opcional)', amount: 1, unit: 'ct', notes: 'Aporta matiz terroso y tono rubí' },
+      { id: 'apt-6', name: 'Sal fina', amount: 5, unit: 'g' },
+      { id: 'apt-7', name: 'Aceite de girasol', amount: 25, unit: 'ml' },
+      { id: 'apt-8', name: 'Eneldo fresco picado (o seco)', amount: 10, unit: 'g' },
+      { id: 'apt-9', name: 'Agua hirviendo', amount: 400, unit: 'ml', notes: 'Medio cm por encima del arroz' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Lavado y remojo del arroz (10 min)',
+        instruction:
+          'Enjuagamos el arroz basmati dos o tres veces con abundante agua fría frotando con suavidad y lo dejamos en remojo durante 10 minutos para hidratar el grano. Escurrimos muy bien.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 2,
+        title: 'Sofrito de cebolla morada y jengibre',
+        instruction:
+          'En una sartén grande o una cacerola lo más plana posible calentamos un poco de aceite de girasol. Salteamos durante un minuto la cebolla morada picada y las tiras finas de jengibre.',
+        timerSeconds: 60,
+      },
+      {
+        stepNumber: 3,
+        title: 'Nacarado y cubierto con agua hirviendo',
+        instruction:
+          'Incorporamos el arroz escurrido, rehogamos uno o dos minutos y cubrimos con agua hirviendo exactamente medio centímetro por encima del arroz. Salamos al gusto, llevamos a ebullición, bajamos el fuego al mínimo y tapamos.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 4,
+        title: 'Control de cocción hacia el centro',
+        instruction:
+          'En mitad de la cocción, sin remover, llevamos con una espátula el arroz de alrededor hacia el centro y volvemos a tapar. El arroz estará listo cuando el grano se alargue y se curve.',
+        timerSeconds: 360,
+        tip: 'No remover en círculos para conservar la longitud intacta de los granos de basmati.',
+      },
+      {
+        stepNumber: 5,
+        title: 'Aromatizado con Timut y remolacha',
+        instruction:
+          'Apartamos del fuego. Molemos la pimienta de Timut y la espolvoreamos sobre el arroz, removiendo con mucho cuidado con un tenedor. Ahora espolvoreamos la remolacha molida y esperamos unos minutos antes de mezclar el arroz para que se impregne bien.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 6,
+        title: 'Acabado con eneldo',
+        instruction:
+          'Servimos el arroz templado o caliente espolvoreado con un poco de eneldo fresco picado o seco por encima.',
+      },
+    ],
+  },
+  {
+    id: 'brochetas-pollo-jerk-mango-verde-esp',
+    code: 'ESP-1.3',
+    title: 'Brochetas de Pollo Jerk con Mango Verde',
+    subtitle: 'Contramuslos marinados con especias jerk jamaicanas y vinagre de manzana con dados de mango verde a la plancha o brasa',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 45,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Remojar los palos de bambú en agua durante 30 minutos evita que se quemen en la plancha o parrilla. El mango verde o no muy maduro resiste el calor directo caramelizándose sin deshacerse, aportando una acidez tropical fresca que equilibra el picante especiado del jerk.',
+    pairing: 'Cerveza Red Stripe jamaicana, cóctel Dark & Stormy o vino rosado garnacha bien frío.',
+    isFavorite: false,
+    createdAt: '2026-10-19T02:10:00Z',
+    ingredients: [
+      { id: 'bpj-1', name: 'Contramuslos de pollo deshuesados y sin piel', amount: 1000, unit: 'g' },
+      { id: 'bpj-2', name: 'Mezcla jerk jamaicano', amount: 40, unit: 'g', notes: 'Entre 30 y 50 g según gusto de picante' },
+      { id: 'bpj-3', name: 'Aceite de oliva o vegetal', amount: 30, unit: 'ml', notes: '2 cucharadas' },
+      { id: 'bpj-4', name: 'Vinagre de manzana', amount: 30, unit: 'ml', notes: '2 cucharadas' },
+      { id: 'bpj-5', name: 'Sal fina', amount: 6, unit: 'g' },
+      { id: 'bpj-6', name: 'Mango verde o no muy maduro', amount: 2, unit: 'ud' },
+      { id: 'bpj-7', name: 'Palos de brocheta de bambú', amount: 8, unit: 'ud', notes: 'Previamente en remojo en agua' },
+      { id: 'bpj-8', name: 'Gajos de lima fresca', amount: 2, unit: 'ud', notes: 'Para terminar' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Troceado del pollo en bocados',
+        instruction:
+          'Ponemos los palos de bambú en remojo con agua. Troceamos el kilo de contramuslos deshuesados y limpios de piel en dados regulares de tamaño bocado.',
+        timerSeconds: 300,
+        tip: 'El contramuslo conserva una jugosidad extraordinaria a la brasa en comparación con la pechuga.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Marinado jerk jamaicano (30 min)',
+        instruction:
+          'En un bol mezclamos los 30–50 g de mezcla jerk jamaicano con las 2 cucharadas de aceite, la sal y las 2 cucharadas de vinagre de manzana. Añadimos el pollo troceado, embadurnamos muy bien cada pieza y dejamos marinar durante al menos 30 minutos.',
+        timerSeconds: 1800,
+      },
+      {
+        stepNumber: 3,
+        title: 'Corte del mango verde',
+        instruction:
+          'Pelamos el mango verde o no muy maduro y lo cortamos en trozos medianos de calibre similar al pollo.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 4,
+        title: 'Montaje de las brochetas',
+        instruction:
+          'Preparamos las brochetas ensartando trozos alternos de pollo marinado y mango verde en los palos de bambú escurridos, compactando suavemente.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Cocción a la plancha o barbacoa',
+        instruction:
+          'Cocinamos las brochetas en una plancha muy caliente con unas gotas de aceite o en la barbacoa, dándoles la vuelta por todos sus lados hasta que el pollo esté totalmente hecho por dentro y caramelizado con marcas doradas por fuera.',
+        timerSeconds: 720,
+        temperature: 'Plancha / Fuego vivo',
+      },
+      {
+        stepNumber: 6,
+        title: 'Servicio',
+        instruction:
+          'Servimos las brochetas recién hechas acompañadas de gajos de lima para rociar al momento y cilantro fresco picado.',
+      },
+    ],
+  },
+  {
+    id: 'pan-alcaravea-remolacha-queso-cabra-esp',
+    code: 'ESP-1.4',
+    title: 'Pan de Alcaravea, Remolacha y Queso de Cabra',
+    subtitle: 'Pan rústico en molde con remolacha cruda rallada, copos de avena, pipas de calabaza, nigella, alcaravea y queso feta',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Media',
+    prepTimeMinutes: 95,
+    baseServings: 8,
+    imageUrl:
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Cubrir con papel de aluminio tras los primeros 40 minutos de horneado permite que el corazón denso del pan se cocine sin que las semillas superficiales se tuesten en exceso. Al pincharlo con brocheta no saldrá del todo limpio por la humedad untuosa natural de la remolacha y el queso feta, pero no debe salir crudo. Respetar 5 min para desmoldar y 20 min antes del primer corte.',
+    pairing: 'Vino tinto joven, mantequilla salada de hierbas o tabla de quesos y embutidos de bellota.',
+    isFavorite: true,
+    createdAt: '2026-10-19T02:15:00Z',
+    ingredients: [
+      { id: 'par-1', name: 'Copos de avena', amount: 50, unit: 'g' },
+      { id: 'par-2', name: 'Tomillo fresco o seco', amount: 10, unit: 'g' },
+      { id: 'par-3', name: 'Pipas de calabaza peladas', amount: 50, unit: 'g' },
+      { id: 'par-4', name: 'Semillas de alcaravea', amount: 2, unit: 'ct' },
+      { id: 'par-5', name: 'Semillas de nigella (ajenuz)', amount: 2, unit: 'ct' },
+      { id: 'par-6', name: 'Harina de trigo normal', amount: 100, unit: 'g' },
+      { id: 'par-7', name: 'Harina de trigo integral', amount: 100, unit: 'g' },
+      { id: 'par-8', name: 'Levadura química en polvo', amount: 2, unit: 'ct' },
+      { id: 'par-9', name: 'Bicarbonato de sodio', amount: 0.25, unit: 'ct' },
+      { id: 'par-10', name: 'Sal fina', amount: 3, unit: 'g' },
+      { id: 'par-11', name: 'Remolachas crudas peladas y ralladas', amount: 200, unit: 'g', notes: 'Unas 2 unidades' },
+      { id: 'par-12', name: 'Huevos grandes', amount: 2, unit: 'ud' },
+      { id: 'par-13', name: 'Aceite de girasol', amount: 80, unit: 'ml', notes: 'Y un poco más para engrasar el molde' },
+      { id: 'par-14', name: 'Crème fraîche (o crema fresca espesa)', amount: 80, unit: 'g' },
+      { id: 'par-15', name: 'Miel de abejas', amount: 1, unit: 'cda' },
+      { id: 'par-16', name: 'Queso parmesano rallado', amount: 20, unit: 'g' },
+      { id: 'par-17', name: 'Queso feta (o queso de cabra) troceado', amount: 120, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Precalentado y preparación del molde',
+        instruction:
+          'Precalentamos el horno a 180 grados. Engrasamos un molde de plum cake (20 x 10 cm) y le ponemos papel de horno en la base y laterales para desmoldar con facilidad.',
+        timerSeconds: 300,
+        temperature: '180 °C horno',
+      },
+      {
+        stepNumber: 2,
+        title: 'Mezcla de semillas y aromáticos',
+        instruction:
+          'Mezclamos los copos de avena, el tomillo, las pipas de calabaza, la alcaravea y la nigela en un bol. Reservamos una cucharada colmada de esta mezcla de semillas para decorar la superficie.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 3,
+        title: 'Mezcla de harinas y remolacha rallada',
+        instruction:
+          'En otro bol mezclamos las harinas con la levadura, el bicarbonato y un poquito de sal. Incorporamos la remolacha rallada y la mezcla de semillas menos la cucharada reservada, y reservamos sin mezclar aún.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 4,
+        title: 'Batido de líquidos e integración',
+        instruction:
+          'En otro bol batimos los dos huevos, el aceite de girasol, la crema fresca, la miel y el parmesano rallado. Volcamos este batido sobre la mezcla de harina, semillas y remolacha. Con la ayuda de una espátula mezclamos todo bien con movimientos suaves.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 5,
+        title: 'Añadido del queso feta y vertido en molde',
+        instruction:
+          'Ahora añadimos los trozos de queso feta con cuidado de no romperlos al mezclar todo. Volcamos la mezcla en el molde y espolvoreamos la superficie con la cucharada de mezcla de semillas y avena reservada.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 6,
+        title: 'Primer horneado descubierto (40 min)',
+        instruction:
+          'Horneamos en el horno a 180 °C durante 40 minutos con calor arriba y abajo.',
+        timerSeconds: 2400,
+        temperature: '180 °C horno',
+      },
+      {
+        stepNumber: 7,
+        title: 'Segundo horneado tapado con aluminio (40 min)',
+        instruction:
+          'Cubrimos con papel de aluminio bien ajustado y horneamos otros 40 minutos. Cuando lo pinchemos no saldrá del todo limpio por la humedad propia de la remolacha y el queso, pero no debería salir masa cruda.',
+        timerSeconds: 2400,
+        temperature: '180 °C horno tapado con aluminio',
+        tip: 'El papel aluminio evita que las pipas superficiales se quemen mientras se cuece el centro.',
+      },
+      {
+        stepNumber: 8,
+        title: 'Desmoldado y atemperado antes del corte',
+        instruction:
+          'Esperamos 5 minutos para desmoldarlo sobre una rejilla y dejamos reposar otros 20 minutos antes de cortarlo en rebanadas para que la miga adquiera firmeza.',
+        timerSeconds: 1500,
+      },
+    ],
+  },
+
+  // ========================================================
+  // ¡AVES A LA OLLA! — A PUNTO
+  // ========================================================
+  {
+    id: 'huevos-benedictine-holandesa-crujiente-panceta-aves',
+    code: 'AVES-1.1',
+    title: 'Huevos Benedictine, Salsa Holandesa y Crujiente de Panceta',
+    subtitle: 'Molletes tostados con espinacas, bacón frito crujiente, huevos escalfados y salsa holandesa tibia clarificada',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Alta Cocina',
+    prepTimeMinutes: 35,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Para la salsa holandesa, no dejes que la temperatura rebase los 65 °C mientras emulsiona con la varilla. Si se corta, se puede recuperar batiendo con un poco de agua tibia o añadiéndola poco a poco sobre una yema semi-montada. Escalfar los huevos en agua con vinagre sin sal compacta la clara en 1 minuto y medio.',
+    pairing: 'Zumo de naranja recién exprimido, café de especialidad o Cava / Champagne Brut.',
+    isFavorite: true,
+    createdAt: '2026-10-19T02:20:00Z',
+    ingredients: [
+      // Para la salsa holandesa
+      { id: 'hbn-1', name: 'Vinagre de vino blanco', amount: 1, unit: 'cda', notes: 'Para la reducción' },
+      { id: 'hbn-2', name: 'Granos de pimienta blanca machacados', amount: 1, unit: 'ct', notes: 'Para la reducción' },
+      { id: 'hbn-3', name: 'Agua fría (para la reducción)', amount: 4, unit: 'cda' },
+      { id: 'hbn-4', name: 'Yemas de huevo fresco', amount: 4, unit: 'ud' },
+      { id: 'hbn-5', name: 'Mantequilla clarificada (templada)', amount: 250, unit: 'g' },
+      { id: 'hbn-6', name: 'Sal fina', amount: 3, unit: 'g' },
+      { id: 'hbn-7', name: 'Zumo de limón recién exprimido', amount: 0.5, unit: 'ud' },
+
+      // Para los huevos benedictine
+      { id: 'hbn-8', name: 'Molletes de pan', amount: 2, unit: 'ud', notes: 'Cortados horizontalmente (4 mitades)' },
+      { id: 'hbn-9', name: 'Mantequilla o aceite vegetal', amount: 100, unit: 'g' },
+      { id: 'hbn-10', name: 'Espinacas lavadas y sin los tallos', amount: 100, unit: 'g' },
+      { id: 'hbn-11', name: 'Sal y pimienta recién molida', amount: 2, unit: 'pizca' },
+      { id: 'hbn-12', name: 'Lonchas de bacón o panceta', amount: 4, unit: 'ud' },
+      { id: 'hbn-13', name: 'Huevos para escalfar', amount: 4, unit: 'ud' },
+      { id: 'hbn-14', name: 'Vinagre de vino blanco (para escalfar)', amount: 3, unit: 'cda' },
+      { id: 'hbn-15', name: 'Cebollino fresco picado', amount: 10, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Clarificación de la mantequilla',
+        instruction:
+          'Ponemos la mantequilla a clarificar al baño maría o directamente a fuego en un cazo muy suave hasta que se depositen en el fondo todas las impurezas y suero. Decantamos la grasa limpia amarilla a otro recipiente para su posterior utilización y desechamos el sedimento.',
+        timerSeconds: 600,
+        temperature: 'Fuego muy suave',
+      },
+      {
+        stepNumber: 2,
+        title: 'Reducción de vinagre y pimienta',
+        instruction:
+          'Machacamos los granos de pimienta en un cazo y mezclamos el vinagre con 4 cucharadas de agua fría y la pimienta. Llevamos a ebullición suave y dejamos reducir a dos tercios. Retiramos y dejamos enfriar por completo.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 3,
+        title: 'Emulsión de la salsa holandesa (<65 °C)',
+        instruction:
+          'Una vez fría la reducción, añadimos las 4 yemas y mezclamos con una batidora de varillas pequeñas. Ponemos el cazo a fuego muy lento y removemos constantemente, asegurándonos de raspar el fondo con la varilla. Incrementamos el fuego progresivamente: la salsa emulsionará poco a poco y al cabo de 8 a 10 minutos estará cremosa y lista. Cuidar que la temperatura no rebase los 65 °C.',
+        timerSeconds: 600,
+        temperature: 'Máximo 65 °C',
+      },
+      {
+        stepNumber: 4,
+        title: 'Añadido de mantequilla clarificada tibia y limón',
+        instruction:
+          'Retiramos el cazo del fuego y sin dejar de remover, vertemos la mantequilla clarificada tibia al hilo. Agregamos el zumo de limón y condimentamos con sal. Pasamos la salsa por un colador chino fino para eliminar los granos de pimienta y la mantenemos tibia. Si se corta, se recupera batiendo poco a poco con agua tibia o añadiéndola sobre una yema semi-montada.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 5,
+        title: 'Tostado de molletes, espinacas y bacon',
+        instruction:
+          'Cortamos los molletes por la mitad en sentido horizontal y los tostamos ligeramente durante uno o dos minutos. Calentamos 50 g de mantequilla o aceite en una sartén y cocinamos las espinacas 1 o 2 minutos hasta que empiecen a ablandarse; salpimentamos. Calentamos el resto de la grasa en la misma sartén y freímos el bacón durante 1 o 2 minutos hasta que esté bien dorado y crujiente.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 6,
+        title: 'Escalfado de los huevos (1 ½ min)',
+        instruction:
+          'Llenamos un cazo con unos 10 cm de agua sin sal. Añadimos 3 cucharadas de vinagre de vino blanco y llevamos a ebullición suave. Cascamos un huevo en un plato o cuenco pequeño y lo deslizamos suavemente en el cazo en el momento en que el agua burbujee. Escalfamos alrededor de 1 minuto y medio. Retiramos con espumadera presionando el borde exterior para comprobar cocción; pasamos a agua helada y recortamos los bordes para una forma pulida.',
+        timerSeconds: 90,
+      },
+      {
+        stepNumber: 7,
+        title: 'Montaje de los huevos Benedictine',
+        instruction:
+          'Ponemos medio mollete tostado en cada plato y disponemos encima una loncha de bacón crujiente, un poco de espinacas salteadas y un huevo escalfado caliente. Recubrimos generosamente con la salsa holandesa tibia, decoramos con hebras de cebollino picado y servimos enseguida con el resto de la salsa holandesa aparte.',
+      },
+    ],
+  },
+  {
+    id: 'pollo-en-pepitoria-aves',
+    code: 'AVES-1.2',
+    title: 'Pollo en Pepitoria Tradicional',
+    subtitle: 'Pechugas en forma de libro rellenas de almendras y bridadas, en salsa ligada de yemas cocidas, vino blanco y caldo',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Media',
+    prepTimeMinutes: 45,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Abrir las pechugas en libro, rellenar de almendras y bridar con hilo de cocina mantiene la pechuga jugosa y firme al cortar. El majado en mortero de las yemas cocidas con pan tostado y almendras espesa la salsa con una sedosidad natural inigualable.',
+    pairing: 'Vino blanco con crianza en madera (Chardonnay o Viura) o vino tinto joven frutal.',
+    isFavorite: false,
+    createdAt: '2026-10-19T02:25:00Z',
+    ingredients: [
+      { id: 'pep-1', name: 'Pechugas de pollo enteras', amount: 1000, unit: 'g', notes: '1 kg' },
+      { id: 'pep-2', name: 'Cebolla picada en brunoise', amount: 1, unit: 'ud' },
+      { id: 'pep-3', name: 'Dientes de ajo picados en brunoise', amount: 3, unit: 'ud' },
+      { id: 'pep-4', name: 'Huevos grandes', amount: 2, unit: 'ud', notes: 'Para cocer' },
+      { id: 'pep-5', name: 'Rebanadas de pan tostado', amount: 2, unit: 'ud' },
+      { id: 'pep-6', name: 'Almendras laminadas', amount: 25, unit: 'g' },
+      { id: 'pep-7', name: 'Vino blanco seco', amount: 250, unit: 'ml' },
+      { id: 'pep-8', name: 'Caldo de pollo', amount: 250, unit: 'ml' },
+      { id: 'pep-9', name: 'Aceite de oliva virgen extra', amount: 60, unit: 'ml' },
+      { id: 'pep-10', name: 'Sal y pimienta negra', amount: 5, unit: 'g' },
+      { id: 'pep-11', name: 'Perejil seco o fresco picado', amount: 5, unit: 'g' },
+      { id: 'pep-12', name: 'Patatas para freír (guarnición)', amount: 300, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Relleno y bridado de las pechugas',
+        instruction:
+          'Abriremos las pechugas de pollo en forma de libro con un cuchillo bien afilado, salpimentaremos y pondremos almendras laminadas dentro; cerraremos y bridaremos con hilo de cocina para que mantengan la forma.',
+        timerSeconds: 360,
+      },
+      {
+        stepNumber: 2,
+        title: 'Cocción de huevos y picado de claras',
+        instruction:
+          'Cocer los huevos en una pequeña olla con agua hirviendo durante 12 minutos. Pelar los huevos y separar las yemas de las claras. Picar las claras cocidas y reservar.',
+        timerSeconds: 720,
+      },
+      {
+        stepNumber: 3,
+        title: 'Dorar el pollo',
+        instruction:
+          'En una sartén o cazuela con abundante aceite de oliva dorar el pollo bridado por fuera a fuego vivo y sacarlo a un plato con papel absorbente.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 4,
+        title: 'Elaboración del majado de mortero',
+        instruction:
+          'En un mortero añadir las almendras, las 2 rebanadas de pan tostado y las yemas cocidas. Echar un poco de caldo de pollo caliente y triturar con la maza hasta obtener una pasta fina. Reservar.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 5,
+        title: 'Sofrito y reducción del vino blanco',
+        instruction:
+          'Pelar los ajos y la cebolla y picarlos en brunoise. En la misma cazuela donde hemos dorado el pollo pochar la cebolla y los ajos a fuego lento. Cuando la cebolla esté lista, incorporar el pollo y añadir un vaso de vino blanco (250 ml). Dejar hervir un poco para que evapore el alcohol.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 6,
+        title: 'Guisado con el majado y caldo (15 min)',
+        instruction:
+          'Añadir después el majado del mortero y el resto del caldo de pollo. Salpimentar al gusto y cocinar a fuego lento durante 15 minutos mínimo. Espolvorear con perejil y remover bien la salsa.',
+        timerSeconds: 900,
+      },
+      {
+        stepNumber: 7,
+        title: 'Corte en medallones y servicio',
+        instruction:
+          'Retirar el hilo de bridar, cortar el pollo en medallones y servir napado con abundante salsa caliente, las claras picadas reservadas por encima y acompañado de unas patatas fritas crujientes.',
+      },
+    ],
+  },
+  {
+    id: 'canelones-pavo-bechamel-tomate-aves',
+    code: 'AVES-1.3',
+    title: 'Canelones de Pavo con Bechamel Clásica y Salsa de Tomate',
+    subtitle: 'Masa casera de canelón rellena de pavo desmigado, espinacas y setas, gratinada con bechamel semilíquida y tomate a la albahaca',
+    category: 'Arroces y Cremas',
+    difficulty: 'Media',
+    prepTimeMinutes: 80,
+    baseServings: 6,
+    imageUrl:
+      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Cocinar la harina en la mantequilla fundida unos minutos elimina todo sabor a harina cruda antes de verter la leche caliente infusionada. Las obleas de masa casera al estilo crepe proporcionan un bocado tierno y sedoso que absorbe la bechamel y el tomate sin endurecerse.',
+    pairing: 'Vino tinto joven de Rioja, vino blanco Chardonnay untuoso o cerveza artesanal suave.',
+    isFavorite: false,
+    createdAt: '2026-10-19T02:30:00Z',
+    ingredients: [
+      // Para la masa de los canelones
+      { id: 'cpt-1', name: 'Harina de repostería', amount: 250, unit: 'g' },
+      { id: 'cpt-2', name: 'Leche entera', amount: 500, unit: 'g' },
+      { id: 'cpt-3', name: 'Huevos enteros', amount: 2, unit: 'ud' },
+      { id: 'cpt-4', name: 'Sal fina', amount: 1, unit: 'cda' },
+      { id: 'cpt-5', name: 'Mantequilla fundida', amount: 25, unit: 'g' },
+
+      // Para el relleno
+      { id: 'cpt-6', name: 'Pechuga de pavo limpia', amount: 1, unit: 'ud' },
+      { id: 'cpt-7', name: 'Espinacas cocidas', amount: 200, unit: 'g' },
+      { id: 'cpt-8', name: 'Bechamel (para mezclar en relleno)', amount: 100, unit: 'g' },
+      { id: 'cpt-9', name: 'Queso mozzarella rallado', amount: 100, unit: 'g' },
+      { id: 'cpt-10', name: 'Setas de temporada picadas', amount: 150, unit: 'g' },
+      { id: 'cpt-11', name: 'Cebolla blanca en brunoise', amount: 1, unit: 'ud' },
+      { id: 'cpt-12', name: 'Dientes de ajo picados', amount: 2, unit: 'ud' },
+
+      // Para la bechamel
+      { id: 'cpt-13', name: 'Mantequilla', amount: 60, unit: 'g' },
+      { id: 'cpt-14', name: 'Harina de trigo', amount: 60, unit: 'g' },
+      { id: 'cpt-15', name: 'Leche entera', amount: 500, unit: 'g' },
+      { id: 'cpt-16', name: 'Nuez moscada rallada', amount: 0.5, unit: 'ct' },
+      { id: 'cpt-17', name: 'Sal y pimienta negra', amount: 1, unit: 'pizca' },
+
+      // Para la salsa de tomate
+      { id: 'cpt-18', name: 'Tomate triturado natural', amount: 250, unit: 'g' },
+      { id: 'cpt-19', name: 'Dientes de ajo', amount: 2, unit: 'ud' },
+      { id: 'cpt-20', name: 'Hojas frescas de albahaca picadas', amount: 6, unit: 'ud' },
+      { id: 'cpt-21', name: 'Aceite de oliva virgen extra', amount: 40, unit: 'ml' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Masa de canelones y reposo en frío (40 min)',
+        instruction:
+          'Lo primero que haremos es mezclar todos los ingredientes de la masa (harina, leche, huevos, sal y mantequilla fundida) con una túrmix hasta obtener una mezcla fina sin grumos. Dejaremos descansar la masa en nevera al menos 40 minutos.',
+        timerSeconds: 2400,
+      },
+      {
+        stepNumber: 2,
+        title: 'Cocción y desmigado de la pechuga de pavo',
+        instruction:
+          'Por otro lado, cocer la pechuga de pavo en agua con sal por unos 30 minutos hasta que esté bien hecha y se pueda desmigar fácilmente con un tenedor o con las manos.',
+        timerSeconds: 1800,
+      },
+      {
+        stepNumber: 3,
+        title: 'Sofrito del relleno con espinacas y queso',
+        instruction:
+          'Comenzaremos a hacer un sofrito con la cebolla en brunoise y los ajos picados; coceremos bien por varios minutos hasta que esté bien sudado. Añadimos las setas de temporada. Luego incorporaremos la espinaca cocida bien escurrida, la pechuga de pavo desmigada, el queso mozzarella y los 100 g de bechamel. Integraremos bien y reservaremos en frío.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 4,
+        title: 'Cocción de las masas en sartén',
+        instruction:
+          'Haremos las masas para canelones en una sartén bien caliente y en lo posible antiadherente con un poco de mantequilla fundida o aceite. Pondremos un cucharón de masa, extenderemos bien por el ancho de la sartén y dejaremos cuajar. Cuando salgan burbujitas en la masa será indicio de que podemos ya darla vuelta y terminar la cocción por el otro lado unos segundos. Reservaremos las masas apiladas.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 5,
+        title: 'Elaboración de la salsa de tomate a la albahaca',
+        instruction:
+          'Por otro lado haremos la salsa de tomate: en una sartén con abundante aceite de oliva pondremos los 2 dientes de ajo y el tomate triturado, cocinaremos por 10 minutos y agregaremos las hojas de albahaca picada y un punto de sal.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 6,
+        title: 'Elaboración de la bechamel clásica',
+        instruction:
+          'Para hacer la bechamel, pondremos en una sartén la mantequilla a derretir y agregaremos la harina. En otro cazo tendremos la leche calentando infusionada con la nuez moscada, sal y pimienta. Tendremos que prestar atención a cocinar bien la harina con la mantequilla para que no queden sabores a harina cruda. Cuando lo hayamos conseguido, incorporaremos la leche caliente y con una varilla nos aseguraremos que se forme la bechamel sin grumos, buscando una consistencia semilíquida para los canelones.',
+        timerSeconds: 480,
+      },
+      {
+        stepNumber: 7,
+        title: 'Armado, salseado y gratinado en horno (190 °C / 15 min)',
+        instruction:
+          'Para el armado: cogeremos una masa, pondremos relleno en un extremo y cerraremos el canelón. Pondremos el mismo sobre una placa de horno previamente aceitada, e iremos armando uno a uno hasta completar la placa. Pondremos salsa de tomate por encima y cubriremos con la bechamel. Pondremos a 190 °C en horno precalentado por unos 15 minutos, hasta que gratine.',
+        timerSeconds: 900,
+        temperature: '190 °C horno',
+      },
+    ],
+  },
+  {
+    id: 'codorniz-en-escabeche-aves',
+    code: 'AVES-1.4',
+    title: 'Codorniz en Escabeche Suave de Jerez',
+    subtitle: 'Codornices doradas por la piel y pochadas en juliana de zanahoria y cebolla con vinagre de Jerez, laurel, pimienta y romero',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 35,
+    baseServings: 4,
+    imageUrl:
+      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Dejar reposar en la nevera el escabeche por al menos 24 horas para potenciar y asentar su sabor. La codorniz escabechada queda insuperable acompañada con una ensalada de hojas frescas.',
+    pairing: 'Vino generoso Manzanilla o Fino de Jerez, cerveza tostada o vino tinto joven frutal.',
+    isFavorite: false,
+    createdAt: '2026-10-19T02:35:00Z',
+    ingredients: [
+      { id: 'cde-1', name: 'Codornices limpias', amount: 4, unit: 'ud' },
+      { id: 'cde-2', name: 'Zanahoria cortada en juliana', amount: 1, unit: 'ud' },
+      { id: 'cde-3', name: 'Cebolla cortada en juliana', amount: 1, unit: 'ud' },
+      { id: 'cde-4', name: 'Dientes de ajo en láminas', amount: 5, unit: 'ud' },
+      { id: 'cde-5', name: 'Granos de pimienta negra', amount: 8, unit: 'ud' },
+      { id: 'cde-6', name: 'Hojas de laurel', amount: 3, unit: 'ud' },
+      { id: 'cde-7', name: 'Ramitas de romero fresco', amount: 3, unit: 'ud' },
+      { id: 'cde-8', name: 'Vinagre de Jerez', amount: 60, unit: 'ml', notes: '4 cucharadas' },
+      { id: 'cde-9', name: 'Aceite de oliva virgen extra', amount: 200, unit: 'ml', notes: 'Para dorar y cubrir' },
+      { id: 'cde-10', name: 'Sal fina', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Corte y despiece de las codornices',
+        instruction:
+          'Cortar en dos la codorniz removiendo el hueso del centro. Poner las pechugas hacia arriba y con un cuchillo pequeño cortar acompañando el hueso que separa las dos pechugas, seguir hasta abajo separando las articulaciones de los muslos y alas. Al final tendremos dos piezas por codorniz, cada una con pechuga, muslo y ala.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 2,
+        title: 'Dorar por el lado de la piel',
+        instruction:
+          'Poner a calentar una sartén con un poco de aceite de oliva, salpimentar y dorar las codornices solamente por el lado de la piel. Retirar las codornices y reservar.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 3,
+        title: 'Pochar cebolla y zanahoria',
+        instruction:
+          'En la misma sartén echar la cebolla y la zanahoria en juliana con un poco más de aceite y sal. Poner las codornices por encima con la piel hacia arriba. Pochar a fuego mediano por unos minutos y apagar el fuego.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 4,
+        title: 'Cocción del escabeche aromático',
+        instruction:
+          'Para el escabeche: poner a calentar una cazuela con aceite de oliva, echar los ajos laminados y dejar que se doren a fuego lento. Una vez empiecen a dorar quitar del fuego, incorporar el laurel, la pimienta negra en grano, las ramitas de romero y 4 cucharadas de vinagre de Jerez, y mezclar bien.',
+        timerSeconds: 360,
+      },
+      {
+        stepNumber: 5,
+        title: 'Unión y cobertura con aceite de oliva virgen extra',
+        instruction:
+          'Agregar las codornices con la cebolla y la zanahoria. Pasar todo a un recipiente y cubrir por completo con aceite de oliva virgen extra. Esperar que se enfríe, tapar y guardar en la nevera.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 6,
+        title: 'Reposo en nevera (24 horas) y servicio',
+        instruction:
+          'Dejar reposar en la nevera el escabeche por al menos 24 horas para potenciar su sabor. La codorniz escabechada queda muy bien servida templada o fría con una ensalada de hojas frescas.',
+        timerSeconds: 86400,
+      },
+    ],
+  },
 ];
