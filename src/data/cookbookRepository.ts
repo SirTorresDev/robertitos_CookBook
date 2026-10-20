@@ -155,15 +155,45 @@ export const CookBookRepository = {
         const userCustomTips = storedTips.filter((t) => !initialIds.has(t.id));
         tips = [...mergedInitial, ...userCustomTips];
       }
-      const utensils: KitchenUtensil[] = uRaw ? JSON.parse(uRaw) : INITIAL_UTENSILS;
-      const places: FoodiePlace[] = pRaw ? JSON.parse(pRaw) : INITIAL_PLACES;
-      const products: GourmetProduct[] = prodRaw ? JSON.parse(prodRaw) : INITIAL_PRODUCTS;
+
+      let utensils: KitchenUtensil[] = INITIAL_UTENSILS;
+      if (uRaw) {
+        const storedUtensils: KitchenUtensil[] = JSON.parse(uRaw);
+        const storedMap = new Map(storedUtensils.map((u) => [u.id, u]));
+        const mergedInitial = INITIAL_UTENSILS.map((initU) => {
+          const stored = storedMap.get(initU.id);
+          return stored ? { ...initU, acquired: stored.acquired ?? initU.acquired } : initU;
+        });
+        const initialIds = new Set(INITIAL_UTENSILS.map((u) => u.id));
+        const userCustomUtensils = storedUtensils.filter((u) => !initialIds.has(u.id));
+        utensils = [...mergedInitial, ...userCustomUtensils];
+      }
+
+      let places: FoodiePlace[] = INITIAL_PLACES;
+      if (pRaw) {
+        const storedPlaces: FoodiePlace[] = JSON.parse(pRaw);
+        const storedMap = new Map(storedPlaces.map((p) => [p.id, p]));
+        const mergedInitial = INITIAL_PLACES.map((initP) => storedMap.get(initP.id) || initP);
+        const initialIds = new Set(INITIAL_PLACES.map((p) => p.id));
+        const userCustomPlaces = storedPlaces.filter((p) => !initialIds.has(p.id));
+        places = [...mergedInitial, ...userCustomPlaces];
+      }
+
+      let products: GourmetProduct[] = INITIAL_PRODUCTS;
+      if (prodRaw) {
+        const storedProducts: GourmetProduct[] = JSON.parse(prodRaw);
+        const storedMap = new Map(storedProducts.map((pr) => [pr.id, pr]));
+        const mergedInitial = INITIAL_PRODUCTS.map((initPr) => storedMap.get(initPr.id) || initPr);
+        const initialIds = new Set(INITIAL_PRODUCTS.map((pr) => pr.id));
+        const userCustomProducts = storedProducts.filter((pr) => !initialIds.has(pr.id));
+        products = [...mergedInitial, ...userCustomProducts];
+      }
 
       await AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
       await AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
-      if (!uRaw) await AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(utensils));
-      if (!pRaw) await AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(places));
-      if (!prodRaw) await AsyncStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      await AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(utensils));
+      await AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(places));
+      await AsyncStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
 
       return { recipes, tips, utensils, places, products };
     } catch {
@@ -239,28 +269,65 @@ export const CookBookRepository = {
 
     const unsubTips = onSnapshot(collection(db, 'tips'), (snap) => {
       if (!snap.empty) {
-        const items = snap.docs.map((d) => d.data() as CookingTip);
-        callbacks.onTips(items);
-        CookBookRepository.saveLocalCollection(STORAGE_KEYS.TIPS, items);
+        const remoteList = snap.docs.map((d) => d.data() as CookingTip);
+        const remoteMap = new Map(remoteList.map((t) => [t.id, t]));
+
+        const mergedInitial = INITIAL_TIPS.map((initT) => remoteMap.get(initT.id) || initT);
+        const initialIds = new Set(INITIAL_TIPS.map((t) => t.id));
+        const userCustomTips = remoteList.filter((t) => !initialIds.has(t.id));
+        const finalTips = [...mergedInitial, ...userCustomTips];
+
+        callbacks.onTips(finalTips);
+        CookBookRepository.saveLocalCollection(STORAGE_KEYS.TIPS, finalTips);
       }
     });
 
     const unsubUtensils = onSnapshot(collection(db, 'utensils'), (snap) => {
-      const items = snap.docs.map((d) => d.data() as KitchenUtensil);
-      callbacks.onUtensils(items);
-      CookBookRepository.saveLocalCollection(STORAGE_KEYS.UTENSILS, items);
+      if (!snap.empty) {
+        const remoteList = snap.docs.map((d) => d.data() as KitchenUtensil);
+        const remoteMap = new Map(remoteList.map((u) => [u.id, u]));
+
+        const mergedInitial = INITIAL_UTENSILS.map((initU) => {
+          const remote = remoteMap.get(initU.id);
+          return remote ? { ...initU, acquired: remote.acquired ?? initU.acquired } : initU;
+        });
+        const initialIds = new Set(INITIAL_UTENSILS.map((u) => u.id));
+        const userCustomUtensils = remoteList.filter((u) => !initialIds.has(u.id));
+        const finalUtensils = [...mergedInitial, ...userCustomUtensils];
+
+        callbacks.onUtensils(finalUtensils);
+        CookBookRepository.saveLocalCollection(STORAGE_KEYS.UTENSILS, finalUtensils);
+      }
     });
 
     const unsubPlaces = onSnapshot(collection(db, 'places'), (snap) => {
-      const items = snap.docs.map((d) => d.data() as FoodiePlace);
-      callbacks.onPlaces(items);
-      CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, items);
+      if (!snap.empty) {
+        const remoteList = snap.docs.map((d) => d.data() as FoodiePlace);
+        const remoteMap = new Map(remoteList.map((p) => [p.id, p]));
+
+        const mergedInitial = INITIAL_PLACES.map((initP) => remoteMap.get(initP.id) || initP);
+        const initialIds = new Set(INITIAL_PLACES.map((p) => p.id));
+        const userCustomPlaces = remoteList.filter((p) => !initialIds.has(p.id));
+        const finalPlaces = [...mergedInitial, ...userCustomPlaces];
+
+        callbacks.onPlaces(finalPlaces);
+        CookBookRepository.saveLocalCollection(STORAGE_KEYS.PLACES, finalPlaces);
+      }
     });
 
     const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
-      const items = snap.docs.map((d) => d.data() as GourmetProduct);
-      callbacks.onProducts(items);
-      CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, items);
+      if (!snap.empty) {
+        const remoteList = snap.docs.map((d) => d.data() as GourmetProduct);
+        const remoteMap = new Map(remoteList.map((pr) => [pr.id, pr]));
+
+        const mergedInitial = INITIAL_PRODUCTS.map((initPr) => remoteMap.get(initPr.id) || initPr);
+        const initialIds = new Set(INITIAL_PRODUCTS.map((pr) => pr.id));
+        const userCustomProducts = remoteList.filter((pr) => !initialIds.has(pr.id));
+        const finalProducts = [...mergedInitial, ...userCustomProducts];
+
+        callbacks.onProducts(finalProducts);
+        CookBookRepository.saveLocalCollection(STORAGE_KEYS.PRODUCTS, finalProducts);
+      }
     });
 
     return () => {
