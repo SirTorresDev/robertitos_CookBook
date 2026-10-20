@@ -813,4 +813,761 @@ export const NEW_RECIPES: Recipe[] = [
       },
     ],
   },
+
+  // ========================================================
+  // 11. LUBINA AL VAPOR DE TÉ DE LIMÓN
+  // ========================================================
+  {
+    id: 'lubina-vapor-te-limon',
+    code: 'PES-1.5',
+    title: 'Lubina al Vapor de Té de Limón',
+    subtitle: 'Lomos de lubina al vapor aromatizado de té verde y piel de limón, jengibre en juliana y golpe de aceite de sésamo hirviendo',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Media',
+    prepTimeMinutes: 15,
+    baseServings: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1574484284002-952d92456975?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El secreto del golpe de aceite de sésamo hirviendo al final es escaldar las hojas de cilantro y el jengibre al instante sobre la lubina ya emplatada; esto despierta los aceites esenciales sin sobrecocinar el pescado ni quemar el aceite.',
+    pairing: 'Té verde Sencha japonés caliente o un vino blanco Albariño con buena acidez.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:00:00Z',
+    ingredients: [
+      { id: 'lvl-1', name: 'Lubinas de ración en lomos limpios con piel', amount: 2, unit: 'ud', notes: 'Limpios sin espinas' },
+      { id: 'lvl-2', name: 'Limón (piel para el vapor y zumo fresco)', amount: 1, unit: 'ud' },
+      { id: 'lvl-3', name: 'Jengibre fresco en finas tiritas', amount: 20, unit: 'g', notes: 'Cortado en juliana fina' },
+      { id: 'lvl-4', name: 'Té verde en hojas de calidad', amount: 10, unit: 'g' },
+      { id: 'lvl-5', name: 'Hojitas de cilantro fresco', amount: 15, unit: 'g' },
+      { id: 'lvl-6', name: 'Aceite de sésamo tostado', amount: 30, unit: 'ml' },
+      { id: 'lvl-7', name: 'Aceite de oliva para untar la piel', amount: 10, unit: 'ml' },
+      { id: 'lvl-8', name: 'Sal marina en escamas y pimienta blanca', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Preparación de la vaporera aromática',
+        instruction:
+          'En la cazuela para el vapor de la vaporera, ponemos agua abundante, las hojas de té verde y la piel de limón (solo la parte amarilla, sin albedo blanco). Llevamos a ebullición para que el vapor se sature de aromas cítricos y herbáceos.',
+        timerSeconds: 300,
+        temperature: '100 °C ebullición',
+      },
+      {
+        stepNumber: 2,
+        title: 'Disposición de la lubina con jengibre',
+        instruction:
+          'Pelar y cortar en finas tiritas el jengibre fresco. En la cesta de la vaporera, untar un poco de aceite en la piel de los lomos de lubina para evitar que se peguen y colocarlos con la piel mirando hacia abajo. Disponer las tiritas de jengibre de manera uniforme por encima de la carne.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 3,
+        title: 'Cocción al vapor (4 a 5 min)',
+        instruction:
+          'Tapar la vaporera y cocer la lubina al vapor durante exactamente 4 o 5 minutos a fuego vivo. La carne debe tornarse nacarada y las lascas deben separarse con suavidad al tacto.',
+        timerSeconds: 270,
+        tip: 'Vigilar no pasar el tiempo para mantener la jugosidad translúcida del pescado.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Calentado del aceite de sésamo',
+        instruction:
+          'Mientras tanto, limpiar el cilantro y separar unas cuantas hojas frescas. En una sartén o cazo pequeño, calentar el aceite de sésamo a fuego vivo hasta que empiece a humear levemente (con mucho cuidado, se quema con gran rapidez).',
+        timerSeconds: 120,
+        temperature: '>160 °C',
+      },
+      {
+        stepNumber: 5,
+        title: 'Escaldado con aceite hirviendo y emplatado',
+        instruction:
+          'Sacar los lomos de pescado con una espátula y colocar en la fuente donde se vayan a servir. Poner las hojas de cilantro fresco por encima y, con ayuda de un cazo, verter el aceite de sésamo hirviendo directamente sobre el cilantro y el jengibre para despertar toda su fragancia al crepitar.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 12. ROL DE PAPAS ALIÑÁS CON CREMA DE AJOBLANCO
+  // ========================================================
+  {
+    id: 'rol-papas-alinas-ajoblanco',
+    code: 'TAP-1.5',
+    title: 'Rol de Papas Aliñás con Crema de Ajoblanco',
+    subtitle: 'Papas aliñás con atún y cebollino envueltas en oblea de arroz vietnamita, suave ajoblanco de almendras, altramuces y cebolleta encurtida',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Media',
+    prepTimeMinutes: 35,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El reposo de 15 minutos de las patatas con el atún, vinagre de Jerez y aceite de oliva virgen extra permite que la patata absorba toda la emulsión antes de envolverla en la oblea de arroz. Mantén los rollitos bajo paño húmedo para que la oblea no se reseque.',
+    pairing: 'Manzanilla de Sanlúcar de Barrameda o Fino de Jerez bien frío.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:05:00Z',
+    ingredients: [
+      { id: 'rpa-1', name: 'Patatas medianas de calidad', amount: 2, unit: 'ud', notes: 'Cocidas con piel' },
+      { id: 'rpa-2', name: 'Atún en conserva de aceite de oliva', amount: 200, unit: 'g', notes: 'Escurrido' },
+      { id: 'rpa-3', name: 'Cebollino fresco picado', amount: 15, unit: 'g' },
+      { id: 'rpa-4', name: 'Cebolleta blanca picada fina', amount: 1, unit: 'ud' },
+      { id: 'rpa-5', name: 'Obleas de papel de arroz vietnamita', amount: 4, unit: 'ud' },
+      { id: 'rpa-6', name: 'Diente de ajo sin germen (para el ajoblanco)', amount: 1, unit: 'ud' },
+      { id: 'rpa-7', name: 'Rebanadas de pan de molde (miga para ajoblanco)', amount: 3, unit: 'rebanada' },
+      { id: 'rpa-8', name: 'Almendras crudas peladas (para ajoblanco)', amount: 50, unit: 'g' },
+      { id: 'rpa-9', name: 'Aceite de oliva virgen extra (3 dl)', amount: 300, unit: 'ml' },
+      { id: 'rpa-10', name: 'Vinagre de Jerez de calidad (1 dl)', amount: 100, unit: 'ml' },
+      { id: 'rpa-11', name: 'Sal marina fina y agua muy fría', amount: 5, unit: 'g' },
+      { id: 'rpa-12', name: 'Altramuces sin piel para decorar', amount: 40, unit: 'g' },
+      { id: 'rpa-13', name: 'Cebolleta roja picada o encurtida', amount: 1, unit: 'ud' },
+      { id: 'rpa-14', name: 'Aceituna manzanilla sin hueso en rodajas', amount: 40, unit: 'g' },
+      { id: 'rpa-15', name: 'Habas de edamame cocidas', amount: 30, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Cocción y corte de patatas',
+        instruction:
+          'Hervir las patatas enteras con su piel partiendo de agua fría con sal hasta que estén tiernas (unos 20-25 min). Dejar templar, pelar y picar en daditos homogéneos.',
+        timerSeconds: 1500,
+        temperature: '100 °C ebullición',
+      },
+      {
+        stepNumber: 2,
+        title: 'Aliño andaluz y reposo osmótico',
+        instruction:
+          'En un bol amplio, mezclar las patatas con el cebollino picado, el atún desmigado, sal, el vinagre de Jerez y un buen chorro de aceite de oliva virgen extra. Dejar reposar durante 15 minutos para que la patata absorba todos los aromas.',
+        timerSeconds: 900,
+        tip: 'La patata aún templada absorbe el vinagre y aceite mucho mejor que fría.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Hidratación de las obleas de arroz',
+        instruction:
+          'Poner a remojo las obleas de papel de arroz en un plato con agua fría durante 4 a 5 minutos. Sacarlas del agua con delicadeza y secarlas sobre un paño de cocina limpio y seco.',
+        timerSeconds: 270,
+      },
+      {
+        stepNumber: 4,
+        title: 'Formado del rollo estilo vietnamita',
+        instruction:
+          'Colocar una porción generosa de la mezcla de patata aliñá en el centro de cada oblea. Envolver doblando los laterales hacia dentro y enrollando firmemente a modo de rollito de primavera. Reservar con un paño húmedo por encima para evitar que se seque.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 5,
+        title: 'Emulsión de la crema de ajoblanco',
+        instruction:
+          'Quitar el germen al diente de ajo. En una batidora de vaso o túrmix, triturar el ajo, la miga de pan, las almendras crudas, el aceite de oliva, el vinagre de Jerez, sal y un dedo de agua muy fría. Triturar a máxima potencia hasta conseguir una crema fina, blanca y sedosa.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 6,
+        title: 'Emplatado y aderezo gourmet',
+        instruction:
+          'Cortar los rollitos al bies y disponer en el plato. Napar con la crema de ajoblanco por encima, y guarnecer con los altramuces pelados, la cebolleta roja, las rodajas de aceituna manzanilla y las habas de edamame verde.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 13. “BAOCATA” DE PLUMA IBÉRICA AL CARDAMOMO
+  // ========================================================
+  {
+    id: 'baocata-pluma-iberica-chutney-mango',
+    code: 'CAR-1.6',
+    title: '“Baocata” de Pluma de Ibérico al Cardamomo con Chutney de Mango',
+    subtitle: 'Pan bao al vapor con pluma ibérica macerada en soja, lima y chile, chutney agridulce de mango especiado y juliana de col china',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Media',
+    prepTimeMinutes: 40,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'La maicena disuelta en la marinada actúa como agente terciopelo (velveting) en la carne, sellando la humedad de la pluma ibérica para que al marcarla a fuego muy vivo quede caramelizada por fuera y ultra tierna por dentro.',
+    pairing: 'Cerveza artesana tostada o vino tinto joven frutal con notas especiadas.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:10:00Z',
+    ingredients: [
+      { id: 'bpi-1', name: 'Panes bao artesanos', amount: 4, unit: 'ud' },
+      { id: 'bpi-2', name: 'Pluma de cerdo ibérico fresca', amount: 600, unit: 'g' },
+      { id: 'bpi-3', name: 'Jengibre fresco', amount: 100, unit: 'g', notes: 'Pelado y rallado/machacado' },
+      { id: 'bpi-4', name: 'Cebolleta china fresca', amount: 1, unit: 'manojo' },
+      { id: 'bpi-5', name: 'Bayas de cardamomo verde machacadas', amount: 6, unit: 'ud' },
+      { id: 'bpi-6', name: 'Salsa de soja japonesa', amount: 50, unit: 'ml' },
+      { id: 'bpi-7', name: 'Lima fresca (zumo y ralladura)', amount: 1, unit: 'ud' },
+      { id: 'bpi-8', name: 'Cilantro fresco', amount: 15, unit: 'g' },
+      { id: 'bpi-9', name: 'Maicena disuelta en agua fría', amount: 20, unit: 'g' },
+      { id: 'bpi-10', name: 'Chile rojo fresco picado fino', amount: 1, unit: 'ud' },
+      { id: 'bpi-11', name: 'Col china tierna en juliana fina', amount: 1, unit: 'ud' },
+      { id: 'bpi-12', name: 'Rabanitos en rodajas finas', amount: 3, unit: 'ud' },
+      { id: 'bpi-13', name: 'Mango maduro en brunoise (Chutney)', amount: 1, unit: 'ud' },
+      { id: 'bpi-14', name: 'Glucosa líquida (Chutney)', amount: 50, unit: 'g' },
+      { id: 'bpi-15', name: 'Azúcar de caña moreno (Chutney)', amount: 50, unit: 'g' },
+      { id: 'bpi-16', name: 'Vinagre de manzana (Chutney, 1 dcl)', amount: 100, unit: 'ml' },
+      { id: 'bpi-17', name: 'Zumo de lima (Chutney)', amount: 1, unit: 'ud' },
+      { id: 'bpi-18', name: 'Mezcla de especias (pimienta, comino, pimentón, cayena, cúrcuma, canela, nuez moscada, anís)', amount: 15, unit: 'g' },
+      { id: 'bpi-19', name: 'Ron Negrita (Chutney)', amount: 30, unit: 'ml' },
+      { id: 'bpi-20', name: 'Menta y cilantro fresco picados (Chutney)', amount: 10, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Marinada asiática para la pluma ibérica',
+        instruction:
+          'Exprimir la lima, machacar en mortero el jengibre con cilantro fresco, el chile rojo y las bayas de cardamomo abiertas. Añadir la parte verde de la cebolleta china picada, la salsa de soja y la maicena disuelta en un poco de agua. Untar la pluma ibérica y dejar macerando en frío mínimo 2 horas.',
+        timerSeconds: 7200,
+        tip: 'La maicena fija los jugos internos de la carne evitando que se seque.',
+      },
+      {
+        stepNumber: 2,
+        title: 'Cocción del Chutney agridulce de mango',
+        instruction:
+          'Pelar y cortar el mango en brunoise fina. Colocar en un saute o cazo y añadir la glucosa, el azúcar de caña, el vinagre de manzana, el zumo de lima, la mezcla completa de especias y el ron Negrita. Dejar cocer a fuego suave hasta que espese con textura brillante de mermelada agridulce. Al retirar, incorporar menta y cilantro picados.',
+        timerSeconds: 1200,
+        temperature: 'Fuego suave-medio',
+      },
+      {
+        stepNumber: 3,
+        title: 'Preparación de guarnición crujiente',
+        instruction:
+          'Cortar la col china en juliana muy fina y laminar los rabanitos en rodajas transparentes. Reservar en agua con hielo si se desea maximizar el crujiente.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 4,
+        title: 'Marcado a la plancha de la pluma ibérica',
+        instruction:
+          'Calentar una plancha o sartén de hierro a fuego muy fuerte. Marcar la pluma ibérica escurrida durante 2-3 minutos por cara caramelizando la marinada exterior y manteniendo el centro jugoso y rosado. Dejar reposar 2 minutos y trinchar en tiras oblicuas.',
+        timerSeconds: 300,
+        temperature: '>180 °C',
+      },
+      {
+        stepNumber: 5,
+        title: 'Cocer baos al vapor y montaje final',
+        instruction:
+          'Cocer los panes bao en una vaporera durante 4 o 5 minutos hasta que estén tiernos y etéreos. Abrir los panes, colocar una cama de col china y rodajas de rabanito, rellenar con las tiras de pluma ibérica jugosa y coronar con abundante chutney agridulce de mango.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 14. TORTILLA DE CAMARONES
+  // ========================================================
+  {
+    id: 'tortilla-de-camarones',
+    code: 'TAP-1.6',
+    title: 'Tortillitas de Camarones al Toque de Lima',
+    subtitle: 'Encaje crujiente tradicional gaditano de camarones pequeños con harina de garbanzo y trigo, agua helada y ralladura de lima fresca',
+    category: 'Tapas y Croquetas',
+    difficulty: 'Media',
+    prepTimeMinutes: 20,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El secreto del encaje transparente y crujiente es la temperatura del agua: debe estar prácticamente helada con cubitos de hielo, y la consistencia de la masa debe ser muy fluida y casi líquida. Al caer en el aceite muy caliente a 180°C se expande en forma de red crujiente.',
+    pairing: 'Vino blanco joven de la Tierra de Cádiz o Manzanilla pasada.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:15:00Z',
+    ingredients: [
+      { id: 'tdc-1', name: 'Camarones muy pequeños enteros y frescos', amount: 100, unit: 'g' },
+      { id: 'tdc-2', name: 'Harina de garbanzo', amount: 50, unit: 'g' },
+      { id: 'tdc-3', name: 'Harina de trigo tradicional', amount: 50, unit: 'g' },
+      { id: 'tdc-4', name: 'Cebolleta fresca picada finísima', amount: 1, unit: 'ud' },
+      { id: 'tdc-5', name: 'Perejil fresco picado muy fino', amount: 15, unit: 'g' },
+      { id: 'tdc-6', name: 'Agua mineral muy fría con cubitos de hielo', amount: 150, unit: 'ml' },
+      { id: 'tdc-7', name: 'Limas frescas (ralladura y gajos para acompañar)', amount: 2, unit: 'ud' },
+      { id: 'tdc-8', name: 'Sal marina fina', amount: 5, unit: 'g' },
+      { id: 'tdc-9', name: 'Aceite de oliva suave para freír', amount: 300, unit: 'ml' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Picado fino y mezcla de harinas',
+        instruction:
+          'Picamos la cebolleta y el perejil muy fino a cuchillo en un bol amplio. En el mismo bol, incorporamos la harina de garbanzo, la harina de trigo y una pizca de sal marina.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 2,
+        title: 'Hidratación con agua helada',
+        instruction:
+          'Poco a poco añadimos el agua casi helada (con el hielo retirado) a la mezcla batiendo con unas varillas hasta conseguir una crema muy ligera y fluida (textura casi líquida, similar a caldo denso).',
+        timerSeconds: 120,
+        tip: 'El contraste entre la masa helada y el aceite hirviendo genera el efecto suflado y encaje.',
+      },
+      {
+        stepNumber: 3,
+        title: 'Incorporación de camarones',
+        instruction:
+          'Añadimos los camarones enteros crudos y mezclamos con suavidad para repartirlos uniformemente por toda la masa fluida.',
+        timerSeconds: 60,
+      },
+      {
+        stepNumber: 4,
+        title: 'Fritura de encaje en aceite abundante',
+        instruction:
+          'En una sartén amplia con abundante aceite muy caliente (a unos 185 °C), vertemos un cacillo pequeño de crema. La masa se abrirá formando un encaje; empujamos ligeramente los bordes con la espumadera para darle forma redonda y doramos por ambos lados 1-2 minutos.',
+        timerSeconds: 120,
+        temperature: '185 °C',
+      },
+      {
+        stepNumber: 5,
+        title: 'Escurrir y remate con lima fresca',
+        instruction:
+          'Sacamos las tortillitas a una bandeja con papel absorbente para retirar el exceso de aceite y servimos de inmediato espolvoreando ralladura fresca de lima por encima y gajos de lima al lado.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 15. RAVIOLIS DE FOIE Y CASTAÑAS CON TRUFA NEGRA
+  // ========================================================
+  {
+    id: 'raviolis-foie-castanas-trufa',
+    code: 'CAR-1.7',
+    title: 'Raviolis de Foie y Castañas con Trufa Negra y Caldo de Salvia',
+    subtitle: 'Pasta fresca rellena de dados de foie fresco y crema de castañas con ricotta (60/40), caldo de ave infusionado con trufa y salvia y sésamo tostado',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Alta Cocina',
+    prepTimeMinutes: 50,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'Sacar el foie de la nevera 1 hora antes facilita enormemente la limpieza de nervios y venas. Cocer los raviolis en horno vapor a 100°C garantiza que la pasta se cocine sedosa sin romper la delicada emulsión del foie y el puré de castañas interior.',
+    pairing: 'Vino tinto Pinot Noir de Borgoña o un vino blanco envejecido en roble con notas tostadas.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:20:00Z',
+    ingredients: [
+      { id: 'rfc-1', name: 'Pasta fresca artesanal estirada en planchas', amount: 350, unit: 'g' },
+      { id: 'rfc-2', name: 'Foie fresco de pato limpio de venas', amount: 400, unit: 'g', notes: 'En porciones de 33 g' },
+      { id: 'rfc-3', name: 'Queso ricotta fresco', amount: 100, unit: 'g' },
+      { id: 'rfc-4', name: 'Puré de castañas natural (60% castaña / 40% ricotta)', amount: 150, unit: 'g' },
+      { id: 'rfc-5', name: 'Huevo batido (para sellar los bordes)', amount: 1, unit: 'ud' },
+      { id: 'rfc-6', name: 'Trufas negras frescas (Tuber melanosporum)', amount: 2, unit: 'ud' },
+      { id: 'rfc-7', name: 'Aceite de sésamo tostado', amount: 15, unit: 'ml' },
+      { id: 'rfc-8', name: 'Caldo de pollo o ave concentrado', amount: 1000, unit: 'ml' },
+      { id: 'rfc-9', name: 'Hojas de salvia fresca picadas', amount: 10, unit: 'ud' },
+      { id: 'rfc-10', name: 'Sal marina fina y pimienta negra recién molida', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Elaboración del relleno de foie y castañas',
+        instruction:
+          'Limpiar el foie de nervios y venas (a temperatura ambiente 1 hora antes) y cortar trocitos de unos 33 g. Por otro lado, mezclar el puré de castañas con el queso ricotta hasta obtener una mezcla suave y untuosa (proporción 60% puré y 40% queso). Salpimentar y reservar.',
+        timerSeconds: 420,
+      },
+      {
+        stepNumber: 2,
+        title: 'Formado y cortado de los raviolis',
+        instruction:
+          'Estirar las planchas de pasta sobre una mesa enharinada. Disponer una cucharadita de mezcla de queso y los 33 g de foie por raviol (3 raviolis por comensal). Pintar los bordes con huevo batido, colocar otra plancha de pasta encima, retirar el aire con cuidado, cerrar y cortar. Reservar tapados en frío.',
+        timerSeconds: 480,
+      },
+      {
+        stepNumber: 3,
+        title: 'Infusión del caldo de salvia y trufa',
+        instruction:
+          'Calentar el litro de caldo de ave junto con 1 trufa muy finamente picada y las hojas de salvia picadas. Al romper el hervor, bajar el fuego y dejar infusionar tapado durante 10 minutos a fuego lento. Corregir el punto de sal.',
+        timerSeconds: 600,
+        temperature: 'Fuego lento',
+      },
+      {
+        stepNumber: 4,
+        title: 'Cocción al horno vapor a 100 °C',
+        instruction:
+          'Cocer los raviolis al horno vapor a 100 °C sobre una placa untada con aceite de oliva durante 5 minutos hasta que la pasta esté tierna y el foie del interior fundente.',
+        timerSeconds: 300,
+        temperature: '100 °C vapor',
+      },
+      {
+        stepNumber: 5,
+        title: 'Emplatado de alta gastronomía',
+        instruction:
+          'Disponer los 3 raviolis en el centro de un plato hondo amplio. Regar con el caldo aromático de salvia hasta casi cubrirlos a media altura. Echar un hilito perimetral de aceite de sésamo y laminar la segunda trufa negra fresca en finas lascas por encima.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 16. KOKOTXAS DE BACALAO AL PIL-PIL DE TXANGURRO
+  // ========================================================
+  {
+    id: 'kokotxas-bacalao-pilpil-txangurro',
+    code: 'PES-1.6',
+    title: 'Kokotxas de Bacalao al Pil-Pil de Txangurro',
+    subtitle: 'Kokotxas confitadas en aceite de guindilla y ajo con emulsión pil-pil, txangurro a la donostiarra con brandy y torrezno crujiente de piel de bacalao',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Alta Cocina',
+    prepTimeMinutes: 60,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El truco maestro para montar el pil-pil con rapidez y densidad sin romper la emulsión es retirar parte del aceite templado a una jarra y volver a incorporarlo en hilo fino fuera del fuego, añadiendo unas gotas de agua fría mientras se mueve en círculos; la gelatina de las kokotxas liga al instante.',
+    pairing: 'Txakoli de Getaria con carbónico natural o vino blanco Godello sobre lías.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:25:00Z',
+    ingredients: [
+      { id: 'kbp-1', name: 'Kokotxas de bacalao desaladas de calibre grande', amount: 8, unit: 'ud' },
+      { id: 'kbp-2', name: 'Dientes de ajo en láminas finas', amount: 2, unit: 'ud' },
+      { id: 'kbp-3', name: 'Guindilla seca roja grande en aros', amount: 1, unit: 'ud' },
+      { id: 'kbp-4', name: 'Aceite de oliva virgen extra de calidad', amount: 200, unit: 'ml' },
+      { id: 'kbp-5', name: 'Txangurro (centollo) cocido y desmigado', amount: 1, unit: 'ud', notes: 'Carne limpia y huevas' },
+      { id: 'kbp-6', name: 'Manojo de perejil fresco picado', amount: 1, unit: 'manojo' },
+      { id: 'kbp-7', name: 'Pimiento verde cortado en brunoise', amount: 1, unit: 'ud' },
+      { id: 'kbp-8', name: 'Cebolletas cortadas en brunoise fina', amount: 2, unit: 'ud' },
+      { id: 'kbp-9', name: 'Tomate maduro en brunoise', amount: 200, unit: 'g' },
+      { id: 'kbp-10', name: 'Brandy o coñac', amount: 70, unit: 'ml' },
+      { id: 'kbp-11', name: 'Vino blanco seco', amount: 70, unit: 'ml' },
+      { id: 'kbp-12', name: 'Caldo de la cocción del centollo', amount: 50, unit: 'ml' },
+      { id: 'kbp-13', name: 'Pieles de bacalao bien limpias', amount: 4, unit: 'ud' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Deshidratación de las pieles de bacalao',
+        instruction:
+          'En una placa de horno a 65 °C, poner las pieles de bacalao sobre papel durante 2,5 horas hasta que queden completamente deshidratadas y secas como pergamino quebradizo.',
+        timerSeconds: 9000,
+        temperature: '65 °C deshidratado',
+      },
+      {
+        stepNumber: 2,
+        title: 'Cocción y desmigado del centollo',
+        instruction:
+          'Hervir el centollo en agua salada durante 10 minutos por cada kilo de marisco. Trasladar a agua con hielo para cortar la cocción. Abrir, separar patas y cuerpo, y recuperar toda la carne limpia y las huevas.',
+        timerSeconds: 600,
+        temperature: '100 °C hervor',
+      },
+      {
+        stepNumber: 3,
+        title: 'Elaboración del Txangurro a la Vasca',
+        instruction:
+          'Saltear en aceite el ajo, pimiento verde, cebolletas y tomate cortados en brunoise. Añadir la carne de centollo, cocinar 1 minuto y verter el brandy y vino blanco. Dejar reducir 15-20 minutos a fuego suave sin añadir sal, agregando un poco de agua de cocción del marisco, perejil y las huevas. Reservar.',
+        timerSeconds: 1080,
+      },
+      {
+        stepNumber: 4,
+        title: 'Confitado suave de las kokotxas',
+        instruction:
+          'En una sartén con abundante aceite dorar unas láminas de ajo y guindilla; retirarlos a papel absorbente. Apagar el fuego e incorporar las kokotxas. Dejar confitar unos 10 minutos a fuego muy bajo (a unos 65 °C).',
+        timerSeconds: 600,
+        temperature: '65 °C confitado',
+      },
+      {
+        stepNumber: 5,
+        title: 'Emulsión del Pil-Pil en círculos',
+        instruction:
+          'Retirar de la sartén una parte del aceite a una jarrita. Volver a añadir el aceite poco a poco con el fuego apagado haciendo movimientos circulares continuos para que las kokotxas suelten su gelatina y monten la salsa pil-pil. Añadir unas gotas de agua fría para ligar la emulsión al instante.',
+        timerSeconds: 300,
+        tip: 'El agua fría crea un choque que liga la gelatina con el aceite rápidamente.',
+      },
+      {
+        stepNumber: 6,
+        title: 'Suflado crujiente y emplatado',
+        instruction:
+          'En el último minuto antes de servir, freír las pieles secas en aceite muy caliente para que suflen como torrezno marino crujiente. Emplatar la kokotxa con su pil-pil napado, la carne melosa de txangurro y las pieles crujientes recién fritas.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 17. TIMBAL DE CHIPIRONES CON ARROZ NEGRO Y ALIOLI
+  // ========================================================
+  {
+    id: 'timbal-chipirones-arroz-negro-alioli',
+    code: 'ARR-1.5',
+    title: 'Timbal de Chipirones Encebollados con Arroz Negro y Alioli',
+    subtitle: 'Arroz negro al horno con tinta y fumet, chipirones caramelizados con cebolla confitada al vino blanco y alioli artesanal de mortero',
+    category: 'Arroces y Cremas',
+    difficulty: 'Media',
+    prepTimeMinutes: 50,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El arroz negro debe quedar bien seco y suelto con el golpe de horno a 170°C para que la estructura del timbal no se desmorone al retirar el aro metálico. El alioli hecho en mortero tradicional liga sin necesidad de huevo gracias al majado constante del ajo.',
+    pairing: 'Vino blanco Verdejo de Rueda sobre lías o vino espumoso Brut Nature.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:30:00Z',
+    ingredients: [
+      { id: 'tca-1', name: 'Chipirones limpios enteros o troceados', amount: 1000, unit: 'g' },
+      { id: 'tca-2', name: 'Cebolletas blancas en juliana muy fina', amount: 4, unit: 'ud' },
+      { id: 'tca-3', name: 'Dientes de ajo laminados', amount: 4, unit: 'ud' },
+      { id: 'tca-4', name: 'Vino blanco seco', amount: 100, unit: 'ml' },
+      { id: 'tca-5', name: 'Tomates de rama maduros rallados', amount: 2, unit: 'ud' },
+      { id: 'tca-6', name: 'Hojas de perejil picado fino', amount: 15, unit: 'g' },
+      { id: 'tca-7', name: 'Arroz de Calasparra o Bomba', amount: 100, unit: 'g' },
+      { id: 'tca-8', name: 'Cebolleta y pimiento verde picados (para el arroz)', amount: 1, unit: 'ud' },
+      { id: 'tca-9', name: 'Tomate maduro rallado (para el arroz)', amount: 1, unit: 'ud' },
+      { id: 'tca-10', name: 'Sobre de tinta de calamar natural', amount: 1, unit: 'ud' },
+      { id: 'tca-11', name: 'Caldo de pescado o fumet casero', amount: 250, unit: 'ml' },
+      { id: 'tca-12', name: 'Dientes de ajo (para el alioli de mortero)', amount: 2, unit: 'ud' },
+      { id: 'tca-13', name: 'Aceite de oliva virgen extra suave (para el alioli)', amount: 150, unit: 'ml' },
+      { id: 'tca-14', name: 'Sal marina y pimienta recién molida', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Confitado de cebolletas y ajo',
+        instruction:
+          'Cortamos las cebolletas en juliana muy fina y laminamos un diente de ajo. Pochamos a fuego muy suave con AOVE hasta que la cebolla esté bien transparente y confitada. Salpimentar.',
+        timerSeconds: 480,
+      },
+      {
+        stepNumber: 2,
+        title: 'Dorar chipirones y guisar al vino blanco',
+        instruction:
+          'En una sartén bien caliente con un chorro de aceite doramos los chipirones limpios. Al tomar color, incorporamos la cebolla confitada, el ajo y rehogamos. Añadimos el tomate rallado y el vino blanco. Bajamos a fuego suave y dejamos cocinar tapado 20 minutos.',
+        timerSeconds: 1200,
+        temperature: 'Fuego bajo',
+      },
+      {
+        stepNumber: 3,
+        title: 'Elaboración del caldo negro y arroz al horno',
+        instruction:
+          'Sofreír en sartén pimiento verde, ajo, tallos de perejil y tomate rallado. Añadir el fumet y la tinta; cocer 10 min, triturar en túrmix y colar. Rehogar el arroz en AOVE con ajo picado 2 minutos, mojar con el doble de salsa hirviendo, cocinar 3 minutos al fuego y terminar al horno a 170 °C otros 15 minutos hasta que quede bien seco.',
+        timerSeconds: 900,
+        temperature: '170 °C horno',
+      },
+      {
+        stepNumber: 4,
+        title: 'Majar el alioli en mortero',
+        instruction:
+          'En un mortero añadir dos dientes de ajo sin germen y una pizca de sal. Majar con la maza hasta obtener una pasta lisa homogénea. Añadir el aceite en hilo muy fino poco a poco sin dejar de majar y girar en el mismo sentido hasta que monte una crema espesa.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 5,
+        title: 'Montaje en timbal cilíndrico',
+        instruction:
+          'En el centro del plato colocar un aro metálico y cubrir el fondo con el arroz negro bien seco compactando con la cuchara. Cubrir con una capa generosa de chipirones encebollados melosos y coronar con lágrimas de alioli artesanal y perejil picado.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 18. TIRADITO DE PESCA CON LECHE DE TIGRE DE YUZU
+  // ========================================================
+  {
+    id: 'tiradito-pesca-yuzu',
+    code: 'PES-1.7',
+    title: 'Tiradito de Pesca Blanca con Leche de Tigre de Yuzu',
+    subtitle: 'Láminas finas de pescado blanco y vieiras, pepino en cintas, hinojo marino, eneldo fresco y leche de tigre nikkei con yuzu y chile verde',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Media',
+    prepTimeMinutes: 25,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El corte del pescado debe ser en láminas de 2 a 3 mm siguiendo la veta limpia sin deshilacharla. El tiempo de contacto con la leche de tigre de yuzu debe ser de exactamente 2 minutos antes de degustar para que no cueza en exceso la proteína del pescado blanco.',
+    pairing: 'Sake Junmai Ginjo frío o vino blanco Riesling seco con marcada mineralidad.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:35:00Z',
+    ingredients: [
+      { id: 'tpy-1', name: 'Filete de pescado blanco limpio (lubina, corvina o dorada)', amount: 250, unit: 'g' },
+      { id: 'tpy-2', name: 'Vieiras frescas limpias', amount: 4, unit: 'ud', notes: 'En láminas finas' },
+      { id: 'tpy-3', name: 'Pepino fresco mediano', amount: 1, unit: 'ud' },
+      { id: 'tpy-4', name: 'Cebolla tierna en juliana muy fina', amount: 1, unit: 'ud' },
+      { id: 'tpy-5', name: 'Hinojo de mar o brotes marinos', amount: 20, unit: 'g' },
+      { id: 'tpy-6', name: 'Hojas de eneldo fresco', amount: 15, unit: 'g' },
+      { id: 'tpy-7', name: 'Jengibre fresco troceado (Leche de Tigre)', amount: 20, unit: 'g' },
+      { id: 'tpy-8', name: 'Dientes de ajo pelados (Leche de Tigre)', amount: 2, unit: 'ud' },
+      { id: 'tpy-9', name: 'Zumo y ralladura de lima fresca', amount: 40, unit: 'ml' },
+      { id: 'tpy-10', name: 'Zumo de yuzu puro', amount: 30, unit: 'ml' },
+      { id: 'tpy-11', name: 'Mirin japonés (2 c/s)', amount: 30, unit: 'ml' },
+      { id: 'tpy-12', name: 'Salsa de soja clara (2 c/s)', amount: 30, unit: 'ml' },
+      { id: 'tpy-13', name: 'Chile verde finamente picado', amount: 1, unit: 'ud' },
+      { id: 'tpy-14', name: 'Azúcar blanquilla', amount: 5, unit: 'g' },
+      { id: 'tpy-15', name: 'Aceite de sésamo tostado', amount: 10, unit: 'ml' },
+      { id: 'tpy-16', name: 'Sal en escamas y pimienta negra recién molida', amount: 5, unit: 'g' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Elaboración de la Leche de Tigre de Yuzu',
+        instruction:
+          'Picar groseramente el jengibre y el ajo y dejar marinar en el zumo de lima durante 10 minutos. Filtrar la mezcla y agregar el zumo de yuzu, la ralladura de lima, el mirin, la salsa de soja clara, la mitad del eneldo picado, el azúcar, el aceite de sésamo y el chile verde picado. Reservar bien frío.',
+        timerSeconds: 600,
+      },
+      {
+        stepNumber: 2,
+        title: 'Láminas bicolores de pepino',
+        instruction:
+          'Pelar el pepino alternando tiras con y sin cáscara. Cortar a la mitad longitudinalmente, retirar las semillas con una cuchara y luego cortar rodajas finas de 2 mm. Reservar.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 3,
+        title: 'Corte sashimi de pescado blanco y vieiras',
+        instruction:
+          'Cortar las vieiras y el lomo de lubina en rodajas finas de 2-3 mm al estilo sashimi y colocarlas en un plato frío. Tapar con film transparente y reservar refrigerado.',
+        timerSeconds: 300,
+      },
+      {
+        stepNumber: 4,
+        title: 'Disposición armónica en el plato',
+        instruction:
+          'Colocar en un plato frío una base con las rodajas de pepino, la mitad del hinojo de mar y la mitad de la cebolla picada finamente. Cubrir con las rodajas de lubina y vieira intercaladas y terminar con el resto del hinojo y la cebolla.',
+        timerSeconds: 180,
+      },
+      {
+        stepNumber: 5,
+        title: 'Aliño de yuzu y servicio al minuto',
+        instruction:
+          'Rociar con cucharadas de leche de tigre de yuzu cuidando que todos los ingredientes entren en contacto con la salsa. Dejar reposar exactamente dos minutos. Decorar con una ramita de eneldo fresco, pimienta negra recién molida y escamas de sal. Servir de inmediato.',
+        timerSeconds: 120,
+      },
+    ],
+  },
+
+  // ========================================================
+  // 19. ENSALADA DE PANCETA Y JENGIBRE CON VINAGRETA WASABI
+  // ========================================================
+  {
+    id: 'ensalada-panceta-jengibre-wasabi',
+    code: 'CAR-1.8',
+    title: 'Ensalada de Panceta y Jengibre con Vinagreta de Wasabi',
+    subtitle: 'Panceta adobada a la soja y mirin salteada al sésamo, dados de aguacate, tirabeques blanqueados y vinagreta emulsionada de wasabi',
+    category: 'Carnes y Sous-Vide',
+    difficulty: 'Fácil',
+    prepTimeMinutes: 25,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El hueso del aguacate junto con unas gotas de zumo de limón evita la oxidación enzimática de los dados mientras preparas las hojas verdes. Las hojas deben estar rigurosamente secadas con centrifugadora para que la vinagreta emulsionada se adhiera en vez de escurrirse.',
+    pairing: 'Cerveza rubia japonesa o vino blanco aromático tipo Sauvignon Blanc.',
+    isFavorite: false,
+    createdAt: '2026-10-20T08:40:00Z',
+    ingredients: [
+      { id: 'epw-1', name: 'Panceta de cerdo fresca en lonchas finas', amount: 400, unit: 'g' },
+      { id: 'epw-2', name: 'Aceite de girasol para saltear', amount: 30, unit: 'ml' },
+      { id: 'epw-3', name: 'Cebolla grande en rodajas finas', amount: 1, unit: 'ud' },
+      { id: 'epw-4', name: 'Diente de ajo picado', amount: 1, unit: 'ud' },
+      { id: 'epw-5', name: 'Semillas de sésamo blanco tostadas', amount: 15, unit: 'g' },
+      { id: 'epw-6', name: 'Salsa de soja (para el adobo)', amount: 4, unit: 'cda' },
+      { id: 'epw-7', name: 'Mirin japonés (para el adobo)', amount: 2, unit: 'cda' },
+      { id: 'epw-8', name: 'Jengibre rallado (para el adobo)', amount: 1, unit: 'cda' },
+      { id: 'epw-9', name: 'Pimienta negra recién molida', amount: 5, unit: 'g' },
+      { id: 'epw-10', name: 'Salsa de soja (vinagreta wasabi)', amount: 3, unit: 'cda' },
+      { id: 'epw-11', name: 'Vinagre de arroz (vinagreta wasabi)', amount: 2, unit: 'cda' },
+      { id: 'epw-12', name: 'Jengibre rallado fino (vinagreta wasabi)', amount: 1, unit: 'cda' },
+      { id: 'epw-13', name: 'Azúcar blanquilla (vinagreta wasabi)', amount: 2, unit: 'cdita' },
+      { id: 'epw-14', name: 'Pasta de wasabi pura (vinagreta wasabi)', amount: 1, unit: 'cda' },
+      { id: 'epw-15', name: 'Aceite de girasol (vinagreta wasabi)', amount: 2, unit: 'cda' },
+      { id: 'epw-16', name: 'Aceite de sésamo tostado (vinagreta wasabi)', amount: 1, unit: 'cdita' },
+      { id: 'epw-17', name: 'Hojas de lechuga iceberg crujiente', amount: 100, unit: 'g' },
+      { id: 'epw-18', name: 'Hojas de rúcula mini tiernas', amount: 25, unit: 'g' },
+      { id: 'epw-19', name: 'Cebolla tierna en rodajas', amount: 25, unit: 'g' },
+      { id: 'epw-20', name: 'Cilantro fresco picado', amount: 15, unit: 'g' },
+      { id: 'epw-21', name: 'Tirabeques frescos', amount: 50, unit: 'g' },
+      { id: 'epw-22', name: 'Aguacate maduro en dados de 1 cm', amount: 0.5, unit: 'ud' },
+      { id: 'epw-23', name: 'Zumo de limón fresco', amount: 10, unit: 'ml' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Adobo de la panceta a la soja y mirin',
+        instruction:
+          'Preparar el adobo: mezclar en un cuenco la salsa de soja, el mirin, el jengibre rallado y la pimienta negra. Añadir la panceta en lonchas finas y dejar adobando entre 10 y 15 minutos. Tapar y reservar.',
+        timerSeconds: 900,
+      },
+      {
+        stepNumber: 2,
+        title: 'Emulsión de la vinagreta de wasabi',
+        instruction:
+          'En un tarro hermético mezclar la salsa de soja, el vinagre de arroz, el jengibre rallado, el azúcar y la pasta de wasabi; cerrar y agitar con fuerza para disolver el azúcar y el wasabi. Incorporar los aceites de girasol y sésamo y volver a batir enérgicamente.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 3,
+        title: 'Lavado, centrifugado y blanqueado de verduras',
+        instruction:
+          'Lavar y secar con centrifugadora las hojas verdes (iceberg, rúcula, cebolla tierna y cilantro). Blanquear los tirabeques en agua hirviendo durante 2 minutos, cortar la cocción en agua helada, secar y cortar en rodajas de 1 cm. Cortar el aguacate en dados con unas gotas de limón y su hueso para evitar que se oscurezca.',
+        timerSeconds: 240,
+      },
+      {
+        stepNumber: 4,
+        title: 'Salteado caramelizado de la panceta',
+        instruction:
+          'En una sartén con aceite bien caliente dorar la cebolla y el diente de ajo. Añadir la panceta escurrida del adobo y saltear a fuego vivo hasta que quede dorada, glaseada y crujiente por los extremos. Espolvorear semillas de sésamo tostado.',
+        timerSeconds: 300,
+        temperature: 'Fuego vivo',
+      },
+      {
+        stepNumber: 5,
+        title: 'Montaje de la ensalada tibia',
+        instruction:
+          'Disponer en un bol o fuente las hojas crujientes mezcladas con los tirabeques y el aguacate. Aliñar con la vinagreta de wasabi emulsionada y coronar con las tiras de panceta caliente recién dorada.',
+      },
+    ],
+  },
+
+  // ========================================================
+  // 20. CEVICHE DE LUBINA CON LECHE DE NUECES
+  // ========================================================
+  {
+    id: 'ceviche-de-lubina',
+    code: 'PES-1.8',
+    title: 'Ceviche de Lubina con Leche de Nueces y Dashi de Shiitake',
+    subtitle: 'Dados de lubina salvaje curados al limón y sal Maldon, dashi umami de shiitake, leche de nueces aterciopelada y perfume de trufa',
+    category: 'Pescados y Mariscos',
+    difficulty: 'Alta Cocina',
+    prepTimeMinutes: 30,
+    baseServings: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?auto=format&fit=crop&w=1200&q=85',
+    chefNote:
+      'El dashi concentrado de shiitake aporta ácido glutámico natural (umami) que equilibra la acidez de la lima. El reposo de 5 minutos exactos en lima y sal Maldon coagula las proteínas superficiales del pescado dejándolo translúcido y sedoso por dentro.',
+    pairing: 'Pisco Sour clásico peruano o vino blanco seco Sauvignon Blanc de clima frío.',
+    isFavorite: true,
+    createdAt: '2026-10-20T08:45:00Z',
+    ingredients: [
+      { id: 'cdl-1', name: 'Lubina fresca pelada, fileteada y sin espinas', amount: 250, unit: 'g' },
+      { id: 'cdl-2', name: 'Chile rojo sin semillas finamente picado', amount: 0.5, unit: 'ud' },
+      { id: 'cdl-3', name: 'Aceite de trufa de calidad', amount: 5, unit: 'ml', notes: '1 cucharadita' },
+      { id: 'cdl-4', name: 'Escamas de sal marina Maldon', amount: 10, unit: 'g' },
+      { id: 'cdl-5', name: 'Aguacate maduro en dados de 1 cm', amount: 1, unit: 'ud' },
+      { id: 'cdl-6', name: 'Zumo fresco de lima recién exprimido', amount: 30, unit: 'ml' },
+      { id: 'cdl-7', name: 'Hojas de cilantro fresco para aderezar', amount: 15, unit: 'g' },
+      { id: 'cdl-8', name: 'Nueces peladas troceadas', amount: 2, unit: 'ud' },
+      { id: 'cdl-9', name: 'Pimienta negra recién molida', amount: 5, unit: 'g' },
+      { id: 'cdl-10', name: 'Dashi instantáneo en polvo', amount: 5, unit: 'g', notes: '1 cucharadita' },
+      { id: 'cdl-11', name: 'Azúcar blanquilla', amount: 5, unit: 'g', notes: '1 cucharadita' },
+      { id: 'cdl-12', name: 'Agua mineral caliente (para dashi)', amount: 300, unit: 'ml' },
+      { id: 'cdl-13', name: 'Setas shiitake grandes secas', amount: 2, unit: 'ud' },
+      { id: 'cdl-14', name: 'Leche de nueces artesanal o comercial', amount: 100, unit: 'ml' },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: 'Elaboración del dashi de shiitake',
+        instruction:
+          'Disolver en un cuenco el dashi instantáneo en polvo y el azúcar en agua caliente. Añadir las setas shiitake y rehidratarlas durante 1 hora. Verter con cuidado el agua en recipientes retirando la arenilla del fondo. Reservar el líquido aromático y cortar finamente las setas.',
+        timerSeconds: 3600,
+      },
+      {
+        stepNumber: 2,
+        title: 'Emulsión del aliño de dashi, nueces y trufa',
+        instruction:
+          'Mezclar en un cuenco 50 ml del líquido colado de las setas (dashi de shiitake), 100 ml de leche de nueces, el chile picado, el aceite de trufa y una pizca generosa de sal marina Maldon. Emulsionar bien con varilla y reservar.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 3,
+        title: 'Corte y cocción ácida de la lubina (5 min)',
+        instruction:
+          'Desespinar y pelar los filetes de lubina. Cortar el pescado en dados limpios de 1 cm y transferir a un cuenco con el aguacate troceado, el zumo de lima y 1 cucharadita de escamas de sal marina Maldon. Mezclar con suavidad y dejar que el pescado se cure durante exactamente 5 minutos.',
+        timerSeconds: 300,
+        tip: 'El curado exprés de 5 minutos mantiene la carne firme y translúcida por dentro.',
+      },
+      {
+        stepNumber: 4,
+        title: 'Emplatado y baño de aliño',
+        instruction:
+          'Repartir la lubina y el aguacate en cuatro platos hondos o cuencos en el centro. Verter el aliño emulsionado de dashi y nuez alrededor sobre el pescado.',
+        timerSeconds: 120,
+      },
+      {
+        stepNumber: 5,
+        title: 'Toques finales crujientes y aromáticos',
+        instruction:
+          'Colocar unas setas shiitake cortadas sobre cada montículo de pescado y aguacate. Esparcir por encima las hojas de cilantro fresco, las nueces picadas, una pizca de sal marina y pimienta negra recién molida. Servir de inmediato.',
+      },
+    ],
+  },
 ];

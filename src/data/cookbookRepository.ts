@@ -146,13 +146,21 @@ export const CookBookRepository = {
         recipes = deduplicateRecipesList([...mergedInitial, ...userCustomRecipes]);
       }
 
-      const tips: CookingTip[] = tRaw ? JSON.parse(tRaw) : INITIAL_TIPS;
+      let tips: CookingTip[] = INITIAL_TIPS;
+      if (tRaw) {
+        const storedTips: CookingTip[] = JSON.parse(tRaw);
+        const storedMap = new Map(storedTips.map((t) => [t.id, t]));
+        const mergedInitial = INITIAL_TIPS.map((initT) => storedMap.get(initT.id) || initT);
+        const initialIds = new Set(INITIAL_TIPS.map((t) => t.id));
+        const userCustomTips = storedTips.filter((t) => !initialIds.has(t.id));
+        tips = [...mergedInitial, ...userCustomTips];
+      }
       const utensils: KitchenUtensil[] = uRaw ? JSON.parse(uRaw) : INITIAL_UTENSILS;
       const places: FoodiePlace[] = pRaw ? JSON.parse(pRaw) : INITIAL_PLACES;
       const products: GourmetProduct[] = prodRaw ? JSON.parse(prodRaw) : INITIAL_PRODUCTS;
 
       await AsyncStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
-      if (!tRaw) await AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
+      await AsyncStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(tips));
       if (!uRaw) await AsyncStorage.setItem(STORAGE_KEYS.UTENSILS, JSON.stringify(utensils));
       if (!pRaw) await AsyncStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(places));
       if (!prodRaw) await AsyncStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));

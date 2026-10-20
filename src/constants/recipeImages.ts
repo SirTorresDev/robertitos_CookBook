@@ -68,6 +68,17 @@ export const RECIPE_LOCAL_IMAGES: Record<string, any> = {
   'ceviche-clasico-corvina': require('@/assets/images/recipes/ceviche-clasico-corvina.webp'),
   'merluza-salsa-verde-almejas': require('@/assets/images/recipes/merluza-salsa-verde-almejas.webp'),
   'papillote-salmon-verduras': require('@/assets/images/recipes/papillote-salmon-verduras.webp'),
+  //desde aqui hay que generar con nano banana
+  'lubina-vapor-te-limon': require('@/assets/images/recipes/lubina-vapor-te-limon.webp'),
+  'rol-papas-alinas-ajoblanco': require('@/assets/images/recipes/rol-papas-alinas-ajoblanco.webp'),
+  'baocata-pluma-iberica-chutney-mango': require('@/assets/images/recipes/baocata-pluma-iberica-chutney-mango.webp'),
+  'tortilla-de-camarones': require('@/assets/images/recipes/tortilla-de-camarones.webp'),
+  'raviolis-foie-castanas-trufa': require('@/assets/images/recipes/raviolis-foie-castanas-trufa.webp'),
+  'kokotxas-bacalao-pilpil-txangurro': require('@/assets/images/recipes/kokotxas-bacalao-pilpil-txangurro.webp'),
+  'timbal-chipirones-arroz-negro-alioli': require('@/assets/images/recipes/timbal-chipirones-arroz-negro-alioli.webp'),
+  'tiradito-pesca-yuzu': require('@/assets/images/recipes/tiradito-pesca-yuzu.webp'),
+  'ensalada-panceta-jengibre-wasabi': require('@/assets/images/recipes/ensalada-panceta-jengibre-wasabi.webp'),
+  'ceviche-de-lubina': require('@/assets/images/recipes/ceviche-de-lubina.webp'),
 };
 
 /** Imagen por defecto en caso de no existir o ser una receta creada manualmente sin foto */
