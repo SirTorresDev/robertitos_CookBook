@@ -79,6 +79,17 @@ export const RECIPE_LOCAL_IMAGES: Record<string, any> = {
   'tiradito-pesca-yuzu': require('@/assets/images/recipes/tiradito-pesca-yuzu.webp'),
   'ensalada-panceta-jengibre-wasabi': require('@/assets/images/recipes/ensalada-panceta-jengibre-wasabi.webp'),
   'ceviche-de-lubina': require('@/assets/images/recipes/ceviche-de-lubina.webp'),
+  // Salsas de Autor
+  'salsa-base-madre-asiatica': require('@/assets/images/recipes/salsa-base-madre-asiatica.webp'),
+  'salsa-laksa-metodo-infusion': require('@/assets/images/recipes/salsa-laksa-metodo-infusion.webp'),
+  'beurre-blanc-toque-secreto-fumet': require('@/assets/images/recipes/beurre-blanc-toque-secreto-fumet.webp'),
+  'salsa-jugos-pollo-asado-emulsionada': require('@/assets/images/recipes/salsa-jugos-pollo-asado-emulsionada.webp'),
+  'salsa-meuniere-ligada-colageno': require('@/assets/images/recipes/salsa-meuniere-ligada-colageno.webp'),
+  'salsa-bearnesa-clasica': require('@/assets/images/recipes/salsa-bearnesa-clasica.webp'),
+  'mayonesa-base-y-de-autor': require('@/assets/images/recipes/mayonesa-base-y-de-autor.webp'),
+  'pesto-pistacho-mortero': require('@/assets/images/recipes/pesto-pistacho-mortero.webp'),
+  'salsa-cremosa-cacahuete-picante': require('@/assets/images/recipes/salsa-cremosa-cacahuete-picante.webp'),
+  'salsa-perigueux-px-trufa-negra': require('@/assets/images/recipes/salsa-perigueux-px-trufa-negra.webp'),
 };
 
 /** Imagen por defecto en caso de no existir o ser una receta creada manualmente sin foto */

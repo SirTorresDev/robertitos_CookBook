@@ -240,6 +240,7 @@ const VALID_RECIPE_CATEGORIES: Exclude<RecipeCategory, 'Todos'>[] = [
   'Carnes y Sous-Vide',
   'Arroces y Cremas',
   'Tapas y Croquetas',
+  'Salsas',
   'Molecular y Espumas',
   'Postres y Dulces',
 ];
@@ -311,7 +312,7 @@ Devuelve EXCLUSIVAMENTE un objeto JSON válido con este esquema exacto:
   "recipe": {
     "title": "Nombre del plato",
     "subtitle": "Subtítulo técnico breve",
-    "category": "Pescados y Mariscos" | "Carnes y Sous-Vide" | "Arroces y Cremas" | "Tapas y Croquetas" | "Molecular y Espumas" | "Postres y Dulces",
+    "category": "Pescados y Mariscos" | "Carnes y Sous-Vide" | "Arroces y Cremas" | "Tapas y Croquetas" | "Salsas" | "Molecular y Espumas" | "Postres y Dulces",
     "difficulty": "Fácil" | "Media" | "Alta Cocina",
     "prepTimeMinutes": 35,
     "baseServings": 2,

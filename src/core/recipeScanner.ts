@@ -107,7 +107,7 @@ export async function analyzeRecipeFromImage(params: {
 {
   "title": "Nombre del plato",
   "subtitle": "Descripción técnica breve",
-  "category": "Pescados y Mariscos" | "Carnes y Sous-Vide" | "Arroces y Cremas" | "Tapas y Croquetas" | "Molecular y Espumas" | "Postres y Dulces",
+  "category": "Pescados y Mariscos" | "Carnes y Sous-Vide" | "Arroces y Cremas" | "Tapas y Croquetas" | "Salsas" | "Molecular y Espumas" | "Postres y Dulces",
   "difficulty": "Fácil" | "Media" | "Alta Cocina",
   "prepTimeMinutes": 35,
   "baseServings": 2,

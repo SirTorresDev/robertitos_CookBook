@@ -28,6 +28,7 @@ const CATEGORIES: RecipeCategory[] = [
   'Carnes y Sous-Vide',
   'Arroces y Cremas',
   'Tapas y Croquetas',
+  'Salsas',
   'Molecular y Espumas',
   'Postres y Dulces',
 ];
